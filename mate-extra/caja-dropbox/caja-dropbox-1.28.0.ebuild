@@ -10,7 +10,7 @@ inherit mate python-single-r1 linux-info
 
 MINOR=$(($(ver_cut 2) % 2))
 if [[ ${MINOR} -eq 0 ]]; then
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64"
 fi
 
 DESCRIPTION="Store, Sync and Share Files Online"
@@ -24,7 +24,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	>=app-accessibility/at-spi2-core-2.46.0
 	>=dev-libs/glib-2.50:2
 	$(python_gen_cond_dep 'dev-python/pygobject:3[${PYTHON_USEDEP}]')
-	>=mate-base/caja-1.19.1
+	>=mate-base/caja-1.28.0
 	mate-extra/caja-extensions
 	media-libs/fontconfig:1.0
 	media-libs/freetype:2

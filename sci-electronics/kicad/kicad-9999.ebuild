@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 WX_GTK_VER="3.2-gtk3"
 
 inherit check-reqs cmake flag-o-matic optfeature python-single-r1 toolchain-funcs wxwidgets xdg-utils
@@ -11,14 +11,14 @@ inherit check-reqs cmake flag-o-matic optfeature python-single-r1 toolchain-func
 DESCRIPTION="Electronic Schematic and PCB design tools"
 HOMEPAGE="https://www.kicad.org"
 
-if [[ ${PV} == 9999 ]]; then
+if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.com/kicad/code/kicad.git"
 	inherit git-r3
 else
 	MY_PV="${PV/_rc/-rc}"
 	MY_P="${PN}-${MY_PV}"
-	SRC_URI="https://gitlab.com/kicad/code/${PN}/-/archive/${MY_PV}/${MY_P}.tar.bz2 -> ${P}.tar.bz2"
-	S="${WORKDIR}/${PN}-${MY_PV}"
+	SRC_URI="https://gitlab.com/kicad/code/${PN}/-/archive/${MY_PV}/${MY_P}.tar.bz2"
+	S="${WORKDIR}/${MY_P}"
 
 	if [[ ${PV} != *_rc* ]] ; then
 		KEYWORDS="~amd64 ~arm64 ~riscv ~x86"
@@ -66,6 +66,11 @@ COMMON_DEPEND="
 		media-gfx/cairosvg
 	)
 "
+
+if [[ ${PV} == 9999 ]] ; then
+	COMMON_DEPEND+="dev-libs/protobuf"
+fi
+
 DEPEND="${COMMON_DEPEND}"
 RDEPEND="${COMMON_DEPEND}
 	sci-electronics/electronics-menu
@@ -141,7 +146,12 @@ src_compile() {
 src_test() {
 	# Test cannot find library in Portage's sandbox. Let's create a link so test can run.
 	mkdir -p "${BUILD_DIR}/qa/eeschema/" || die
-	dosym "${BUILD_DIR}/eeschema/_eeschema.kiface" "${BUILD_DIR}/qa/eeschema/_eeschema.kiface" || die
+	ln -s "${BUILD_DIR}/eeschema/_eeschema.kiface" "${BUILD_DIR}/qa/eeschema/_eeschema.kiface" || die
+
+	export CMAKE_SKIP_TESTS=(
+		qa_pcbnew
+		qa_cli
+	)
 
 	# LD_LIBRARY_PATH is there to help it pick up the just-built libraries
 	LD_LIBRARY_PATH="${BUILD_DIR}/common:${BUILD_DIR}/common/gal:${BUILD_DIR}/3d-viewer/3d_cache/sg:${LD_LIBRARY_PATH}" \

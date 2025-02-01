@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: dotnet.eclass
@@ -6,6 +6,7 @@
 # maintainer-needed@gentoo.org
 # @SUPPORTED_EAPIS: 7
 # @BLURB: common settings and functions for mono and dotnet related packages
+# @DEPRECATED: none
 # @DESCRIPTION:
 # The dotnet eclass contains common environment settings that are useful for
 # dotnet packages.  Currently, it provides no functions, just exports
@@ -17,7 +18,7 @@ case ${EAPI} in
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ ! ${_DOTNET_ECLASS} ]]; then
+if [[ -z ${_DOTNET_ECLASS} ]]; then
 _DOTNET_ECLASS=1
 
 BDEPEND="dev-lang/mono"

@@ -1,26 +1,24 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: flag-o-matic.eclass
 # @MAINTAINER:
 # toolchain@gentoo.org
-# @SUPPORTED_EAPIS: 6 7 8
+# @SUPPORTED_EAPIS: 7 8
 # @BLURB: common functions to manipulate and query toolchain flags
 # @DESCRIPTION:
 # This eclass contains a suite of functions to help developers sanely
 # and safely manage toolchain flags in their builds.
 
-case ${EAPI} in
-	6|7|8) ;;
-	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
-esac
-
 if [[ -z ${_FLAG_O_MATIC_ECLASS} ]]; then
 _FLAG_O_MATIC_ECLASS=1
 
-inherit toolchain-funcs
+case ${EAPI} in
+	7|8) ;;
+	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
+esac
 
-[[ ${EAPI} == 6 ]] && inherit eqawarn
+inherit toolchain-funcs
 
 # @FUNCTION: all-flag-vars
 # @DESCRIPTION:
@@ -35,7 +33,7 @@ all-flag-vars() {
 # {C,CPP,CXX,CCAS,F,FC,LD}FLAGS that we allow in strip-flags
 # Note: shell globs and character lists are allowed
 setup-allowed-flags() {
-	[[ ${EAPI} == [67] ]] ||
+	[[ ${EAPI} == 7 ]] ||
 		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_setup-allowed-flags "$@"
 }
@@ -129,6 +127,10 @@ _setup-allowed-flags() {
 		# needed for arm64 (and in particular SCS)
 		-ffixed-x18
 
+		# needed for riscv (to prevent unaligned vector access)
+		# See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=115789
+		-mstrict-align -mvector-strict-align
+
 		# gcc 4.5
 		-mno-fma4 -mno-movbe -mno-xop -mno-lwp
 		# gcc 4.6
@@ -199,7 +201,7 @@ _filter-hardened() {
 					continue
 				fi
 
-				is-flagq -fno-stack-protector-all || append-flags $(test-flags -fno-stack-protector-all)
+				is-flagq -fno-stack-protector || append-flags $(test-flags -fno-stack-protector)
 				;;
 			-fno-strict-overflow)
 				gcc-specs-nostrict || continue
@@ -562,7 +564,7 @@ strip-flags() {
 # Returns shell true if <flag> is supported by given <compiler>,
 # else returns shell false.
 test-flag-PROG() {
-	[[ ${EAPI} == [67] ]] ||
+	[[ ${EAPI} == 7 ]] ||
 		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_test-flag-PROG "$@"
 }
@@ -712,7 +714,7 @@ test-flag-CCLD() { _test-flag-PROG CC c+ld "$@"; }
 # Returns shell true if <flags> are supported by given <compiler>,
 # else returns shell false.
 test-flags-PROG() {
-	[[ ${EAPI} == [67] ]] ||
+	[[ ${EAPI} == 7 ]] ||
 		die "Internal function ${FUNCNAME} is not available in EAPI ${EAPI}."
 	_test-flags-PROG "$@"
 }

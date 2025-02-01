@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit autotools toolchain-funcs virtualx
+inherit autotools toolchain-funcs virtualx xdg-utils
 
 DESCRIPTION="Lean FLTK based web browser"
 HOMEPAGE="https://dillo-browser.github.io/"
@@ -13,7 +13,7 @@ if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/dillo-browser/dillo.git"
 else
 	SRC_URI="https://github.com/dillo-browser/dillo/releases/download/v${PV}/${P}.tar.bz2"
-	KEYWORDS="~amd64"
+	KEYWORDS="~amd64 ~x86"
 fi
 
 LICENSE="GPL-3"
@@ -24,27 +24,32 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=x11-libs/fltk-1.3:1
+	=x11-libs/fltk-1.3*:1=
 	sys-libs/zlib
 	x11-libs/libX11
 	jpeg? ( media-libs/libjpeg-turbo:= )
 	png? ( >=media-libs/libpng-1.2:= )
 	ssl? (
-		mbedtls? ( net-libs/mbedtls:= )
+		mbedtls? ( net-libs/mbedtls:0= )
 		openssl? ( dev-libs/openssl:= )
 	)
 	test? (
-		media-gfx/imagemagick
+		media-fonts/dejavu
+		media-gfx/imagemagick[X]
 		x11-apps/xwd
 		x11-apps/xwininfo
 	)
-
 "
+
 DEPEND="
 	${RDEPEND}
 "
+
 BDEPEND="
-	doc? ( app-text/doxygen )
+	doc? (
+		app-text/doxygen[dot]
+		app-text/texlive
+	)
 "
 
 DOCS="AUTHORS ChangeLog README NEWS doc/*.txt doc/README"
@@ -64,6 +69,7 @@ src_configure() {
 		$(use_enable png)
 		$(use_enable ssl tls)
 		$(use_enable xembed)
+		--enable-svg # Vendored nanosvg dep, no point in disabling
 		--enable-ipv6
 	)
 
@@ -89,4 +95,12 @@ src_install() {
 	default
 
 	use doc && dodoc -r html
+}
+
+pkg_postinst() {
+	xdg_desktop_database_update
+}
+
+pkg_postrm() {
+	xdg_desktop_database_update
 }

@@ -17,12 +17,12 @@ EHG_REPO_URI="https://foss.heptapod.net/xemacs/xemacs"
 
 LICENSE="GPL-3+"
 SLOT="0"
-IUSE="alsa debug gif gpm pop postgres ldap xface nas dnd X jpeg tiff png motif freewnn xft xim athena neXt Xaw3d gdbm berkdb +bignum"
+IUSE="alsa debug gif gpm pop postgres ldap xface nas X jpeg tiff png motif xft xim athena neXt Xaw3d gdbm berkdb +bignum"
 
 X_DEPEND="x11-libs/libXt x11-libs/libXmu x11-libs/libXext x11-misc/xbitmaps"
 
 RDEPEND="
-	berkdb? ( >=sys-libs/db-4:= !!<sys-libs/db-4 )
+	berkdb? ( >=sys-libs/db-4:= )
 	gdbm? ( >=sys-libs/gdbm-1.8.3:=[berkdb(+)] )
 	>=sys-libs/zlib-1.1.4
 	>=dev-libs/openssl-0.9.6:0=
@@ -33,7 +33,6 @@ RDEPEND="
 	alsa? ( media-libs/alsa-lib )
 	nas? ( media-libs/nas )
 	X? ( $X_DEPEND !Xaw3d? ( !neXt? ( x11-libs/libXaw ) ) )
-	dnd? ( x11-libs/dnd )
 	motif? ( >=x11-libs/motif-2.3:0[xft=] )
 	athena? ( x11-libs/libXaw )
 	Xaw3d? ( x11-libs/libXaw3d[unicode(+)] )
@@ -43,13 +42,14 @@ RDEPEND="
 	tiff? ( media-libs/tiff:= )
 	png? ( >=media-libs/libpng-1.2:0 )
 	jpeg? ( media-libs/libjpeg-turbo:= )
-	freewnn? ( app-i18n/freewnn )
 	>=sys-libs/ncurses-5.2:=
 	>=app-eselect/eselect-emacs-1.15
 	bignum? ( dev-libs/openssl )"
 
 DEPEND="${RDEPEND}
 	virtual/pkgconfig"
+
+BDEPEND="sys-apps/texinfo"
 
 PDEPEND="app-xemacs/xemacs-base
 	app-xemacs/mule-base"
@@ -64,7 +64,7 @@ src_prepare() {
 	use neXt && cp "${WORKDIR}"/NeXT.XEmacs/xemacs-icons/* "${S}"/etc/toolbar/
 	find "${S}"/lisp -name '*.elc' -exec rm {} \; || die
 	eapply "${FILESDIR}/${PN}-21.5.35-mule-tests.patch"
-	eapply "${FILESDIR}/${PN}-21.5.35-configure-libc-version.patch"
+	eapply "${FILESDIR}/${PN}-21.5.35-unknown-command-test.patch"
 
 	eapply_user
 
@@ -109,8 +109,6 @@ src_configure() {
 			myconf="${myconf} --with-athena=xaw"
 		fi
 
-		use dnd && myconf="${myconf} --with-dragndrop"
-
 		myconf="${myconf} $(use_with tiff )"
 		myconf="${myconf} $(use_with png )"
 		myconf="${myconf} $(use_with jpeg )"
@@ -138,7 +136,7 @@ src_configure() {
 		myconf="${myconf} --with-xim=no"
 	fi
 
-	myconf="${myconf} $(use_with freewnn wnn )"
+	myconf="${myconf} --without-wnn"
 
 	# This determines the type of sounds we are playing
 	local soundconf="native"
@@ -168,8 +166,6 @@ src_configure() {
 
 	use bignum && myconf="${myconf} --with-bignum=openssl" ||
 		myconf="${myconf} --with-bignum=no"
-
-	use freewnn && append-cppflags "-I. -I${ESYSROOT}/usr/include/wnn"
 
 	econf ${myconf} \
 		$(use_with gif ) \

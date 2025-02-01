@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -32,8 +32,9 @@ RDEPEND="${COMMON_DEPEND}"
 DEPEND="${COMMON_DEPEND}
 	>=dev-libs/roct-thunk-interface-${PV}
 	>=dev-libs/rocm-device-libs-${PV}
-	sys-devel/clang
-	sys-devel/lld"
+	<=dev-libs/rocm-device-libs-6.0
+	llvm-core/clang
+	llvm-core/lld"
 BDEPEND="app-editors/vim-core"
 	# vim-core is needed for "xxd"
 

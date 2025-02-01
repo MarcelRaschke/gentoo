@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: postgres-multi.eclass
@@ -6,7 +6,7 @@
 # PostgreSQL <pgsql-bugs@gentoo.org>
 # @AUTHOR:
 # Aaron W. Swenson <titanofold@gentoo.org>
-# @SUPPORTED_EAPIS: 7
+# @SUPPORTED_EAPIS: 7 8
 # @PROVIDES: multibuild postgres
 # @BLURB: An eclass to build PostgreSQL-related packages against multiple slots
 # @DESCRIPTION:
@@ -15,11 +15,11 @@
 # POSTGRES_TARGETS use flags.
 
 case ${EAPI} in
-	7) ;;
+	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ ! ${_POSTGRES_MULTI_ECLASS} ]]; then
+if [[ -z ${_POSTGRES_MULTI_ECLASS} ]]; then
 _POSTGRES_MULTI_ECLASS=1
 
 inherit multibuild postgres
@@ -55,7 +55,7 @@ export _POSTGRES_INTERSECT_SLOTS=( )
 # appearance of @PG_SLOT@ in the command and arguments with value of
 # ${PG_SLOT}.
 _postgres-multi_multibuild_wrapper() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	export PG_SLOT=${MULTIBUILD_VARIANT}
 	export PG_CONFIG=$(type -P pg_config${MULTIBUILD_VARIANT//./})
 	if [[ -n ${PKG_CONFIG_PATH} ]] ; then

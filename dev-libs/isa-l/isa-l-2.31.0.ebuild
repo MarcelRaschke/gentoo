@@ -11,7 +11,7 @@ SRC_URI="https://github.com/intel/${PN}/archive/refs/tags/v${PV}.tar.gz -> ${P}.
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~riscv -x86"
+KEYWORDS="amd64 ~arm arm64 ~riscv ~sparc ~x86"
 IUSE="cpu_flags_x86_avx512f"
 
 # AVX512 support in yasm is still work in progress
@@ -36,6 +36,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-2.30.0_fix-shebang.patch
 	"${FILESDIR}"/${PN}-2.31.0_makefile-no-D.patch
 	"${FILESDIR}"/${PN}-2.31.0_makefile-x86.patch
+	"${FILESDIR}"/${PN}-2.31.0_no-fortify-source.patch
 	"${FILESDIR}"/${PN}-2.31.0_user-ldflags.patch
 )
 
@@ -49,6 +50,11 @@ src_prepare() {
 	fi
 
 	eautoreconf
+}
+
+src_compile() {
+	unset ARCH
+	default
 }
 
 src_install() {

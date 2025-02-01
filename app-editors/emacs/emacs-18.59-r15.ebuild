@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -80,8 +80,8 @@ src_configure() {
 	# all those missing prototypes.
 	strip-flags
 	filter-flags -finline-functions -fpie -flto
-	append-flags -fno-strict-aliasing -Wno-implicit -Wno-return-type \
-		-Wno-return-mismatch
+	append-flags -std=gnu17 -fno-strict-aliasing -Wno-implicit \
+		-Wno-return-type -Wno-return-mismatch
 	append-ldflags $(test-flags -no-pie)	#639562
 	replace-flags -O[3-9] -O2
 }
@@ -154,9 +154,9 @@ pkg_preinst() {
 }
 
 pkg_postinst() {
-	eselect emacs update ifunset
+	eselect --root="${ROOT}" emacs update ifunset
 }
 
 pkg_postrm() {
-	eselect emacs update ifunset
+	eselect --root="${ROOT}" emacs update ifunset
 }

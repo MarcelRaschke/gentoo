@@ -6,7 +6,6 @@ EAPI=8
 if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://github.com/liske/${PN}.git"
 	inherit git-r3
-	SRC_URI=""
 else
 	SRC_URI="https://github.com/liske/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64 ~x86"
@@ -14,16 +13,15 @@ fi
 
 DESCRIPTION="Restart daemons after library updates"
 HOMEPAGE="https://fiasko-nw.net/~thomas/tag/needrestart.html https://github.com/liske/needrestart"
-IUSE="systemd"
-SLOT="0"
 LICENSE="GPL-2+"
+SLOT="0"
+IUSE="systemd"
 
 RDEPEND="
 	>=sys-apps/sed-4.2.2
 	dev-lang/perl:=
 	dev-perl/libintl-perl
 	dev-perl/Module-Find
-	dev-perl/Module-ScanDeps
 	dev-perl/Proc-ProcessTable
 	dev-perl/Sort-Naturally
 	dev-perl/TermReadKey

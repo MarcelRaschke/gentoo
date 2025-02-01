@@ -30,8 +30,8 @@ RDEPEND="
 	${PYTHON_DEPS}
 	>=x11-libs/gtk+-3.20:3[introspection]
 	$(python_gen_cond_dep '
-		dev-python/PyQt6-WebEngine[${PYTHON_USEDEP}]
-		dev-python/PyQt6[svg,${PYTHON_USEDEP}]
+		dev-python/pyqt6-webengine[${PYTHON_USEDEP}]
+		dev-python/pyqt6[svg,${PYTHON_USEDEP}]
 		dev-python/colorama[${PYTHON_USEDEP}]
 		dev-python/colour[${PYTHON_USEDEP}]
 		dev-python/distro[${PYTHON_USEDEP}]
@@ -50,6 +50,12 @@ BDEPEND="
 DOC_CONTENTS="To automatically start up Polychromatic on session login copy
 /usr/share/polychromatic/polychromatic-autostart.desktop file into Your user's
 ~/.config/autostart/ directory."
+
+src_test() {
+	rm -rf "locale" || die
+	ln -svf "${BUILD_DIR}/locale" "locale" || die
+	PYTHONPATH="tests:${PYTHONPATH}" "${EPYTHON}" "tests/runner.py" || die
+}
 
 src_install() {
 	meson_src_install

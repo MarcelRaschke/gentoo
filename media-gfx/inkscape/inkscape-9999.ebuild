@@ -3,7 +3,10 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+# Remember to check the release notes for a 'Important Changes for Packagers'
+# section, e.g. https://inkscape.org/doc/release_notes/1.4/Inkscape_1.4.html#Important_Changes_for_Packagers.
+
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="xml(+)"
 
 inherit cmake flag-o-matic xdg toolchain-funcs python-single-r1
@@ -16,8 +19,8 @@ if [[ ${PV} = 9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://gitlab.com/inkscape/inkscape.git"
 else
-	SRC_URI="https://media.inkscape.org/dl/resources/file/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	SRC_URI="https://media.inkscape.org/dl/resources/file/${MY_P}.tar.xz"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 S="${WORKDIR}/${MY_P}"
@@ -38,7 +41,7 @@ BDEPEND="
 COMMON_DEPEND="${PYTHON_DEPS}
 	>=app-text/poppler-0.57.0:=[cairo]
 	>=dev-cpp/cairomm-1.12:0
-	>=dev-cpp/glibmm-2.54.1:2
+	>=dev-cpp/glibmm-2.58:2
 	dev-cpp/gtkmm:3.0
 	>=dev-cpp/pangomm-2.40:1.4
 	>=dev-libs/boehm-gc-7.1:=
@@ -55,7 +58,6 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	media-libs/freetype:2
 	media-libs/lcms:2
 	media-libs/libpng:0=
-	net-libs/libsoup:2.4
 	sci-libs/gsl:=
 	>=x11-libs/pango-1.44
 	x11-libs/gtk+:3[X?]
@@ -68,6 +70,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 		dev-python/lockfile[${PYTHON_USEDEP}]
 		dev-python/lxml[${PYTHON_USEDEP}]
 		dev-python/pillow[jpeg?,tiff,webp,${PYTHON_USEDEP}]
+		dev-python/tinycss2[${PYTHON_USEDEP}]
 		media-gfx/scour[${PYTHON_USEDEP}]
 	')
 	cdr? (
@@ -124,7 +127,7 @@ src_unpack() {
 	else
 		default
 	fi
-	[[ -d "${S}" ]] || mv -v "${WORKDIR}/${P}_202"?-??-* "${S}" || die
+	[[ -d "${S}" ]] || mv -v "${WORKDIR}/${P/_/-}_202"?-??-* "${S}" || die
 }
 
 src_prepare() {
@@ -198,7 +201,4 @@ src_install() {
 		python_fix_shebang "${ED}"/usr/share/${PN}/extensions
 		python_optimize "${ED}"/usr/share/${PN}/extensions
 	fi
-
-	# Empty directory causes sandbox issues, see bug #761915
-	rm -r "${ED}/usr/share/inkscape/fonts" || die "Failed to remove fonts directory."
 }

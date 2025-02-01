@@ -24,7 +24,7 @@ IUSE="
 	+X +alsa aqua archive bluray cdda +cli coreaudio debug +drm dvb
 	dvd +egl gamepad +iconv jack javascript jpeg lcms libcaca +libmpv
 	+lua nvenc openal opengl pipewire pulseaudio rubberband sdl selinux
-	sixel sndio soc test tools +uchardet vaapi vdpau vulkan wayland xv
+	sixel sndio soc test tools +uchardet vaapi vdpau +vulkan wayland xv
 	zimg zlib
 "
 REQUIRED_USE="
@@ -46,8 +46,8 @@ RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	media-libs/libass:=[fontconfig]
-	>=media-libs/libplacebo-6.338.2:=[opengl?,vulkan?]
-	>=media-video/ffmpeg-4.4:=[encode,soc(-)?,threads,vaapi?,vdpau?]
+	>=media-libs/libplacebo-7.349.0:=[opengl?,vulkan?]
+	>=media-video/ffmpeg-6.1:=[encode,soc(-)?,threads,vaapi?,vdpau?]
 	X? (
 		x11-libs/libX11
 		x11-libs/libXScrnSaver
@@ -64,6 +64,7 @@ COMMON_DEPEND="
 		dev-libs/libcdio:=
 	)
 	drm? (
+		media-libs/libdisplay-info:=
 		x11-libs/libdrm
 		egl? ( media-libs/mesa[gbm(+)] )
 	)
@@ -91,7 +92,7 @@ COMMON_DEPEND="
 	pipewire? ( media-video/pipewire:= )
 	pulseaudio? ( media-libs/libpulse )
 	rubberband? ( media-libs/rubberband )
-	sdl? ( media-libs/libsdl2[sound,threads,video] )
+	sdl? ( media-libs/libsdl2[sound,threads(+),video] )
 	sixel? ( media-libs/libsixel )
 	sndio? ( media-sound/sndio:= )
 	vaapi? ( media-libs/libva:=[X?,drm(+)?,wayland?] )
@@ -115,6 +116,7 @@ DEPEND="
 	X? ( x11-base/xorg-proto )
 	dvb? ( sys-kernel/linux-headers )
 	nvenc? ( media-libs/nv-codec-headers )
+	vulkan? ( dev-util/vulkan-headers )
 	wayland? ( dev-libs/wayland-protocols )
 "
 BDEPEND="

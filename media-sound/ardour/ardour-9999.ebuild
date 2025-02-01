@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
+PYTHON_COMPAT=( python3_{9..13} python3_13t )
 PYTHON_REQ_USE='threads(+)'
 PLOCALES="ca cs de el en_GB es eu fr it ja ko nn pl pt pt_PT ru sv zh"
 inherit toolchain-funcs flag-o-matic plocale python-any-r1 waf-utils desktop xdg
@@ -15,18 +15,19 @@ if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://git.ardour.org/ardour/ardour.git"
 	inherit git-r3
 else
-	KEYWORDS="~amd64 ~loong ~x86"
 	SRC_URI="https://dev.gentoo.org/~fordfrog/distfiles/Ardour-${PV}.0.tar.bz2"
 	S="${WORKDIR}/Ardour-${PV}.0"
+	KEYWORDS="~amd64 ~loong ~x86"
 fi
 
 LICENSE="GPL-2"
-SLOT="8"
+SLOT="9"
 IUSE="doc jack nls phonehome pulseaudio cpu_flags_ppc_altivec cpu_flags_x86_sse cpu_flags_x86_mmx cpu_flags_x86_3dnow"
 
 RDEPEND="
+	dev-cpp/cairomm:0
 	dev-cpp/glibmm:2
-	dev-cpp/gtkmm:2.4
+	dev-cpp/pangomm:1.4
 	dev-libs/boost:=
 	dev-libs/glib:2
 	dev-libs/libsigc++:2
@@ -42,7 +43,7 @@ RDEPEND="
 	media-libs/libsoundtouch
 	media-libs/raptor:2
 	media-libs/rubberband
-	media-libs/taglib
+	media-libs/taglib:=
 	media-libs/vamp-plugin-sdk
 	net-libs/libwebsockets
 	net-misc/curl
@@ -50,40 +51,31 @@ RDEPEND="
 	sci-libs/fftw:3.0[threads]
 	virtual/libusb:1
 	x11-libs/cairo
-	x11-libs/gtk+:2
 	x11-libs/pango
 	jack? ( virtual/jack )
 	pulseaudio? ( media-libs/libpulse )
 	media-libs/lilv
 	media-libs/sratom
 	dev-libs/sord
-	media-libs/suil[X,gtk2]
 	media-libs/lv2"
+#	media-libs/suil[X,gtk2] bundled suil is used, maybe probably because of ytk
 #	!bundled-libs? ( media-sound/fluidsynth ) at least libltc is missing to be able to unbundle...
 
 DEPEND="${RDEPEND}
-	${PYTHON_DEPS}
+	jack? ( virtual/jack )"
+BDEPEND="${PYTHON_DEPS}
 	dev-util/itstool
 	sys-devel/gettext
 	virtual/pkgconfig
-	doc? ( app-text/doxygen[dot] )
-	jack? ( virtual/jack )"
+	doc? ( app-text/doxygen[dot] )"
 
 PATCHES=(
 	"${FILESDIR}/${PN}-6.8-metadata.patch"
-	"${FILESDIR}/${PN}-6.8-boost-1.85.patch"
 )
 
 pkg_pretend() {
 	[[ $(tc-getLD) == *gold* ]] && (has_version sci-libs/fftw[openmp] || has_version sci-libs/fftw[threads]) && \
 		ewarn "Linking with gold linker might produce broken executable, see bug #733972"
-}
-
-pkg_setup() {
-	if has_version \>=dev-libs/libsigc++-2.6 ; then
-		append-cxxflags -std=c++11
-	fi
-	python-any-r1_pkg_setup
 }
 
 src_prepare() {

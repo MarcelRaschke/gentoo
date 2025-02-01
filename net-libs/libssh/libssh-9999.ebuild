@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -13,26 +13,20 @@ if [[ ${PV} == *9999* ]] ; then
 	EGIT_REPO_URI="https://git.libssh.org/projects/libssh.git"
 else
 	SRC_URI="https://www.libssh.org/files/$(ver_cut 1-2)/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 
 LICENSE="LGPL-2.1"
 SLOT="0/4" # subslot = soname major version
-IUSE="debug doc examples gcrypt gssapi mbedtls pcap server +sftp static-libs test zlib"
+IUSE="debug doc examples gssapi mbedtls pcap server +sftp static-libs test zlib"
 # Maintainer: check IUSE-defaults at DefineOptions.cmake
 
-REQUIRED_USE="?? ( gcrypt mbedtls )"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
-	!gcrypt? (
-		!mbedtls? (
-			>=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}]
-		)
-	)
-	gcrypt? ( >=dev-libs/libgcrypt-1.5.3:0[${MULTILIB_USEDEP}] )
+	!mbedtls? ( >=dev-libs/openssl-1.0.1h-r2:0=[${MULTILIB_USEDEP}] )
 	gssapi? ( >=virtual/krb5-0-r1[${MULTILIB_USEDEP}] )
-	mbedtls? ( net-libs/mbedtls:=[${MULTILIB_USEDEP}] )
+	mbedtls? ( net-libs/mbedtls:0=[${MULTILIB_USEDEP}] )
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
 "
 DEPEND="${RDEPEND}
@@ -91,7 +85,7 @@ multilib_src_configure() {
 		-DWITH_STACK_PROTECTOR_STRONG=OFF
 		-DWITH_DEBUG_CALLTRACE=$(usex debug)
 		-DWITH_DEBUG_CRYPTO=$(usex debug)
-		-DWITH_GCRYPT=$(usex gcrypt)
+		-DWITH_GCRYPT=OFF
 		-DWITH_GSSAPI=$(usex gssapi)
 		-DWITH_MBEDTLS=$(usex mbedtls)
 		-DWITH_PCAP=$(usex pcap)
@@ -111,6 +105,10 @@ multilib_src_configure() {
 multilib_src_compile() {
 	cmake_src_compile
 	multilib_is_native_abi && use doc && cmake_src_compile docs
+}
+
+multilib_src_test() {
+	cmake_src_test --timeout 3000
 }
 
 multilib_src_install() {

@@ -19,13 +19,13 @@ HOMEPAGE="
 LICENSE="GPL-3+"
 # API/ABI changes in point releases
 SLOT="0/${PV}"
-KEYWORDS="amd64"
+KEYWORDS="amd64 ~riscv"
 IUSE="doc"
 
 DEPEND="
 	dev-libs/ppl
 	dev-python/cysignals[${PYTHON_USEDEP}]
-	>=dev-python/gmpy-2.1.0_beta1[${PYTHON_USEDEP}]
+	>=dev-python/gmpy2-2.1.0_beta1[${PYTHON_USEDEP}]
 "
 RDEPEND="
 	${DEPEND}

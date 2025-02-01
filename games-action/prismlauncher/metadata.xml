@@ -6,8 +6,8 @@
     <name>Thiago Donato Ferreira</name>
   </maintainer>
   <maintainer type="person" proxied="proxy">
-    <email>andrewammerlaan@gentoo.org</email>
-    <name>Andrew Ammerlaan</name>
+    <email>nowa@gentoo.org</email>
+    <name>Nowa Ammerlaan</name>
   </maintainer>
   <maintainer type="project" proxied="proxy">
     <email>proxy-maint@gentoo.org</email>
@@ -19,7 +19,4 @@
     <remote-id type="github">PrismLauncher/PrismLauncher</remote-id>
   </upstream>
   <longdescription>Prism Launcher is a multi-instance Minecraft launcher focused on user freedom, redistributability, and simplicity.</longdescription>
-  <use>
-    <flag name="qt6">Build with Qt6 support instead of the default Qt5</flag>
-  </use>
 </pkgmetadata>

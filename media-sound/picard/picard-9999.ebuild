@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_EXT=1
@@ -25,14 +25,11 @@ LICENSE="GPL-2+"
 SLOT="0"
 IUSE="discid fingerprints nls"
 
-BDEPEND="
-	nls? ( dev-qt/linguist-tools:5 )
-"
 RDEPEND="
 	$(python_gen_cond_dep '
 		dev-python/fasteners[${PYTHON_USEDEP}]
 		dev-python/pyjwt[${PYTHON_USEDEP}]
-		dev-python/PyQt5[declarative,gui,network,widgets,${PYTHON_USEDEP}]
+		dev-python/pyqt6[gui,network,qml,widgets,${PYTHON_USEDEP}]
 		dev-python/python-dateutil[${PYTHON_USEDEP}]
 		dev-python/pyyaml[${PYTHON_USEDEP}]
 		media-libs/mutagen[${PYTHON_USEDEP}]
@@ -40,6 +37,8 @@ RDEPEND="
 	')
 	fingerprints? ( media-libs/chromaprint[tools] )
 "
+DEPEND="test? ( $(python_gen_cond_dep 'dev-python/pyqt6[testlib,${PYTHON_USEDEP}]') )"
+BDEPEND="nls? ( dev-qt/qttools:6[linguist] )"
 
 distutils_enable_tests pytest
 

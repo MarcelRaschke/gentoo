@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,7 +14,7 @@ if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://code.videolan.org/videolan/x264.git"
 else
-	X264_COMMIT="c196240409e4d7c01b47448d93b1f9683aaa7cf7"
+	X264_COMMIT="4613ac3c15fd75cebc4b9f65b7fb95e70a3acce1"
 	SRC_URI="https://code.videolan.org/videolan/x264/-/archive/${X264_COMMIT}/x264-${X264_COMMIT}.tar.bz2 -> ${P/-encoder}.tar.bz2"
 	KEYWORDS="~alpha ~amd64 ~ppc ~ppc64 ~sparc ~x86"
 	S="${WORKDIR}/${PN/-encoder}-${X264_COMMIT}"

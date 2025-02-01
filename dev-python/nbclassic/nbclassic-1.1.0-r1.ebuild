@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} pypy3 )
 DISTUTILS_USE_PEP517=jupyter
 
 inherit distutils-r1 pypi xdg-utils
@@ -21,7 +21,7 @@ KEYWORDS="amd64 arm arm64 ~loong ppc64 ~riscv x86"
 
 RDEPEND="
 	dev-python/ipykernel[${PYTHON_USEDEP}]
-	dev-python/ipython_genutils[${PYTHON_USEDEP}]
+	dev-python/ipython-genutils[${PYTHON_USEDEP}]
 	>=dev-python/nest-asyncio-1.5[${PYTHON_USEDEP}]
 	>=dev-python/notebook-shim-0.2.3[${PYTHON_USEDEP}]
 "
@@ -46,7 +46,7 @@ distutils_enable_sphinx docs/source \
 	dev-python/nbsphinx \
 	dev-python/sphinxcontrib-github-alt \
 	dev-python/myst-parser \
-	dev-python/ipython_genutils
+	dev-python/ipython-genutils
 
 python_test() {
 	local -x PYTEST_DISABLE_PLUGIN_AUTOLOAD=1

@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9,10,11,12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="xml(+)"
 inherit python-any-r1 readme.gentoo-r1
 
@@ -17,7 +17,7 @@ else
 	# "make dist" in devmanual repo
 	SRC_URI="https://dev.gentoo.org/~ulm/distfiles/${P}.tar.xz"
 	S="${WORKDIR}/${PN}"
-	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~hppa ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~x64-macos"
 fi
 
 LICENSE="CC-BY-SA-4.0"
@@ -25,14 +25,18 @@ SLOT="0"
 IUSE="+offline test"
 RESTRICT="!test? ( test )"
 
-BDEPEND=">=dev-libs/libxml2-2.9.12
-	dev-libs/libxslt
+BDEPEND="dev-libs/libxslt
 	gnome-base/librsvg
 	media-fonts/open-sans
-	${PYTHON_DEPS}
-	test? ( >=app-text/htmltidy-5.8.0 )"
+	!offline? ( ${PYTHON_DEPS} )
+	test? (
+		>=dev-libs/libxml2-2.9.12
+		>=app-text/htmltidy-5.8.0
+	)"
 
-PATCHES=( "${FILESDIR}"/${PN}-eclasses.patch )
+pkg_setup() {
+	use !offline && python-any-r1_pkg_setup
+}
 
 src_compile() {
 	emake OFFLINE=$(usex offline 1 0)

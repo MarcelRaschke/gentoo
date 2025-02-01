@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_SINGLE_IMPL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit distutils-r1 xdg
 
 if [[ ${PV} == 9999 ]]; then
@@ -30,10 +30,10 @@ IUSE="+adblock pdf widevine"
 
 RDEPEND="
 	$(python_gen_cond_dep '
-		dev-python/PyQt6-WebEngine[${PYTHON_USEDEP},widgets]
-		dev-python/PyQt6[${PYTHON_USEDEP},dbus,gui,network,opengl,printsupport,qml,sql,widgets]
+		dev-python/pyqt6-webengine[${PYTHON_USEDEP},widgets]
+		dev-python/pyqt6[${PYTHON_USEDEP},dbus,gui,network,opengl,printsupport,qml,sql,widgets]
 		dev-python/colorama[${PYTHON_USEDEP}]
-		dev-python/jinja[${PYTHON_USEDEP}]
+		dev-python/jinja2[${PYTHON_USEDEP}]
 		dev-python/markupsafe[${PYTHON_USEDEP}]
 		dev-python/pygments[${PYTHON_USEDEP}]
 		dev-python/pyyaml[${PYTHON_USEDEP}]
@@ -47,11 +47,12 @@ RDEPEND="
 BDEPEND="
 	$(python_gen_cond_dep '
 		test? (
-			dev-python/PyQt6[testlib]
+			dev-python/pyqt6[testlib]
 			dev-python/beautifulsoup4[${PYTHON_USEDEP}]
 			dev-python/cheroot[${PYTHON_USEDEP}]
 			dev-python/flask[${PYTHON_USEDEP}]
 			dev-python/hypothesis[${PYTHON_USEDEP}]
+			dev-python/pillow[${PYTHON_USEDEP}]
 			dev-python/pytest-bdd[${PYTHON_USEDEP}]
 			dev-python/pytest-mock[${PYTHON_USEDEP}]
 			dev-python/pytest-qt[${PYTHON_USEDEP}]
@@ -91,9 +92,11 @@ src_prepare() {
 	fi
 
 	if use test; then
-		# unnecessary here, and would require extra deps
+		# skip unnecessary (for us) pytest plugins, and ignore Qt's
+		# warnings that tend to newly appear with new versions
 		sed -e '/pytest-benchmark/d' -e 's/--benchmark[^ ]*//' \
 			-e '/pytest-instafail/d' -e 's/--instafail//' \
+			-e '/qt_log_level_fail/s/WARNING/CRITICAL/' \
 			-i pytest.ini || die
 
 		if [[ ${PV} == 9999 ]]; then
@@ -124,8 +127,8 @@ python_test() {
 		tests/unit/browser/webengine/test_webenginedownloads.py::TestDataUrlWorkaround
 		# may fail if environment is very large (bug #819393)
 		tests/unit/commands/test_userscripts.py::test_custom_env\[_POSIXUserscriptRunner\]
-		# fails if chromium version is unrecognized (aka newer qtwebengine)
-		tests/unit/utils/test_version.py::TestWebEngineVersions::test_real_chromium_version
+		# may fail if chromium version is unrecognized (aka newer qtwebengine)
+		tests/unit/utils/test_version.py
 	)
 
 	local epytestargs=(

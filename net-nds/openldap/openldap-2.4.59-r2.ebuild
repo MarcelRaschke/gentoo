@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -13,7 +13,7 @@ BIS_PV=20140524
 BIS_P="${BIS_PN}-${BIS_PV}"
 
 DESCRIPTION="LDAP suite of application and development tools"
-HOMEPAGE="https://www.OpenLDAP.org/"
+HOMEPAGE="https://www.openldap.org/"
 
 # upstream mirrors are mostly not working, using canonical URI
 SRC_URI="
@@ -25,7 +25,7 @@ SRC_URI="
 
 LICENSE="OPENLDAP GPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~mips ~ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 
 IUSE_DAEMON="crypt samba tcpd experimental minimal"
 IUSE_BACKEND="+berkdb"
@@ -693,7 +693,8 @@ multilib_src_compile() {
 		build_contrib_module "allowed" "allowed.c" "allowed"
 		build_contrib_module "autogroup" "autogroup.c" "autogroup"
 		build_contrib_module "cloak" "cloak.c" "cloak"
-		# build_contrib_module "comp_match" "comp_match.c" "comp_match" # really complex, adds new external deps, questionable demand
+		# build_contrib_module "comp_match" "comp_match.c" "comp_match"
+		# comp_match: really complex, adds new external deps, questionable demand
 		build_contrib_module "denyop" "denyop.c" "denyop-overlay"
 		build_contrib_module "dsaschema" "dsaschema.c" "dsaschema-plugin"
 		build_contrib_module "dupent" "dupent.c" "dupent"
@@ -757,7 +758,8 @@ multilib_src_install() {
 			einfo "Adding $(basename ${x})"
 			sed -e "/###INSERTDYNAMICMODULESHERE###$/a# moduleload\t$(basename ${x})" -i "${configfile}" || die
 		done
-		sed -e "s:###INSERTDYNAMICMODULESHERE###$:# modulepath\t${EPREFIX}/usr/$(get_libdir)/openldap/openldap:" -i "${configfile}"
+		sed -e "s:###INSERTDYNAMICMODULESHERE###$:# modulepath\t${EPREFIX}/usr/$(get_libdir)/openldap/openldap:" \
+			-i "${configfile}"
 		use prefix || fowners root:ldap /etc/openldap/slapd.conf
 		fperms 0640 /etc/openldap/slapd.conf
 		cp "${configfile}" "${configfile}".default || die

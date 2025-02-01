@@ -7,7 +7,7 @@ inherit mate
 
 MINOR=$(($(ver_cut 2) % 2))
 if [[ ${MINOR} -eq 0 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~riscv x86"
 fi
 
 DESCRIPTION="MATE session manager"
@@ -42,7 +42,7 @@ COMMON_DEPEND="
 "
 
 RDEPEND="${COMMON_DEPEND}
-	mate-base/mate-desktop
+	>=mate-base/mate-desktop-$(ver_cut 1-2)
 	virtual/libintl
 	x11-apps/xdpyinfo
 	x11-misc/xdg-user-dirs
@@ -55,6 +55,7 @@ DEPEND="${COMMON_DEPEND}
 	x11-libs/xtrans
 "
 BDEPEND="
+	dev-build/autoconf-archive
 	dev-util/glib-utils
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig

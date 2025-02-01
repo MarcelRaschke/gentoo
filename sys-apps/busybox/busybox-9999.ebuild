@@ -16,7 +16,7 @@ if [[ ${PV} == "9999" ]] ; then
 else
 	MY_P="${PN}-${PV/_/-}"
 	SRC_URI="https://www.busybox.net/downloads/${MY_P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 fi
 S="${WORKDIR}/${MY_P}"
 
@@ -117,6 +117,9 @@ bbmake() {
 }
 
 src_configure() {
+	unset KBUILD_OUTPUT #88088
+	export SKIP_STRIP=y
+
 	tc-export AR CC BUILD_CC PKG_CONFIG
 
 	tc-is-cross-compiler || BUILD_CFLAGS=${CFLAGS}
@@ -237,9 +240,6 @@ src_configure() {
 }
 
 src_compile() {
-	unset KBUILD_OUTPUT #88088
-	export SKIP_STRIP=y
-
 	bbmake busybox
 
 	# bug #701512

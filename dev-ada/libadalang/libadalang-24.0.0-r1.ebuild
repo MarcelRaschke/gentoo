@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -15,7 +15,7 @@ SRC_URI="https://github.com/AdaCore/${PN}/archive/refs/tags/v${PV}.tar.gz
 
 LICENSE="Apache-2.0"
 SLOT="0/${PV}"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="test +static-libs static-pic"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	${ADA_REQUIRED_USE}"
@@ -23,7 +23,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 RESTRICT="test"
 
 RDEPEND="dev-python/pyyaml
-	dev-ada/gnatcoll-bindings[${ADA_USEDEP},gmp,iconv]
+	dev-ada/gnatcoll-bindings[${ADA_USEDEP},gmp,iconv(+)]
 	dev-ada/gnatcoll-bindings[shared,static-libs?,static-pic?]
 	${ADA_DEPS}
 	${PYTHON_DEPS}

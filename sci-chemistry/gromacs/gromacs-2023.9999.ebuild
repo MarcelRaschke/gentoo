@@ -45,6 +45,10 @@ CDEPEND="
 	blas? ( virtual/blas )
 	cuda? ( >=dev-util/nvidia-cuda-toolkit-11:=[profiler] )
 	opencl? ( virtual/opencl )
+	openmp? (
+		sys-devel/gcc[openmp]
+		llvm-core/clang-runtime[openmp]
+	)
 	fftw? ( sci-libs/fftw:3.0= )
 	hwloc? ( sys-apps/hwloc:= )
 	lapack? ( virtual/lapack )
@@ -56,7 +60,7 @@ CDEPEND="
 	"
 BDEPEND="${CDEPEND}
 	virtual/pkgconfig
-	clang? ( >=sys-devel/clang-6:* )
+	clang? ( >=llvm-core/clang-6:* )
 	build-manual? (
 		app-text/doxygen
 		$(python_gen_cond_dep '

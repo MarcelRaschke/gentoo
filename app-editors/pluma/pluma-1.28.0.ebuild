@@ -4,14 +4,14 @@
 EAPI=8
 
 MATE_LA_PUNT="yes"
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit mate python-single-r1 virtualx
 
 DESCRIPTION="Pluma text editor for the MATE desktop"
 
 MINOR=$(($(ver_cut 2) % 2))
 if [[ ${MINOR} -eq 0 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~riscv x86"
 fi
 
 LICENSE="FDL-1.1+ GPL-2+ LGPL-2+"
@@ -41,7 +41,6 @@ COMMON_DEPEND="
 "
 RDEPEND="${COMMON_DEPEND}
 	${PYTHON_DEPS}
-	>=mate-base/mate-desktop-1.9[introspection?]
 	virtual/libintl
 "
 DEPEND="${COMMON_DEPEND}
@@ -51,6 +50,7 @@ DEPEND="${COMMON_DEPEND}
 	dev-util/gtk-doc
 	dev-build/gtk-doc-am
 	>=dev-build/libtool-2.2.6:2
+	>=mate-base/mate-desktop-$(ver_cut 1-2)[introspection?]
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
 "

@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -25,7 +25,7 @@ SLOT="0/$(ver_cut 1-2)"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-RDEPEND="sys-devel/clang:${LLVM_MAX_SLOT}"
+RDEPEND="llvm-core/clang:${LLVM_MAX_SLOT}"
 DEPEND="${RDEPEND}"
 
 CMAKE_BUILD_TYPE=Release
@@ -46,4 +46,11 @@ src_configure() {
 		-DLLVM_DIR="$(get_llvm_prefix "${LLVM_MAX_SLOT}")"
 	)
 	cmake_src_configure
+}
+
+src_install() {
+	cmake_src_install
+	local CLANG_EXE="$(get_llvm_prefix "${LLVM_MAX_SLOT}")/bin/clang"
+	local bitcodedir="$("${CLANG_EXE}" -print-resource-dir)/$(get_libdir)/amdgcn/bitcode"
+	dosym -r "/usr/lib/amdgcn/bitcode" "${bitcodedir#${EPREFIX}}"
 }

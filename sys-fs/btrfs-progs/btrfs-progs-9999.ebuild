@@ -3,6 +3,8 @@
 
 EAPI=8
 
+# Please bump with dev-python/btrfsutil
+
 PYTHON_COMPAT=( python3_{10..13} )
 inherit bash-completion-r1 python-any-r1 udev
 
@@ -18,13 +20,13 @@ else
 	MY_PV="v${PV/_/-}"
 	MY_P="${PN}-${MY_PV}"
 	SRC_URI="
-		https://www.kernel.org/pub/linux/kernel/people/kdave/${PN}/${MY_P}.tar.xz
-		verify-sig? ( https://www.kernel.org/pub/linux/kernel/people/kdave/${PN}/${MY_P}.tar.sign )
+		https://mirrors.edge.kernel.org/pub/linux/kernel/people/kdave/${PN}/${MY_P}.tar.xz
+		verify-sig? ( https://mirrors.edge.kernel.org/pub/linux/kernel/people/kdave/${PN}/${MY_P}.tar.sign )
 	"
 	S="${WORKDIR}"/${PN}-${MY_PV}
 
 	if [[ ${PV} != *_rc* ]] ; then
-		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+		KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 	fi
 fi
 
@@ -33,7 +35,7 @@ HOMEPAGE="https://btrfs.readthedocs.io/en/latest/"
 
 LICENSE="GPL-2"
 SLOT="0/0" # libbtrfs soname
-IUSE="+convert +man reiserfs static static-libs udev +zstd"
+IUSE="+convert +man experimental reiserfs static static-libs udev +zstd"
 # Could support it with just !systemd => eudev, see mdadm, but let's
 # see if someone asks for it first.
 REQUIRED_USE="static? ( !udev )"
@@ -94,29 +96,19 @@ pkg_setup() {
 	: # Prevent python-any-r1_python_setup
 }
 
-src_unpack() {
-	if [[ ${PV} == 9999 ]] ; then
-		git-r3_src_unpack
-		return
-	fi
-
-	if in_iuse verify-sig && use verify-sig ; then
-		mkdir "${T}"/verify-sig || die
-		pushd "${T}"/verify-sig &>/dev/null || die
-
+if [[ ${PV} != 9999 ]]; then
+	src_unpack() {
 		# Upstream sign the decompressed .tar
-		# Let's do it separately in ${T} then cleanup to avoid external
-		# effects on normal unpack.
-		cp "${DISTDIR}"/${MY_P}.tar.xz . || die
-		xz -d ${MY_P}.tar.xz || die
-		verify-sig_verify_detached ${MY_P}.tar "${DISTDIR}"/${MY_P}.tar.sign
-
-		popd &>/dev/null || die
-		rm -r "${T}"/verify-sig || die
-	fi
-
-	default
-}
+		if use verify-sig; then
+			einfo "Unpacking ${MY_P}.tar.xz ..."
+			verify-sig_verify_detached - "${DISTDIR}"/${MY_P}.tar.sign \
+				< <(xz -cd "${DISTDIR}"/${MY_P}.tar.xz | tee >(tar -xf -))
+			assert "Unpack failed"
+		else
+			default
+		fi
+	}
+fi
 
 src_prepare() {
 	default
@@ -139,7 +131,7 @@ src_configure() {
 		--bindir="${EPREFIX}"/sbin
 
 		--enable-lzo
-		--disable-experimental
+		$(use_enable experimental)
 		--disable-python
 		$(use_enable convert)
 		$(use_enable man documentation)
@@ -178,6 +170,11 @@ src_install() {
 	)
 
 	emake V=1 DESTDIR="${D}" install "${makeargs[@]}"
+
+	if use experimental; then
+		exeinto /sbin
+		doexe btrfs-corrupt-block
+	fi
 
 	newbashcomp btrfs-completion btrfs
 }

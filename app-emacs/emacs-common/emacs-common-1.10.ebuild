@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit elisp-common desktop gnome2-utils readme.gentoo-r1
+inherit elisp-common desktop eapi9-pipestatus gnome2-utils readme.gentoo-r1
 
 DESCRIPTION="Common files needed by all GNU Emacs versions"
 HOMEPAGE="https://wiki.gentoo.org/wiki/Project:Emacs"
@@ -11,7 +11,7 @@ SRC_URI="https://dev.gentoo.org/~ulm/emacs/${P}.tar.xz"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="games gsettings gui"
 
 DEPEND="games? ( acct-group/gamestat )"
@@ -22,7 +22,7 @@ IDEPEND="gui? ( gsettings? ( dev-libs/glib ) )"
 src_install() {
 	insinto "${SITELISP}"
 	sed -e "s:@libdir@:$(get_libdir):g" subdirs.el.in | newins - subdirs.el
-	assert
+	pipestatus || die
 	newins site-gentoo.el{,.orig}
 
 	keepdir /etc/emacs

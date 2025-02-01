@@ -5,13 +5,12 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
 
-XORG_TARBALL_SUFFIX="xz"
 inherit python-any-r1 xorg-3
 
 DESCRIPTION="Library that gives human readable names to XCB error, event, & request codes"
 HOMEPAGE="https://xcb.freedesktop.org/ https://gitlab.freedesktop.org/xorg/lib/libxcb-errors"
 
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 
 RDEPEND=">=x11-libs/libxcb-1.9.1:="
 DEPEND="${RDEPEND}

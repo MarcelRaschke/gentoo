@@ -1,7 +1,7 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 DESCRIPTION="AVLinux Drumkits"
 HOMEPAGE="http://x42-plugins.com/x42/x42-avldrums https://github.com/x42/avldrums.lv2"

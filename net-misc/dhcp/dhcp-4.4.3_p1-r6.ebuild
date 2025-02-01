@@ -22,7 +22,7 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="MPL-2.0 BSD SSLeay GPL-2" # GPL-2 only for init script
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="+client ipv6 ldap selinux +server ssl vim-syntax"
 
 BDEPEND="
@@ -147,6 +147,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# bug #944907
+	append-cflags -std=gnu17
+
 	# bind defaults to stupid `/usr/bin/ar`
 	tc-export AR BUILD_CC
 	export ac_cv_path_AR=${AR}

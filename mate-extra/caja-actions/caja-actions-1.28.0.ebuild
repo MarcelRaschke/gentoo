@@ -9,7 +9,7 @@ inherit mate
 
 MINOR=$(($(ver_cut 2) % 2))
 if [[ ${MINOR} -eq 0 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~riscv x86"
 fi
 
 DESCRIPTION="Caja Actions"
@@ -23,7 +23,7 @@ COMMON_DEPEND="
 	>=x11-libs/gtk+-3.22:3
 	>=gnome-base/libgtop-2.23.1:2=
 	dev-libs/libxml2
-	>=mate-base/caja-1.17
+	>=mate-base/caja-1.28.0
 	x11-libs/libSM
 	virtual/libintl
 "

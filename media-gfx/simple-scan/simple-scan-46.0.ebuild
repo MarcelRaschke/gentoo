@@ -10,7 +10,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/simple-scan"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ppc ~ppc64 ~riscv x86"
+KEYWORDS="amd64 ~arm ~arm64 ppc ppc64 ~riscv x86"
 IUSE="colord webp"
 
 DEPEND="
@@ -35,7 +35,7 @@ BDEPEND="
 	dev-util/itstool
 	>=sys-devel/gettext-0.19.8
 	virtual/pkgconfig
-	gui-libs/libhandy:1[vala]
+	gui-libs/libadwaita:1[vala]
 	dev-libs/libgusb[vala]
 	colord? ( x11-misc/colord[vala] )
 "

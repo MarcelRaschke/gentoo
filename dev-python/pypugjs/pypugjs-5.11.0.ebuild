@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=poetry
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1 optfeature
 
@@ -20,7 +20,7 @@ SRC_URI="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~riscv"
+KEYWORDS="amd64 ~arm64 ~riscv"
 
 RDEPEND="
 	>=dev-python/six-1.15.0[${PYTHON_USEDEP}]
@@ -30,7 +30,7 @@ BDEPEND="
 	test? (
 		>=dev-python/django-4.0.6[${PYTHON_USEDEP}]
 		>=dev-python/flask-2.1.1[${PYTHON_USEDEP}]
-		>=dev-python/jinja-3.1.1[${PYTHON_USEDEP}]
+		>=dev-python/jinja2-3.1.1[${PYTHON_USEDEP}]
 		>=dev-python/mako-1.1.3[${PYTHON_USEDEP}]
 		>=dev-python/pytest-asyncio-0.19.0[${PYTHON_USEDEP}]
 		>=dev-python/tornado-6.0.4[${PYTHON_USEDEP}]
@@ -47,7 +47,7 @@ src_prepare() {
 
 pkg_postinst() {
 	optfeature "converting to Django output" dev-python/django
-	optfeature "converting to Jinja2 output" dev-python/jinja
+	optfeature "converting to Jinja2 output" dev-python/jinja2
 	optfeature "converting to Mako output" dev-python/mako
 	optfeature "converting to Tornado output" dev-python/tornado
 }

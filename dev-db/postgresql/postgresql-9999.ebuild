@@ -20,7 +20,7 @@ if [[ $PV = *9999* ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://git.postgresql.org/git/postgresql.git"
 else
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 
 	MY_PV=${PV/_/}
 	SRC_URI="https://ftp.postgresql.org/pub/source/v${MY_PV}/postgresql-${MY_PV}.tar.bz2"
@@ -46,8 +46,8 @@ icu? ( dev-libs/icu:= )
 kerberos? ( app-crypt/mit-krb5 )
 ldap? ( net-nds/openldap:= )
 llvm? ( $(llvm_gen_dep '
-	sys-devel/clang:${LLVM_SLOT}
-	sys-devel/llvm:${LLVM_SLOT}
+	llvm-core/clang:${LLVM_SLOT}
+	llvm-core/llvm:${LLVM_SLOT}
 	') )
 lz4? ( app-arch/lz4 )
 pam? ( sys-libs/pam )
@@ -143,6 +143,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# Fails to build with C23, fallback to the old default in < GCC 15
+	# for now: https://marc.info/?l=pgsql-bugs&m=173185132906874&w=2
+	append-cflags -std=gnu17
+
 	case ${CHOST} in
 		*-darwin*|*-solaris*)
 			use nls && append-libs intl
@@ -199,7 +203,7 @@ src_compile() {
 		# Generates both manpages and HTML documentation.
 		meson_src_compile docs
 	else
-		meson_src_compile man:alias
+		meson_src_compile man
 	fi
 }
 

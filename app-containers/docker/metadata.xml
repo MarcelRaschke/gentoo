@@ -21,12 +21,8 @@
 			Makes the a staticly-linked init system tini available inside a
 			container.
 		</flag>
-		<flag name="device-mapper">
-			Enables dependencies for the "devicemapper" graph driver, including
-			necessary kernel flags.
-		</flag>
-		<flag name="overlay">
-			Enables dependencies for the "overlay" graph driver, including
+		<flag name="overlay2">
+			Enables dependencies for the "overlay2" graph driver, including
 			necessary kernel flags.
 		</flag>
 	</use>

@@ -3,14 +3,13 @@
 
 EAPI=8
 
-XORG_TARBALL_SUFFIX="xz"
 inherit xorg-3 pam systemd
 
 DEFAULTVT=vt7
 
 DESCRIPTION="X.Org xdm application"
 
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="pam systemd truetype xinerama xpm"
 
 RDEPEND="

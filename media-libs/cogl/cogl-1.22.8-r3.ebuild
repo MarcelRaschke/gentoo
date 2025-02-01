@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,14 +7,14 @@ EAPI=8
 # It's upstreamed so should be able to drop in future
 # bug #778041
 GNOME2_EAUTORECONF="yes"
-inherit gnome2
+inherit flag-o-matic gnome2
 
 DESCRIPTION="A library for using 3D graphics hardware to draw pretty pictures"
 HOMEPAGE="https://www.cogl3d.org/"
 
 LICENSE="MIT BSD"
 SLOT="1.0/20" # subslot = .so version
-KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~loong ~mips ppc ppc64 ~riscv ~sparc x86"
 # doc and profile disable for now due to bugs #484750 and #483332
 IUSE="debug examples gles2 gstreamer +introspection +kms +opengl +pango wayland" # doc profile
 REQUIRED_USE="
@@ -81,6 +81,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# bug #943759
+	append-cflags -std=gnu17
+
 	# TODO: think about quartz, sdl
 	# Prefer gl over gles2 if both are selected
 	# Profiling needs uprof, which is not available in portage yet, bug #484750

@@ -44,10 +44,6 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 BDEPEND="dev-go/go-md2man"
 
-PATCHES=(
-	"${FILESDIR}"/softcode-strip-upstream-pr-5446.patch
-)
-
 pkg_pretend() {
 	local CONFIG_CHECK=""
 	use btrfs && CONFIG_CHECK+=" ~BTRFS_FS"
@@ -100,10 +96,10 @@ src_prepare() {
 		cat <<-'EOF' > "${T}/disable_tests.patch"
 		--- a/Makefile
 		+++ b/Makefile
-		@@ -54 +54 @@
-		-all: bin/buildah bin/imgtype bin/copy bin/tutorial docs
+		@@ -56 +56 @@
+		-all: bin/buildah bin/imgtype bin/copy bin/inet bin/tutorial docs
 		+all: bin/buildah docs
-		@@ -123 +123 @@
+		@@ -122 +122 @@
 		-docs: install.tools ## build the docs on the host
 		+docs: ## build the docs on the host
 		EOF
@@ -119,6 +115,7 @@ src_compile() {
 
 	tc-export AS LD STRIP
 	export GOMD2MAN="$(command -v go-md2man)"
+	export SELINUXOPT=
 	default
 }
 
@@ -127,6 +124,6 @@ src_test() {
 }
 
 src_install() {
-	emake DESTDIR="${ED}" install install.completions
+	emake DESTDIR="${ED}" SELINUXOPT= install install.completions
 	einstalldocs
 }

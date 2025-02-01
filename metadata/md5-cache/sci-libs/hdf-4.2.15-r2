@@ -1,4 +1,4 @@
-BDEPEND=fortran? ( virtual/fortran ) >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
+BDEPEND=fortran? ( virtual/fortran ) >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.17-r1:1.17 >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
 DEFINED_PHASES=configure install prepare setup
 DEPEND=net-libs/libtirpc:= sys-libs/zlib virtual/jpeg:0 szip? ( virtual/szip ) test? ( virtual/szip ) fortran? ( virtual/fortran )
 DESCRIPTION=General purpose library and format for storing scientific data
@@ -6,12 +6,12 @@ EAPI=8
 HOMEPAGE=https://www.hdfgroup.org/hdf4.html
 INHERIT=fortran-2 toolchain-funcs autotools flag-o-matic
 IUSE=examples fortran szip static-libs test
-KEYWORDS=amd64 ~arm ~ia64 ~ppc ~riscv x86 ~amd64-linux ~x86-linux
+KEYWORDS=amd64 ~arm ~ppc ~riscv x86 ~amd64-linux ~x86-linux
 LICENSE=NCSA-HDF
 RDEPEND=net-libs/libtirpc:= sys-libs/zlib virtual/jpeg:0 szip? ( virtual/szip ) fortran? ( virtual/fortran )
 REQUIRED_USE=test? ( szip )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://support.hdfgroup.org/ftp/HDF/releases/HDF4.2.15/src/hdf-4.2.15.tar.bz2 https://dev.gentoo.org/~sam/distfiles/sci-libs/hdf/hdf-4.2.15-arch-patches-1.tar.bz2 https://dev.gentoo.org/~dlan/distfiles/sci-libs/hdf/hdf-4.2.15-arch-patches-1.tar.bz2
-_eclasses_=gnuconfig	a397adda6984a4c423e28ac274c1ba98	toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	libtool	5f49a16f67f81bdf873e3d1f10b10001	autotools	dc70c1dc473b68317fc4a86f5fbfc57d	fortran-2	40c4450f1c4ecb2ee694d96e1958d4ea	flag-o-matic	d309b9713dfc18e754cba88d3ba69653
-_md5_=5f1e2aa4b129bc04f5178bb680a31f20
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	fortran-2	54fcb693257134adae26819685891ecc	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	6b28392a775f807c8be5fc7ec9a605b9	autotools	7d91cc798a8afd8f4e0c6e9587296ebe	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9
+_md5_=40bb0736794c76dd8eb41ce5b38ce205

@@ -1,8 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-inherit dist-kernel-utils linux-info mount-boot savedconfig multiprocessing
+PYTHON_COMPAT=( python3_{10..13} )
+inherit dist-kernel-utils linux-info mount-boot python-any-r1 savedconfig
 
 # In case this is a real snapshot, fill in commit below.
 # For normal, tagged releases, leave blank
@@ -19,7 +20,7 @@ else
 		SRC_URI="https://mirrors.edge.kernel.org/pub/linux/kernel/firmware/${P}.tar.xz"
 	fi
 
-	KEYWORDS="~amd64"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 DESCRIPTION="Linux firmware files"
@@ -40,7 +41,8 @@ RESTRICT="binchecks strip test
 BDEPEND="initramfs? ( app-alternatives/cpio )
 	compress-xz? ( app-arch/xz-utils )
 	compress-zstd? ( app-arch/zstd )
-	deduplicate? ( app-misc/rdfind )"
+	deduplicate? ( app-misc/rdfind )
+	${PYTHON_DEPS}"
 
 #add anything else that collides to this
 RDEPEND="!savedconfig? (
@@ -56,7 +58,12 @@ RDEPEND="!savedconfig? (
 			!sys-firmware/alsa-firmware[alsa_cards_ymfpci]
 		)
 	)
-	dist-kernel? ( virtual/dist-kernel )
+	dist-kernel? (
+		virtual/dist-kernel
+		initramfs? (
+			app-alternatives/cpio
+		)
+	)
 "
 IDEPEND="
 	dist-kernel? (
@@ -65,8 +72,26 @@ IDEPEND="
 "
 
 QA_PREBUILT="*"
+PATCHES=(
+	"${FILESDIR}"/${PN}-copy-firmware-r8.patch
+)
+
+pkg_pretend() {
+	if use initramfs; then
+		if use dist-kernel; then
+			# Check, but don't die because we can fix the problem and then
+			# emerge --config ... to re-run installation.
+			nonfatal mount-boot_check_status
+		else
+			mount-boot_pkg_pretend
+		fi
+	fi
+}
 
 pkg_setup() {
+
+	python_setup
+
 	if use compress-xz || use compress-zstd ; then
 		local CONFIG_CHECK
 
@@ -81,10 +106,6 @@ pkg_setup() {
 		fi
 	fi
 	linux-info_pkg_setup
-}
-
-pkg_pretend() {
-	use initramfs && mount-boot_pkg_pretend
 }
 
 src_unpack() {
@@ -102,32 +123,12 @@ src_unpack() {
 src_prepare() {
 	default
 
-	find . -type f -not -perm 0644 -print0 \
-		| xargs --null --no-run-if-empty chmod 0644 \
-		|| die
-
-	chmod +x copy-firmware.sh || die
+	cp "${FILESDIR}/${PN}-make-amd-ucode-img.bash" "${T}/make-amd-ucode-img" || die
+	chmod +x "${T}/make-amd-ucode-img" || die
 
 	if use initramfs && ! use dist-kernel; then
 		if [[ -d "${S}/amd-ucode" ]]; then
-			local UCODETMP="${T}/ucode_tmp"
-			local UCODEDIR="${UCODETMP}/kernel/x86/microcode"
-			mkdir -p "${UCODEDIR}" || die
-			echo 1 > "${UCODETMP}/early_cpio"
-
-			local amd_ucode_file="${UCODEDIR}/AuthenticAMD.bin"
-			cat "${S}"/amd-ucode/*.bin > "${amd_ucode_file}" || die "Failed to concat amd cpu ucode"
-
-			if [[ ! -s "${amd_ucode_file}" ]]; then
-				die "Sanity check failed: '${amd_ucode_file}' is empty!"
-			fi
-
-			pushd "${UCODETMP}" &>/dev/null || die
-			find . -print0 | cpio --quiet --null -o -H newc -R 0:0 > "${S}"/amd-uc.img
-			popd &>/dev/null || die
-			if [[ ! -s "${S}/amd-uc.img" ]]; then
-				die "Failed to create '${S}/amd-uc.img'!"
-			fi
+			"${T}/make-amd-ucode-img" "${S}" "${S}/amd-ucode" || die
 		else
 			# If this will ever happen something has changed which
 			# must be reviewed
@@ -138,6 +139,8 @@ src_prepare() {
 	# whitelist of misc files
 	local misc_files=(
 		copy-firmware.sh
+		dedup-firmware.sh
+		check_whence.py
 		WHENCE
 		README
 	)
@@ -207,6 +210,50 @@ src_prepare() {
 		mellanox/mlxsw_spectrum-13.2000.1122.mfa2
 	)
 
+	if use !redistributable; then
+		# remove files _not_ in the free_software or unknown_license lists
+		# everything else is confirmed (or assumed) to be redistributable
+		# based on upstream acceptance policy
+		einfo "Removing non-redistributable files ..."
+		local OLDIFS="${IFS}"
+		local IFS=$'\n'
+		set -o pipefail
+		find ! -type d -printf "%P\n" \
+			| grep -Fvx -e "${misc_files[*]}" -e "${free_software[*]}" -e "${unknown_license[*]}" \
+			| xargs -d '\n' --no-run-if-empty rm -v
+
+		[[ ${?} -ne 0 ]] && die "Failed to remove non-redistributable files"
+
+		IFS="${OLDIFS}"
+	fi
+
+	restore_config ${PN}.conf
+}
+
+src_install() {
+
+	local FW_OPTIONS=( "-v" "-j1" )
+	git config --global --add safe.directory "${S}" || die
+	local files_to_keep=
+
+	if use savedconfig; then
+		if [[ -s "${S}/${PN}.conf" ]]; then
+			files_to_keep="${T}/files_to_keep.lst"
+			grep -v '^#' "${S}/${PN}.conf" 2>/dev/null > "${files_to_keep}" || die
+			[[ -s "${files_to_keep}" ]] || die "grep failed, empty config file?"
+			FW_OPTIONS+=( "--firmware-list" "${files_to_keep}" )
+		fi
+	fi
+
+	if use compress-xz; then
+		FW_OPTIONS+=( "--xz" )
+	elif use compress-zstd; then
+		FW_OPTIONS+=( "--zstd" )
+	fi
+	FW_OPTIONS+=( "${ED}/lib/firmware" )
+	./copy-firmware.sh "${FW_OPTIONS[@]}" || die
+	use deduplicate && { ./dedup-firmware.sh "${ED}/lib/firmware" || die; }
+
 	# blacklist of images with unknown license
 	local unknown_license=(
 		korg/k1212.dsp
@@ -256,58 +303,11 @@ src_prepare() {
 		einfo "Removing files with unknown license ..."
 		rm -v "${unknown_license[@]}" || die
 	fi
-
-	if use !redistributable; then
-		# remove files _not_ in the free_software or unknown_license lists
-		# everything else is confirmed (or assumed) to be redistributable
-		# based on upstream acceptance policy
-		einfo "Removing non-redistributable files ..."
-		local OLDIFS="${IFS}"
-		local IFS=$'\n'
-		set -o pipefail
-		find ! -type d -printf "%P\n" \
-			| grep -Fvx -e "${misc_files[*]}" -e "${free_software[*]}" -e "${unknown_license[*]}" \
-			| xargs -d '\n' --no-run-if-empty rm -v
-
-		[[ ${?} -ne 0 ]] && die "Failed to remove non-redistributable files"
-
-		IFS="${OLDIFS}"
-	fi
-
-	restore_config ${PN}.conf
-}
-
-src_install() {
-	./copy-firmware.sh $(usex deduplicate '' '--ignore-duplicates') -v "${ED}/lib/firmware" || die
-
 	pushd "${ED}/lib/firmware" &>/dev/null || die
 
 	# especially use !redistributable will cause some broken symlinks
 	einfo "Removing broken symlinks ..."
 	find * -xtype l -print -delete || die
-
-	if use savedconfig; then
-		if [[ -s "${S}/${PN}.conf" ]]; then
-			local files_to_keep="${T}/files_to_keep.lst"
-			grep -v '^#' "${S}/${PN}.conf" 2>/dev/null > "${files_to_keep}" || die
-			[[ -s "${files_to_keep}" ]] || die "grep failed, empty config file?"
-
-			einfo "Applying USE=savedconfig; Removing all files not listed in config ..."
-			find ! -type d -printf "%P\n" \
-				| grep -Fvx -f "${files_to_keep}" \
-				| xargs -d '\n' --no-run-if-empty rm -v
-
-			if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
-				die "Find failed to print installed files"
-			elif [[ ${PIPESTATUS[1]} -eq 2 ]]; then
-				# grep returns exit status 1 if no lines were selected
-				# which is the case when we want to keep all files
-				die "Grep failed to select files to keep"
-			elif [[ ${PIPESTATUS[2]} -ne 0 ]]; then
-				die "Failed to remove files not listed in config"
-			fi
-		fi
-	fi
 
 	# remove empty directories, bug #396073
 	find -type d -empty -delete || die
@@ -324,36 +324,6 @@ src_install() {
 	find * ! -type d >> "${S}"/${PN}.conf || die
 	save_config "${S}"/${PN}.conf
 
-	if use compress-xz || use compress-zstd; then
-		einfo "Compressing firmware ..."
-		local target
-		local ext
-		local compressor
-
-		if use compress-xz; then
-			ext=xz
-			compressor="xz -T1 -C crc32"
-		elif use compress-zstd; then
-			ext=zst
-			compressor="zstd -15 -T1 -C -q --rm"
-		fi
-
-		# rename symlinks
-		while IFS= read -r -d '' f; do
-			# skip symlinks pointing to directories
-			[[ -d ${f} ]] && continue
-
-			target=$(readlink "${f}")
-			[[ $? -eq 0 ]] || die
-			ln -sf "${target}".${ext} "${f}" || die
-			mv -T "${f}" "${f}".${ext} || die
-		done < <(find . -type l -print0) || die
-
-		find . -type f ! -path "./amd-ucode/*" -print0 | \
-			xargs -0 -P $(makeopts_jobs) -I'{}' ${compressor} '{}' || die
-
-	fi
-
 	popd &>/dev/null || die
 
 	# Instruct Dracut on whether or not we want the microcode in initramfs
@@ -361,6 +331,17 @@ src_install() {
 		insinto /usr/lib/dracut/dracut.conf.d
 		newins - 10-${PN}.conf <<<"early_microcode=$(usex initramfs)"
 	)
+	if use initramfs; then
+		# Install installkernel/kernel-install hooks for non-dracut initramfs
+		# generators that don't bundled the microcode
+		dobin "${T}/make-amd-ucode-img"
+		(
+			exeinto /usr/lib/kernel/preinst.d
+			doexe "${FILESDIR}/35-amd-microcode.install"
+			exeinto /usr/lib/kernel/install.d
+			doexe "${FILESDIR}/35-amd-microcode-systemd.install"
+		)
+	fi
 
 	if use initramfs && ! use dist-kernel; then
 		insinto /boot
@@ -379,7 +360,8 @@ pkg_preinst() {
 	fi
 
 	# Make sure /boot is available if needed.
-	use initramfs && mount-boot_pkg_preinst
+	use initramfs && ! use dist-kernel && mount-boot_pkg_preinst
+
 }
 
 pkg_postinst() {
@@ -397,21 +379,22 @@ pkg_postinst() {
 		fi
 	done
 
-	# Don't forget to umount /boot if it was previously mounted by us.
 	if use initramfs; then
-		if [[ -z ${ROOT} ]] && use dist-kernel; then
+		if use dist-kernel; then
 			dist-kernel_reinstall_initramfs "${KV_DIR}" "${KV_FULL}"
+		else
+			# Don't forget to umount /boot if it was previously mounted by us.
+			mount-boot_pkg_postinst
 		fi
-		mount-boot_pkg_postinst
 	fi
 }
 
 pkg_prerm() {
 	# Make sure /boot is mounted so that we can remove /boot/amd-uc.img!
-	use initramfs && mount-boot_pkg_prerm
+	use initramfs && ! use dist-kernel && mount-boot_pkg_prerm
 }
 
 pkg_postrm() {
 	# Don't forget to umount /boot if it was previously mounted by us.
-	use initramfs && mount-boot_pkg_postrm
+	use initramfs && ! use dist-kernel && mount-boot_pkg_postrm
 }

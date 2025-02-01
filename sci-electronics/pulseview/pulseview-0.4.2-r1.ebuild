@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
@@ -6,7 +6,7 @@ EAPI="8"
 inherit cmake xdg-utils
 
 if [[ ${PV} == *9999* ]]; then
-	EGIT_REPO_URI="git://sigrok.org/${PN}"
+	EGIT_REPO_URI="https://github.com/sigrokproject/${PN}.git"
 	inherit git-r3
 else
 	SRC_URI="https://sigrok.org/download/source/${PN}/${P}.tar.gz"
@@ -50,6 +50,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# Needed for modern Boost (bug #946610).
+	# Drop this on bump > 0.4.2.
+	sed -i -e 's:-std=c++11:-std=c++17:' CMakeLists.txt || die
+
 	local mycmakeargs=(
 		-DDISABLE_WERROR=TRUE
 		-DENABLE_DECODE=$(usex decode)

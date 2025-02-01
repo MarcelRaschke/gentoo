@@ -12,7 +12,7 @@ SRC_URI="https://releases.pagure.org/${PN}/${P}.tar.xz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 ~x86 ~amd64-linux ~x86-linux"
 IUSE="emacs"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
@@ -22,7 +22,7 @@ DEPEND="
 	dev-lang/perl:*
 	$(python_gen_cond_dep '
 		dev-python/progressbar2[${PYTHON_USEDEP}]
-		dev-python/requests_download[${PYTHON_USEDEP}]
+		dev-python/requests-download[${PYTHON_USEDEP}]
 	')
 "
 RDEPEND="

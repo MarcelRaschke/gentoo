@@ -19,7 +19,7 @@ HOMEPAGE="https://github.com/MaskRay/ccls"
 
 if [[ ${PV} != *9999 ]] ; then
 	SRC_URI="https://github.com/MaskRay/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm64 ~riscv"
+	KEYWORDS="amd64 ~arm64 ~riscv"
 fi
 
 LICENSE="Apache-2.0"
@@ -29,9 +29,13 @@ SLOT="0"
 # See comment in llvm.eclass docs
 DEPEND="
 	dev-libs/rapidjson
-	<sys-devel/clang-$((${LLVM_MAX_SLOT} + 1)):=
+	<llvm-core/clang-$((${LLVM_MAX_SLOT} + 1)):=
 "
 RDEPEND="${DEPEND}"
+
+PATCHES=(
+	"${FILESDIR}"/ccls-0.20240202-gcc15-cstdint.patch
+)
 
 src_configure() {
 	local mycmakeargs=(

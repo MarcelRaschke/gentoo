@@ -1,8 +1,8 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-USE_RUBY="ruby27 ruby30 ruby31"
+USE_RUBY="ruby31 ruby32"
 RUBY_OPTIONAL="yes"
 
 inherit autotools java-pkg-opt-2 perl-functions ruby-ng
@@ -12,7 +12,7 @@ HOMEPAGE="https://fallabs.com/hyperestraier/"
 SRC_URI="https://fallabs.com/${PN}/${P}.tar.gz"
 
 LICENSE="LGPL-2.1"
-KEYWORDS="~alpha amd64 ~arm ~hppa ~ia64 ppc ppc64 sparc x86"
+KEYWORDS="~alpha amd64 ~arm ~hppa ppc ppc64 sparc x86"
 SLOT="0"
 IUSE="bzip2 debug java lzo mecab perl ruby static-libs +zlib"
 
@@ -34,6 +34,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-java-11.patch
 	"${FILESDIR}"/${PN}-perl.patch
 	"${FILESDIR}"/${PN}-ruby19.patch
+	"${FILESDIR}"/${PN}-ruby-varargs.patch
 )
 HTML_DOCS=( doc/. )
 

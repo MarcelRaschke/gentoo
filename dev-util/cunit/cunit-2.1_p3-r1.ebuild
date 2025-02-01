@@ -10,12 +10,12 @@ MY_PV="${PV/_p*}-3"
 MY_P="${MY_PN}-${MY_PV}"
 
 DESCRIPTION="C Unit Test Framework"
-HOMEPAGE="http://cunit.sourceforge.net"
+HOMEPAGE="https://cunit.sourceforge.net"
 SRC_URI="https://downloads.sourceforge.net/cunit/${MY_P}.tar.bz2"
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="ncurses static-libs test"
 RESTRICT="!test? ( test )"
 
@@ -27,6 +27,7 @@ S="${WORKDIR}/${MY_P}"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-2.1_p3-ncurses-format-security.patch
+	"${FILESDIR}"/${PN}-2.1_p3-ncurses-opaque.patch
 )
 
 src_prepare() {

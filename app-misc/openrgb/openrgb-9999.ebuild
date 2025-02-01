@@ -1,4 +1,4 @@
-# Copyright 2020-2023 Gentoo Authors
+# Copyright 2020-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -28,7 +28,7 @@ RDEPEND="
 	dev-qt/qtcore:5
 	dev-qt/qtgui:5
 	dev-qt/qtwidgets:5
-	net-libs/mbedtls:=
+	net-libs/mbedtls:0=
 	virtual/libusb:1
 "
 DEPEND="
@@ -52,6 +52,9 @@ src_prepare() {
 	default
 	rm -r dependencies/{httplib,hidapi,libusb,mdns,json,mbedtls}* \
 		|| die "Failed to remove unneded deps"
+
+	rm dependencies/hueplusplus-1.1.0/include/json/json.hpp || die
+	echo "#include <nlohmann/json.hpp>" > dependencies/hueplusplus-1.1.0/include/json/json.hpp || die
 }
 
 src_configure() {
@@ -63,16 +66,25 @@ src_configure() {
 	# > warning: ‘-pipe’ ignored because ‘-save-temps’ specified
 	filter-flags -pipe
 
+	# cpp-httplib >=0.16.0 changed the library name from "httplib" to "cpp-httplib".
+	# See bug: https://bugs.gentoo.org/934576
+	local -a libs=()
+	if has_version "<dev-cpp/cpp-httplib-0.16.0" ; then
+		libs+=( -lhttplib )
+	else
+		libs+=( -lcpp-httplib )
+	fi
+
 	eqmake5 \
 		INCLUDEPATH+="${ESYSROOT}/usr/include/nlohmann" \
 		DEFINES+="OPENRGB_EXTRA_PLUGIN_DIRECTORY=\\\\\"\\\"${EPREFIX}/usr/$(get_libdir)/OpenRGB/plugins\\\\\"\\\"" \
-		LIBS+=-lhttplib
+		LIBS+="${libs[@]}"
 }
 
 src_install() {
 	emake INSTALL_ROOT="${ED}" install
 
-	dodoc README.md OpenRGB.patch
+	dodoc README.md
 
 	rm -r "${ED}"/usr/lib/udev/ || die
 	udev_dorules 60-openrgb.rules

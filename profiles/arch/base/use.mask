@@ -1,6 +1,10 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Thomas Bettler <thomas.bettler@gmail.com> (2024-11-04)
+# media-libs/tiff only keyworded on amd64
+lerc
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-14)
 # media-libs/quirc only keyworded on amd64, x86
 quirc
@@ -17,11 +21,7 @@ jasper
 # sci-libs/atlas is only supported on specific architectures
 atlas
 
-# Michał Górny <mgorny@gentoo.org> (2024-02-05)
-# LLVM slots without keywords.
-llvm_slot_19
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-07-11)
+# Nowa Ammerlaan <nowa@gentoo.org> (2023-07-11)
 # Mask secureboot flag on arches where sbsigntools is not keyworded
 secureboot
 
@@ -48,9 +48,7 @@ big-endian
 libvirt
 
 # Michael Orlitzky <mjo@gentoo.org> (2017-01-07)
-# The dev-db/firebird and dev-db/oracle-instantclient* packages
-# only support amd64 and x86.
-firebird
+# dev-db/oracle-instantclient* only supports amd64 and x86.
 oci8
 
 # cuda/NVENC only works on amd64/arm64
@@ -87,12 +85,34 @@ cpu_flags_x86_3dnowext
 cpu_flags_x86_aes
 cpu_flags_x86_avx
 cpu_flags_x86_avx2
+cpu_flags_x86_avx512_4fmaps
+cpu_flags_x86_avx512_4vnniw
+cpu_flags_x86_avx512_bf16
+cpu_flags_x86_avx512_bitalg
+cpu_flags_x86_avx512_fp16
+cpu_flags_x86_avx512_vbmi2
+cpu_flags_x86_avx512_vnni
+cpu_flags_x86_avx512_vp2intersect
+cpu_flags_x86_avx512_vpopcntdq
+cpu_flags_x86_avx512bw
+cpu_flags_x86_avx512cd
+cpu_flags_x86_avx512dq
+cpu_flags_x86_avx512er
+cpu_flags_x86_avx512f
+cpu_flags_x86_avx512ifma
+cpu_flags_x86_avx512pf
+cpu_flags_x86_avx512vbmi
+cpu_flags_x86_avx512vl
+cpu_flags_x86_f16c
 cpu_flags_x86_fma3
 cpu_flags_x86_fma4
 cpu_flags_x86_mmx
 cpu_flags_x86_mmxext
 cpu_flags_x86_padlock
+cpu_flags_x86_pclmul
 cpu_flags_x86_popcnt
+cpu_flags_x86_rdrand
+cpu_flags_x86_sha
 cpu_flags_x86_sse
 cpu_flags_x86_sse2
 cpu_flags_x86_sse3
@@ -100,6 +120,7 @@ cpu_flags_x86_sse4_1
 cpu_flags_x86_sse4_2
 cpu_flags_x86_sse4a
 cpu_flags_x86_ssse3
+cpu_flags_x86_vpclmulqdq
 cpu_flags_x86_xop
 
 # ppc arch specific USE flags
@@ -160,6 +181,7 @@ video_cards_i915
 video_cards_i965
 video_cards_intel
 video_cards_nvidia
+video_cards_nvk
 video_cards_vesa
 video_cards_via
 video_cards_vmware
@@ -248,7 +270,6 @@ amd64
 arm
 arm64
 hppa
-ia64
 loong
 m68k
 mips

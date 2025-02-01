@@ -2,58 +2,54 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
-DESCRIPTION="Advanced IRC Client"
-HOMEPAGE="https://www.kvirc.net/ https://github.com/kvirc/KVIrc"
-CMAKE_MAKEFILE_GENERATOR="emake"
-PYTHON_COMPAT=( python3_{10..12} )
 
+PYTHON_COMPAT=( python3_{10..13} )
 inherit cmake flag-o-matic python-single-r1 xdg
 
-if [[ "${PV}" == "9999" ]]; then
+DESCRIPTION="Advanced IRC Client"
+HOMEPAGE="https://www.kvirc.net/ https://github.com/kvirc/KVIrc"
+
+if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/kvirc/KVIrc"
 else
 	SRC_URI="https://github.com/kvirc/KVIrc/archive/refs/tags/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~ppc ~ppc64 ~riscv ~x86"
 	S="${WORKDIR}/KVIrc-${PV}"
+	KEYWORDS="~amd64 ~ppc ~ppc64 ~riscv ~x86"
 fi
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="audiofile +dbus dcc-video debug doc gsm kde +nls oss +perl +phonon profile +python spell +ssl theora webengine"
+IUSE="audiofile +dbus debug doc gsm kde +nls oss +perl profile +python spell +ssl theora webengine"
 REQUIRED_USE="audiofile? ( oss ) python? ( ${PYTHON_REQUIRED_USE} )"
 
-BDEPEND="dev-lang/perl:0
+BDEPEND="
+	dev-lang/perl:0
 	virtual/pkgconfig
 	doc? ( app-text/doxygen )
 	kde? ( kde-frameworks/extra-cmake-modules:0 )
 	nls? ( sys-devel/gettext )"
-DEPEND="dev-qt/qtcore:5
-	dev-qt/qtconcurrent:5
-	dev-qt/qtgui:5
-	dev-qt/qtmultimedia:5
-	dev-qt/qtnetwork:5
-	dev-qt/qtprintsupport:5
-	dev-qt/qtsql:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtx11extras:5
-	dev-qt/qtxml:5
+DEPEND="
+	dev-qt/qtbase:6[concurrent,gui,network,sql,widgets,xml]
+	dev-qt/qtmultimedia:6
+	dev-qt/qt5compat:6
 	sys-libs/zlib:0=
 	x11-libs/libX11
-	x11-libs/libXScrnSaver
 	audiofile? ( media-libs/audiofile )
-	dbus? ( dev-qt/qtdbus:5 )
-	dcc-video? ( dev-qt/qtmultimedia:5[widgets] )
+	dbus? ( dev-qt/qtbase:6[dbus] )
 	kde? (
-		kde-frameworks/kcoreaddons:5
-		kde-frameworks/ki18n:5
-		kde-frameworks/knotifications:5
-		kde-frameworks/kservice:5
-		kde-frameworks/kwindowsystem:5
-		kde-frameworks/kxmlgui:5
+		kde-frameworks/kconfig:6
+		kde-frameworks/kcoreaddons:6
+		kde-frameworks/kio:6
+		kde-frameworks/ki18n:6
+		kde-frameworks/knotifications:6
+		kde-frameworks/kparts:6
+		kde-frameworks/kservice:6
+		kde-frameworks/kstatusnotifieritem:6
+		kde-frameworks/kwindowsystem:6[X]
+		kde-frameworks/kxmlgui:6
 	)
 	perl? ( dev-lang/perl:0= )
-	phonon? ( media-libs/phonon[qt5(+)] )
 	python? ( ${PYTHON_DEPS} )
 	spell? ( app-text/enchant:2 )
 	ssl? ( dev-libs/openssl:0= )
@@ -62,7 +58,7 @@ DEPEND="dev-qt/qtcore:5
 		media-libs/libtheora
 		media-libs/libvorbis
 	)
-	webengine? ( dev-qt/qtwebengine:5[widgets] )"
+	webengine? ( dev-qt/qtwebengine:6[widgets] )"
 RDEPEND="${DEPEND}
 	gsm? ( media-sound/gsm )"
 
@@ -77,7 +73,7 @@ pkg_setup() {
 src_prepare() {
 	cmake_src_prepare
 
-	if [[ "${PV}" == "9999" ]]; then
+	if [[ ${PV} == *9999* ]]; then
 		KVIRC_GIT_REVISION="$(git show -s --format=%H)"
 		KVIRC_GIT_SOURCES_DATE="$(git show -s --format=%cd --date=short)"
 		einfo "Setting of revision number to ${KVIRC_GIT_REVISION} ${KVIRC_GIT_SOURCES_DATE}"
@@ -102,7 +98,6 @@ src_configure() {
 		-DWANT_TRANSPARENCY=ON
 
 		-DWANT_AUDIOFILE=$(usex audiofile)
-		-DWANT_DCC_VIDEO=$(usex dcc-video)
 		-DWANT_DEBUG=$(usex debug)
 		-DWANT_DOXYGEN=$(usex doc)
 		-DWANT_GETTEXT=$(usex nls)
@@ -113,15 +108,15 @@ src_configure() {
 		-DWANT_OPENSSL=$(usex ssl)
 		-DWANT_OSS=$(usex oss)
 		-DWANT_PERL=$(usex perl)
-		-DWANT_PHONON=$(usex phonon)
 		-DWANT_PYTHON=$(usex python)
 		-DWANT_QTDBUS=$(usex dbus)
 		-DWANT_QTWEBENGINE=$(usex webengine)
 		-DWANT_SPELLCHECKER=$(usex spell)
-		-DQT_VERSION_MAJOR=5
+		-DQT_VERSION_MAJOR=6
 
-		# COMPILE_SVG_SUPPORT not used in source code.
-		-DWANT_QTSVG=OFF
+		-DWANT_DCC_VIDEO=OFF
+		-DWANT_PHONON=OFF
+		-DWANT_QTSVG=OFF # COMPILE_SVG_SUPPORT not used in source code.
 	)
 	if use python; then
 		mycmakeargs+=(
@@ -129,7 +124,7 @@ src_configure() {
 			-DPython3_LIBRARY="$(python_get_library_path)"
 		)
 	fi
-	if [[ "${PV}" == "9999" ]]; then
+	if [[ ${PV} == *9999* ]]; then
 		mycmakeargs+=(
 			-DMANUAL_REVISION=${KVIRC_GIT_REVISION}
 			-DMANUAL_SOURCES_DATE=${KVIRC_GIT_SOURCES_DATE//-/}
@@ -151,9 +146,7 @@ src_install() {
 	cmake_src_install
 
 	if use doc; then
-		(
-			docinto html
-			dodoc -r "${BUILD_DIR}/doc/api/html/"*
-		)
+		docinto html
+		dodoc -r "${BUILD_DIR}/doc/api/html/"*
 	fi
 }

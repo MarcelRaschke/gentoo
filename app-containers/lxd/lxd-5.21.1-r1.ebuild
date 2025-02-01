@@ -13,7 +13,7 @@ SRC_URI="https://github.com/canonical/lxd/releases/download/${P}/${P}.tar.gz
 
 LICENSE="Apache-2.0 AGPL-3+ BSD LGPL-3 MIT"
 SLOT="0/lts"
-KEYWORDS="~amd64 ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="apparmor nls"
 
 DEPEND="acct-group/lxd
@@ -97,7 +97,7 @@ src_prepare() {
 
 	# Fix hardcoded ovmf file path, see bug 763180
 	sed -i \
-		-e "s:/usr/share/OVMF:/usr/share/edk2-ovmf:g" \
+		-e "s:/usr/share/OVMF:/usr/share/edk2/OvmfX64:g" \
 		-e "s:OVMF_VARS.ms.fd:OVMF_VARS.fd:g" \
 		doc/environment.md \
 		lxd/apparmor/instance.go \

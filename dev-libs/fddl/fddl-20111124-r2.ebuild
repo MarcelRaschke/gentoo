@@ -6,12 +6,12 @@ EAPI=8
 inherit cmake
 
 DESCRIPTION="Free Decision Diagram Library"
-HOMEPAGE="http://itval.sourceforge.net/ https://github.com/atomopawn/FDDL"
+HOMEPAGE="https://itval.sourceforge.net/ https://github.com/atomopawn/FDDL"
 SRC_URI="https://dev.gentoo.org/~pinkbyte/distfiles/snapshots/${P}.tar.gz"
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 
 DOCS=( AUTHORS ChangeLog INSTALL RELEASE )
 

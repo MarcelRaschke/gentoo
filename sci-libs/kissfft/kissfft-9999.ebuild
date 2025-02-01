@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{9..12} )
 
-inherit cmake python-any-r1 toolchain-funcs
+inherit cmake multibuild python-any-r1 toolchain-funcs
 
 DESCRIPTION="A Fast Fourier Transform (FFT) library that tries to Keep it Simple, Stupid"
 HOMEPAGE="https://github.com/mborgerding/kissfft"
@@ -20,7 +20,7 @@ fi
 
 LICENSE="BSD"
 SLOT="0"
-IUSE="alloca cpu_flags_x86_sse openmp test tools"
+IUSE="alloca cpu_flags_x86_sse double int16 int32 openmp test tools"
 RESTRICT="!test? ( test )"
 
 DEPEND="
@@ -46,18 +46,38 @@ pkg_pretend() {
 }
 
 pkg_setup() {
+	MULTIBUILD_VARIANTS=(
+		float
+		$(usev double)
+		$(usev int16 int16_t)
+		$(usev int32 int32_t)
+		$(usev cpu_flags_x86_sse simd)
+	)
+
 	use test && python-any-r1_pkg_setup
 	[[ ${MERGE_TYPE} != binary ]] && use openmp && tc-check-openmp
 }
 
-src_configure() {
+kissfft_configure() {
 	local mycmakeargs=(
 		-DKISSFFT_OPENMP=$(usex openmp 1 0)
 		-DKISSFFT_TEST=$(usex test)
 		-DKISSFFT_TOOLS=$(usex tools)
 		-DKISSFFT_USE_ALLOCA=$(usex alloca)
-		-DKISSFFT_DATATYPE=$(usex cpu_flags_x86_sse simd float)
+		-DKISSFFT_DATATYPE=${MULTIBUILD_VARIANT}
 	)
 
 	cmake_src_configure
+}
+
+src_configure() {
+	multibuild_foreach_variant kissfft_configure
+}
+
+src_compile() {
+	multibuild_foreach_variant cmake_src_compile
+}
+
+src_install() {
+	multibuild_foreach_variant cmake_src_install
 }

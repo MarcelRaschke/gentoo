@@ -1,10 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..13} )
 
-CMAKE_BUILD_TYPE="None"
 inherit cmake desktop python-single-r1 virtualx xdg-utils
 
 DESCRIPTION="Toolkit that provides signal processing blocks to implement software radios"
@@ -23,20 +22,24 @@ fi
 
 IUSE="+audio +alsa +analog +digital channels ctrlport doc dtv examples fec +filter grc iio jack modtool network oss performance-counters portaudio +qt5 sdl soapy test trellis uhd vocoder +utils wavelet zeromq"
 
-RESTRICT="!test? ( test )"
+#RESTRICT="!test? ( test )"
+# Tests are pulling in the installed python libs and breaking
+# https://github.com/gnuradio/gnuradio/issues/7568
+RESTRICT="test"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
-	audio? ( || ( alsa oss jack portaudio ) )
 	alsa? ( audio )
-	jack? ( audio )
-	oss? ( audio )
-	portaudio? ( audio )
 	analog? ( filter )
+	audio? ( || ( alsa oss jack portaudio ) )
 	channels? ( filter analog qt5 )
 	digital? ( filter analog )
 	dtv? ( filter analog fec )
+	jack? ( audio )
 	modtool? ( utils )
+	oss? ( audio )
+	portaudio? ( audio )
 	qt5? ( filter )
+	test? ( channels )
 	trellis? ( analog digital )
 	uhd? ( filter analog )
 	vocoder? ( filter analog )
@@ -77,12 +80,11 @@ RDEPEND="${PYTHON_DEPS}
 	iio? (
 		net-libs/libiio:=
 		net-libs/libad9361-iio:=
-		!net-wireless/gr-iio
 	)
 	jack? ( virtual/jack )
 	portaudio? ( >=media-libs/portaudio-19_pre )
 	qt5? (
-		$(python_gen_cond_dep 'dev-python/PyQt5[opengl,${PYTHON_USEDEP}]')
+		$(python_gen_cond_dep 'dev-python/pyqt5[opengl,${PYTHON_USEDEP}]')
 		dev-qt/qtcore:5
 		dev-qt/qtgui:5
 		x11-libs/qwt:6=[qt5(+)]
@@ -124,7 +126,10 @@ DEPEND="${RDEPEND}
 	grc? ( x11-misc/xdg-utils )
 	modtool? ( $(python_gen_cond_dep 'dev-python/pygccxml[${PYTHON_USEDEP}]') )
 	oss? ( virtual/os-headers )
-	test? ( >=dev-util/cppunit-1.9.14 )
+	test? (
+		>=dev-util/cppunit-1.9.14
+		dev-python/pyzmq
+	)
 	zeromq? ( net-libs/cppzmq )
 "
 
@@ -145,33 +150,33 @@ src_configure() {
 		-DENABLE_GNURADIO_RUNTIME=ON
 		-DENABLE_PYTHON=ON
 		-DENABLE_GR_BLOCKS=ON
-		-DENABLE_GR_ANALOG="$(usex analog)"
+		-DENABLE_GR_ANALOG="$(usex analog ON OFF)"
 		-DENABLE_GR_AUDIO=ON
-		-DENABLE_GR_CHANNELS="$(usex channels)"
-		-DENABLE_GR_CTRLPORT="$(usex ctrlport)"
-		-DENABLE_GR_DIGITAL="$(usex digital)"
-		-DENABLE_DOXYGEN="$(usex doc)"
-		-DENABLE_GR_DTV="$(usex dtv)"
-		-DENABLE_GR_FEC="$(usex fec)"
+		-DENABLE_GR_CHANNELS="$(usex channels ON OFF)"
+		-DENABLE_GR_CTRLPORT="$(usex ctrlport ON OFF)"
+		-DENABLE_GR_DIGITAL="$(usex digital ON OFF)"
+		-DENABLE_DOXYGEN="$(usex doc ON OFF)"
+		-DENABLE_GR_DTV="$(usex dtv ON OFF)"
+		-DENABLE_GR_FEC="$(usex fec ON OFF)"
 		-DENABLE_GR_FFT=ON
-		-DENABLE_GR_FILTER="$(usex filter)"
-		-DENABLE_GRC="$(usex grc)"
-		-DENABLE_GR_IIO="$(usex iio)"
-		-DENABLE_GR_MODTOOL="$(usex modtool)"
-		-DENABLE_GR_BLOCKTOOL="$(usex modtool)"
-		-DENABLE_GR_NETWORK="$(usex network)"
+		-DENABLE_GR_FILTER="$(usex filter ON OFF)"
+		-DENABLE_GRC="$(usex grc ON OFF)"
+		-DENABLE_GR_IIO="$(usex iio ON OFF)"
+		-DENABLE_GR_MODTOOL="$(usex modtool ON OFF)"
+		-DENABLE_GR_BLOCKTOOL="$(usex modtool ON OFF)"
+		-DENABLE_GR_NETWORK="$(usex network ON OFF)"
 		-DENABLE_GR_PDU=ON
-		-DENABLE_PERFORMANCE_COUNTERS="$(usex performance-counters)"
-		-DENABLE_TESTING="$(usex test)"
-		-DENABLE_GR_QTGUI="$(usex qt5)"
-		-DENABLE_GR_SOAPY="$(usex soapy)"
-		-DENABLE_GR_TRELLIS="$(usex trellis)"
-		-DENABLE_GR_UHD="$(usex uhd)"
-		-DENABLE_GR_UTILS="$(usex utils)"
-		-DENABLE_GR_VIDEO_SDL="$(usex sdl)"
-		-DENABLE_GR_VOCODER="$(usex vocoder)"
-		-DENABLE_GR_WAVELET="$(usex wavelet)"
-		-DENABLE_GR_ZEROMQ="$(usex zeromq)"
+		-DENABLE_PERFORMANCE_COUNTERS="$(usex performance-counters ON OFF)"
+		-DENABLE_TESTING="$(usex test ON OFF)"
+		-DENABLE_GR_QTGUI="$(usex qt5 ON OFF)"
+		-DENABLE_GR_SOAPY="$(usex soapy ON OFF)"
+		-DENABLE_GR_TRELLIS="$(usex trellis ON OFF)"
+		-DENABLE_GR_UHD="$(usex uhd ON OFF)"
+		-DENABLE_GR_UTILS="$(usex utils ON OFF)"
+		-DENABLE_GR_VIDEO_SDL="$(usex sdl ON OFF)"
+		-DENABLE_GR_VOCODER="$(usex vocoder ON OFF)"
+		-DENABLE_GR_WAVELET="$(usex wavelet ON OFF)"
+		-DENABLE_GR_ZEROMQ="$(usex zeromq ON OFF)"
 		-DSYSCONFDIR="${EPREFIX}"/etc
 		-DPYTHON_EXECUTABLE="${PYTHON}"
 		-DGR_PYTHON_DIR="$(python_get_sitedir)"
@@ -221,8 +226,8 @@ src_install() {
 }
 
 src_test() {
-	# skip test which needs internet
-	virtx cmake_src_test -E metainfo_test --output-on-failure
+	# skip test which needs internet (metainfo_test)
+	virtx cmake_src_test -E 'metainfo_test' --output-on-failure
 }
 
 pkg_postinst() {

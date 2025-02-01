@@ -60,13 +60,13 @@
 # PO_SUBDIR="bla foo/bla"
 # @CODE
 
+if [[ -z ${_VDR_PLUGIN_2_ECLASS} ]]; then
+_VDR_PLUGIN_2_ECLASS=1
+
 case ${EAPI} in
 	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
-
-if [[ -z ${_VDR_PLUGIN_2_ECLASS} ]]; then
-_VDR_PLUGIN_2_ECLASS=1
 
 inherit flag-o-matic strip-linguas toolchain-funcs unpacker
 
@@ -112,14 +112,14 @@ vdr_create_plugindb_file() {
 #		EBUILD=${CATEGORY}/${PN}
 #		EBUILD_V=${PVR}
 #	EOT
-#	obsolet? fix me later...
+#	obsolete? fix me later...
 	{
 		echo "VDRPLUGIN_DB=1"
 		echo "CREATOR=ECLASS"
 		echo "EBUILD=${CATEGORY}/${PN}"
 		echo "EBUILD_V=${PVR}"
 		echo "PLUGINS=\"$@\""
-	} > "${D%/}/${DB_FILE}"
+	} > "${D}/${DB_FILE}" || die
 }
 
 # @FUNCTION: vdr_create_header_checksum_file
@@ -160,7 +160,6 @@ vdr_create_header_checksum_file() {
 # Plugins failed on compile with wrong path of libsi includes,
 # this can be fixed by 'function + space separated list of files'
 fix_vdr_libsi_include() {
-	eqawarn "QA Notice: Fixing include of libsi-headers"
 	local f
 	for f; do
 		sed -i "${f}" \
@@ -245,7 +244,7 @@ vdr_gettext_missing() {
 
 	local GETTEXT_MISSING=$( grep xgettext Makefile )
 	if [[ -z ${GETTEXT_MISSING} ]]; then
-		eqawarn "QA Notice: Plugin isn't converted to gettext handling!"
+		einfo "Notice: Plugin isn't converted to gettext handling!"
 	fi
 }
 
@@ -287,7 +286,7 @@ vdr_linguas_support() {
 			|| die "sed failed for Linguas"
 	done
 
-	strip-linguas ${PLUGIN_LINGUAS} en
+	strip-linguas ${PLUGIN_LINGUAS}
 }
 
 # @FUNCTION: vdr_i18n
@@ -306,11 +305,11 @@ vdr_i18n() {
 	if [[ -n ${I18N_OBJECT} ]]; then
 
 		if [[ "${KEEP_I18NOBJECT:-no}" = "yes" ]]; then
-			eqawarn "QA Notice: Forced to keep i18n.o"
+			einfo "Notice: Forced to keep i18n.o"
 		else
 			sed -i "s:i18n.o::g" Makefile \
 				|| die "sed failed to remove i18n from Makefile"
-			eqawarn "QA Notice: OBJECT i18n.o found, removed per sed"
+			einfo "Notice: OBJECT i18n.o found, removed per sed"
 		fi
 	fi
 
@@ -318,7 +317,7 @@ vdr_i18n() {
 	if [[ -n ${I18N_STRING} ]]; then
 		sed -i "s:^extern[[:space:]]*const[[:space:]]*tI18nPhrase://static const tI18nPhrase:" i18n.h \
 			|| die "sed failed to replace tI18nPhrase"
-		eqawarn "QA Notice: obsolete tI18nPhrase found, disabled per sed, please recheck"
+		einfo "Notice: obsolete tI18nPhrase found, disabled per sed"
 	fi
 }
 
@@ -337,7 +336,7 @@ vdr_remove_i18n_include() {
 		|| die "sed failed to remove i18n_include"
 	done
 
-	eqawarn "QA Notice: removed i18n.h include in ${@}"
+	einfo "Notice: removed i18n.h include in ${@}"
 }
 
 # @FUNCTION: vdr-plugin-2_print_enable_command
@@ -424,7 +423,7 @@ vdr-plugin-2_pkg_setup() {
 	if [[ -n "${VDR_LOCAL_PATCHES_DIR}" ]]; then
 		eerror "Using VDR_LOCAL_PATCHES_DIR is deprecated!"
 		eerror "Please move all your patches into"
-		eerror "${EROOT%/}/etc/portage/patches/${CATEGORY}/${P}"
+		eerror "${EROOT}/etc/portage/patches/${CATEGORY}/${P}"
 		eerror "and remove or unset the VDR_LOCAL_PATCHES_DIR variable."
 		die
 	fi
@@ -518,8 +517,7 @@ vdr-plugin-2_src_compile() {
 				LOCALEDIR="${TMP_LOCALE_DIR}" \
 				LOCDIR="${TMP_LOCALE_DIR}" \
 				LIBDIR="${S}" \
-				TMPDIR="${T}" \
-				|| die "emake all failed"
+				TMPDIR="${T}"
 			;;
 		esac
 
@@ -565,10 +563,9 @@ vdr-plugin-2_src_install() {
 		emake install \
 		${BUILD_PARAMS} \
 		TMPDIR="${T}" \
-		DESTDIR="${D%/}" \
-		|| die "emake install (makefile target) failed"
+		DESTDIR="${D}"
 	else
-		eqawarn "QA Notice: Plugin use still the old Makefile handling"
+		einfo "Notice: Plugin use still the old Makefile handling"
 		insinto "${VDR_PLUGIN_DIR}"
 		doins libvdr-*.so.*
 	fi
@@ -580,12 +577,12 @@ vdr-plugin-2_src_install() {
 		local linguas
 		for linguas in ${LINGUAS[*]}; do
 		insinto "${LOCDIR}"
-		cp -r --parents ${linguas}* "${D%/}"/${LOCDIR} \
+		cp -r --parents ${linguas}* "${D}"/${LOCDIR} \
 			|| die "could not copy linguas files"
 		done
 	fi
 
-	cd "${D%/}/usr/$(get_libdir)/vdr/plugins" \
+	cd "${D}/usr/$(get_libdir)/vdr/plugins" \
 		|| die "could not change to \$D/usr/libdir/vdr/plugins"
 
 	# create list of all created plugin libs

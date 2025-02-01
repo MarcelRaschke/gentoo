@@ -17,7 +17,7 @@ if [[ ${PV} == *9999 ]] ; then
 else
 	SRC_URI="https://github.com/OpenPrinting/cups/releases/download/v${MY_PV}/cups-${MY_PV}-source.tar.gz"
 	if [[ ${PV} != *_beta* && ${PV} != *_rc* ]] ; then
-		KEYWORDS="amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv sparc x86"
+		KEYWORDS="amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv sparc x86"
 	fi
 fi
 
@@ -213,13 +213,13 @@ multilib_src_compile() {
 }
 
 multilib_src_test() {
-	# Avoid using /tmp
-	export CUPS_TESTBASE="${T}"/cups-tests
-
-	mkdir "${T}"/cups-tests || die
-
 	# We only build some of CUPS for multilib, so can't run the tests.
 	if multilib_is_native_abi; then
+		# Avoid using /tmp
+		export CUPS_TESTBASE="${T}"/cups-tests
+
+		mkdir "${T}"/cups-tests || die
+
 		# avoid building *and running* test binaries in src_compile
 		# https://github.com/OpenPrinting/cups/commit/b1d42061e9286f50eefc851ed906d17c6e80c4b0
 		emake UNITTESTS=unittests

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit meson-multilib python-any-r1
 
 if [[ ${PV} == 9999 ]]; then
@@ -52,7 +52,7 @@ RDEPEND="
 	shaderc? ( media-libs/shaderc[${MULTILIB_USEDEP}] )
 	!shaderc? ( glslang? ( dev-util/glslang:=[${MULTILIB_USEDEP}] ) )
 	unwind? (
-		llvm-libunwind? ( sys-libs/llvm-libunwind[${MULTILIB_USEDEP}] )
+		llvm-libunwind? ( llvm-runtimes/libunwind[${MULTILIB_USEDEP}] )
 		!llvm-libunwind? ( sys-libs/libunwind:=[${MULTILIB_USEDEP}] )
 	)
 	vulkan? ( media-libs/vulkan-loader[${MULTILIB_USEDEP}] )
@@ -64,17 +64,18 @@ DEPEND="
 	xxhash? ( dev-libs/xxhash[${MULTILIB_USEDEP}] )
 "
 BDEPEND="
-	$(python_gen_any_dep 'dev-python/jinja[${PYTHON_USEDEP}]')
+	$(python_gen_any_dep 'dev-python/jinja2[${PYTHON_USEDEP}]')
 	virtual/pkgconfig
 "
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-5.229.1-llvm-libunwind.patch
 	"${FILESDIR}"/${PN}-5.229.1-python-executable.patch
+	"${FILESDIR}"/${PN}-7.349.0-glslang-1.3.296.patch
 )
 
 python_check_deps() {
-	python_has_version "dev-python/jinja[${PYTHON_USEDEP}]"
+	python_has_version "dev-python/jinja2[${PYTHON_USEDEP}]"
 }
 
 src_unpack() {

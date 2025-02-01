@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
+	<maintainer type="person" proxied="yes">
 		<email>alexander@neuwirth-informatik.de</email>
 		<name>Alexander Puck Neuwirth</name>
 	</maintainer>
-	<maintainer type="project">
+	<maintainer type="person" proxied="proxy">
+		<email>nowa@gentoo.org</email>
+		<name>Nowa Ammerlaan</name>
+	</maintainer>
+	<maintainer type="project" proxied="proxy">
 		<email>sci-physics@gentoo.org</email>
 		<name>Gentoo Physics Project</name>
 	</maintainer>
@@ -18,6 +22,7 @@
 		<flag name="zlib">Build with zlib</flag>
 		<flag name="hepmc3">Build with HepMC3</flag>
 		<flag name="hepmc2">Build with HepMC2</flag>
+		<flag name="highfive">Build with hdf5 and highfive</flag>
 	</use>
 	<upstream>
 		<remote-id type="gitlab">hepcedar/rivet</remote-id>

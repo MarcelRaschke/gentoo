@@ -9,5 +9,5 @@ LICENSE=ETQW
 PROPERTIES=interactive
 RESTRICT=bindist
 SLOT=0
-_eclasses_=portability	225656ad6c6594fe3b0187bdd50707fb	cdrom	e2d6b737cd384c6064917aee0a82b6e1
+_eclasses_=portability	a39e3d646f76cb45d06b44cc1144b8d4	cdrom	8675d9def499d198e42ce3f3ded87bfc
 _md5_=cdeb4bbc55090ae632c2a90fc097306e

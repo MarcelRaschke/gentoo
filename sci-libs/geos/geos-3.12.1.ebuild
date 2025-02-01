@@ -11,7 +11,7 @@ SRC_URI="https://download.osgeo.org/geos/${P}.tar.bz2"
 
 LICENSE="LGPL-2.1"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="amd64 arm arm64 ~ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="doc test"
 RESTRICT="!test? ( test )"
 
@@ -27,9 +27,6 @@ src_configure() {
 		-DBUILD_DOCUMENTATION=$(usex doc)
 		-DBUILD_TESTING=$(usex test)
 		-DUSE_CCACHE=OFF
-
-		# bug #709368
-		$(usev arm '-DDISABLE_GEOS_INLINE=ON')
 	)
 
 	cmake_src_configure

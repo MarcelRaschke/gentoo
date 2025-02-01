@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -14,7 +14,7 @@ if [[ ${PV} == "9999" ]] ; then
 	EGIT_REPO_URI="https://git.kernel.org/pub/scm/devel/${PN}/${PN}.git"
 else
 	SRC_URI="https://www.kernel.org/pub/software/devel/${PN}/dist/${P}.tar.xz"
-	KEYWORDS="~amd64 ~arm ~hppa ~ia64 ~ppc ~ppc64 ~s390 ~sparc ~x86"
+	KEYWORDS="~amd64 ~arm ~hppa ~ppc ~ppc64 ~s390 ~sparc ~x86"
 fi
 
 LICENSE="MIT"
@@ -23,7 +23,7 @@ IUSE="gtk llvm sqlite test xml"
 RESTRICT="!test? ( test )"
 
 RDEPEND="gtk? ( x11-libs/gtk+:3 )
-	llvm? ( <sys-devel/llvm-$((${LLVM_MAX_SLOT} + 1)):= )
+	llvm? ( <llvm-core/llvm-$((${LLVM_MAX_SLOT} + 1)):= )
 	sqlite? ( dev-db/sqlite:= )
 	xml? ( dev-libs/libxml2 )"
 DEPEND="${RDEPEND}"
@@ -31,8 +31,8 @@ BDEPEND="gtk? ( virtual/pkgconfig )
 	xml? ( virtual/pkgconfig )"
 
 llvm_check_deps() {
-	has_version "sys-devel/llvm:${LLVM_SLOT}" && \
-		has_version -r "sys-devel/llvm:${LLVM_SLOT}"
+	has_version "llvm-core/llvm:${LLVM_SLOT}" && \
+		has_version -r "llvm-core/llvm:${LLVM_SLOT}"
 }
 
 pkg_setup() {

@@ -16,7 +16,7 @@ IUSE="cue exif ffmpeg gif gsf +gstreamer iptc +iso +jpeg networkmanager +pdf +pl
 REQUIRED_USE="cue? ( gstreamer )" # cue is currently only supported via gstreamer, not ffmpeg
 RESTRICT="!test? ( test )"
 
-KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~loong ~ppc ~ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc x86"
 
 # tracker-2.1.7 currently always depends on ICU (theoretically could be libunistring instead);
 # so choose ICU over enca always here for the time being (ICU is preferred)
@@ -72,7 +72,7 @@ BDEPEND="
 	test? (
 		${PYTHON_DEPS}
 		$(python_gen_any_dep 'dev-python/pygobject[${PYTHON_USEDEP}]')
-		$(python_gen_any_dep 'dev-python/tappy[${PYTHON_USEDEP}]')
+		$(python_gen_any_dep 'dev-python/tap-py[${PYTHON_USEDEP}]')
 		gstreamer? (
 			media-libs/gstreamer:1.0[introspection]
 			|| (
@@ -86,7 +86,7 @@ BDEPEND="
 python_check_deps() {
 	python_has_version -b \
 		"dev-python/pygobject[${PYTHON_USEDEP}]" \
-		"dev-python/tappy[${PYTHON_USEDEP}]"
+		"dev-python/tap-py[${PYTHON_USEDEP}]"
 }
 
 pkg_setup() {
@@ -107,6 +107,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# bug #944218
+	append-cflags -std=gnu17
+
 	append-cflags -DTRACKER_DEBUG -DG_DISABLE_CAST_CHECKS
 
 	local media_extractor="none"

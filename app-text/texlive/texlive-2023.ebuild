@@ -1,15 +1,15 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="8"
+EAPI=8
 
 DESCRIPTION="A complete TeX distribution"
 HOMEPAGE="http://tug.org/texlive/"
 
 LICENSE="metapackage"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
-IUSE="cjk context extra games graphics humanities luatex metapost music pdfannotextractor png pstricks publishers science tex4ht texi2html truetype xetex xml X"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv ~s390 ~sparc x86"
+IUSE="cjk context extra games graphics humanities luatex metapost music png pstricks publishers science tex4ht texi2html truetype xetex xml X"
 
 LANGS="af ar as bg bn br ca cs cy da de el en eo es et eu fa fi fr ga gl gu he
 	hi hr hsb hu hy ia id is it ja ko kn la lo lt lv ml mn mr nb nl nn no or pa
@@ -41,7 +41,6 @@ RDEPEND="${DEPEND}
 	>=${TEXLIVE_CAT}/texlive-latexrecommended-${PV}
 	metapost? ( >=${TEXLIVE_CAT}/texlive-metapost-${PV} )
 	>=${TEXLIVE_CAT}/texlive-plaingeneric-${PV}
-	pdfannotextractor? ( dev-tex/pdfannotextractor )
 	extra? (
 		>=${TEXLIVE_CAT}/texlive-bibtexextra-${PV}
 		>=${TEXLIVE_CAT}/texlive-binextra-${PV}

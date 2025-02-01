@@ -3,16 +3,19 @@
 
 EAPI=8
 
+MY_P=${P/_/-}
+
 if [[ ${PV} == *9999* ]]; then
 	SRC_ECLASS="git-r3"
 	EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/catalyst.git"
 	EGIT_BRANCH="master"
 else
-	SRC_URI="https://gitweb.gentoo.org/proj/catalyst.git/snapshot/${P}.tar.bz2"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	SRC_URI="https://gitweb.gentoo.org/proj/catalyst.git/snapshot/${MY_P}.tar.bz2"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	S="${WORKDIR}/${MY_P/_/-}"
 fi
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..13} )
 DISTUTILS_USE_PEP517=setuptools
 
 inherit distutils-r1 linux-info optfeature tmpfiles ${SRC_ECLASS}
@@ -22,7 +25,7 @@ HOMEPAGE="https://wiki.gentoo.org/wiki/Catalyst"
 
 LICENSE="GPL-2+"
 SLOT="0"
-IUSE="doc +iso"
+IUSE="doc +iso qcow2"
 
 BDEPEND="
 	app-text/asciidoc
@@ -56,10 +59,6 @@ RDEPEND="
 			sys-boot/grub[grub_platforms_efi-64]
 			sys-fs/mtools
 		)
-		ia64?  (
-			sys-boot/grub[grub_platforms_efi-64]
-			sys-fs/mtools
-		)
 		ppc?   (
 			sys-boot/grub:2[grub_platforms_ieee1275]
 		)
@@ -73,12 +72,22 @@ RDEPEND="
 			sys-boot/grub[grub_platforms_efi-32]
 		)
 	)
+
+	qcow2? (
+		amd64? (
+			sys-boot/grub[grub_platforms_efi-32,grub_platforms_efi-64]
+			sys-fs/dosfstools
+			sys-fs/xfsprogs
+			sys-block/parted
+			app-emulation/qemu
+		)
+	)
 "
 
 pkg_setup() {
 	CONFIG_CHECK="
 		~UTS_NS ~IPC_NS
-		~SQUASHFS ~SQUASHFS_ZLIB
+		~SQUASHFS ~SQUASHFS_ZLIB ~XFS_FS ~VFAT_FS
 	"
 	linux-info_pkg_setup
 }
