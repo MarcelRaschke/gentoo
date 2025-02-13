@@ -5,13 +5,13 @@ EAPI="8"
 
 PHP_EXT_NAME="libvirt-php"
 PHP_EXT_SKIP_PHPIZE="yes"
-USE_PHP="php8-1"
+USE_PHP="php8-1 php8-2 php8-3"
 PHP_EXT_ECONF_ARGS=()
 
 inherit php-ext-source-r3 git-r3 autotools
 
 DESCRIPTION="PHP bindings for libvirt"
-HOMEPAGE="http://libvirt.org/php/"
+HOMEPAGE="https://php.libvirt.org/"
 EGIT_REPO_URI="https://gitlab.com/libvirt/libvirt-php.git"
 
 LICENSE="LGPL-2.1"

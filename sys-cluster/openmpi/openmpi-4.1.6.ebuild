@@ -4,7 +4,7 @@
 EAPI=8
 
 FORTRAN_NEEDED=fortran
-inherit cuda fortran-2 multilib-minimal
+inherit cuda flag-o-matic fortran-2 libtool multilib-minimal
 
 MY_P=${P/-mpi}
 
@@ -24,12 +24,12 @@ IUSE_OPENMPI_OFED_FEATURES="
 
 DESCRIPTION="A high-performance message passing library (MPI)"
 HOMEPAGE="https://www.open-mpi.org"
-SRC_URI="https://www.open-mpi.org/software/ompi/v$(ver_cut 1-2)/downloads/${MY_P}.tar.bz2"
+SRC_URI="https://download.open-mpi.org/release/open-mpi/v$(ver_cut 1-2)/${P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~ia64 ~loong ~ppc ppc64 ~riscv sparc x86 ~amd64-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~loong ~ppc ppc64 ~riscv sparc x86 ~amd64-linux"
 IUSE="cma cuda cxx fortran ipv6 libompitrace peruse romio valgrind
 	${IUSE_OPENMPI_FABRICS} ${IUSE_OPENMPI_RM} ${IUSE_OPENMPI_OFED_FEATURES}"
 
@@ -45,6 +45,7 @@ RDEPEND="
 	!sys-cluster/mpich
 	!sys-cluster/mpich2
 	!sys-cluster/nullmpi
+	!sys-cluster/pmix
 	>=dev-libs/libevent-2.0.22:=[${MULTILIB_USEDEP},threads(+)]
 	dev-libs/libltdl:0[${MULTILIB_USEDEP}]
 	>=sys-apps/hwloc-2.0.2:=[${MULTILIB_USEDEP}]
@@ -63,6 +64,10 @@ MULTILIB_WRAPPED_HEADERS=(
 	/usr/include/openmpi/mpiext/mpiext_cuda_c.h
 )
 
+PATCHES=(
+	"${FILESDIR}/${PN}-4.1.6-incompatible-pointers.patch"
+)
+
 pkg_setup() {
 	fortran-2_pkg_setup
 
@@ -75,6 +80,7 @@ pkg_setup() {
 
 src_prepare() {
 	default
+	elibtoolize
 
 	# Avoid test which ends up looking at system mounts
 	echo "int main() { return 0; }" > test/util/opal_path_nfs.c || die
@@ -86,6 +92,15 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# -Werror=lto-type-mismatch, -Werror=strict-aliasing
+	# The former even prevents successfully running ./configure, but both appear
+	# at `make` time as well.
+	# https://bugs.gentoo.org/913040
+	# https://github.com/open-mpi/ompi/issues/12674
+	# https://github.com/open-mpi/ompi/issues/12675
+	append-flags -fno-strict-aliasing
+	filter-lto
+
 	local myconf=(
 		--disable-mpi-java
 		# configure takes a looooong time, but upstream currently force
@@ -103,6 +118,8 @@ multilib_src_configure() {
 		--with-libltdl="${EPREFIX}/usr"
 		--with-libevent="${EPREFIX}/usr"
 		--with-libevent-libdir="${EPREFIX}/usr/$(get_libdir)"
+		# unkeyworded, lacks multilib. Do not automagically build against it.
+		--with-pmix=internal
 
 		# Re-enable for 5.0!
 		# See https://github.com/open-mpi/ompi/issues/9697#issuecomment-1003746357

@@ -1,34 +1,35 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit xdg cmake git-r3
+inherit cmake xdg
+
+if [[ ${PV} == *9999* ]]; then
+	EGIT_REPO_URI="https://git.code.sf.net/p/qjackctl/code"
+	inherit git-r3
+else
+	SRC_URI="https://downloads.sourceforge.net/qjackctl/${P}.tar.gz"
+	KEYWORDS="~amd64 ~x86"
+fi
 
 DESCRIPTION="Qt GUI to control the JACK Audio Connection Kit and ALSA sequencer connections"
 HOMEPAGE="https://qjackctl.sourceforge.io/"
-EGIT_REPO_URI="https://git.code.sf.net/p/qjackctl/code"
 
 LICENSE="GPL-2"
 SLOT="0"
 IUSE="alsa dbus debug portaudio"
 
-BDEPEND="dev-qt/linguist-tools:5"
 DEPEND="
-	dev-qt/qtcore:5
-	dev-qt/qtgui:5
-	dev-qt/qtnetwork:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtx11extras:5
-	dev-qt/qtxml:5
+	dev-qt/qtbase:6[dbus?,gui,network,widgets,xml]
 	virtual/jack
 	alsa? ( media-libs/alsa-lib )
-	dbus? ( dev-qt/qtdbus:5 )
 	portaudio? ( media-libs/portaudio )
 "
 RDEPEND="${DEPEND}
-	dev-qt/qtsvg:5
+	dev-qt/qtsvg:6
 "
+BDEPEND="dev-qt/qttools:6[linguist]"
 
 src_configure() {
 	local mycmakeargs=(
@@ -36,7 +37,7 @@ src_configure() {
 		-DCONFIG_DBUS=$(usex dbus 1 0)
 		-DCONFIG_DEBUG=$(usex debug 1 0)
 		-DCONFIG_PORTAUDIO=$(usex portaudio 1 0)
-		-DCONFIG_QT6=no
+		-DCONFIG_QT6=yes
 	)
 	cmake_src_configure
 }

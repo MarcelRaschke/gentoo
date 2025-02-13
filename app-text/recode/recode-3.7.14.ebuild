@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit autotools flag-o-matic python-any-r1 toolchain-funcs
 
@@ -14,7 +14,7 @@ SRC_URI="https://github.com/rrthomas/recode/releases/download/v${PV}/${P}.tar.gz
 LICENSE="GPL-3+"
 # librecode soname version
 SLOT="0/3"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="nls test"
 RESTRICT="!test? ( test )"
 

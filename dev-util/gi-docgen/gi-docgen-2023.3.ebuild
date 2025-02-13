@@ -18,7 +18,7 @@ HOMEPAGE="
 
 LICENSE="|| ( Apache-2.0 GPL-3+ ) CC0-1.0 OFL-1.1 MIT"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
@@ -28,7 +28,7 @@ RDEPEND="
 		>=dev-python/markupsafe-1[${PYTHON_USEDEP}]
 		dev-python/packaging[${PYTHON_USEDEP}]
 		>=dev-python/pygments-2[${PYTHON_USEDEP}]
-		>=dev-python/jinja-2[${PYTHON_USEDEP}]
+		>=dev-python/jinja2-2[${PYTHON_USEDEP}]
 		>=dev-python/typogrify-2[${PYTHON_USEDEP}]
 	')
 	$(python_gen_cond_dep '

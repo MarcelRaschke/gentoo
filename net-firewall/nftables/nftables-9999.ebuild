@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_OPTIONAL=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/netfilter.org.asc
 inherit edo linux-info distutils-r1 systemd verify-sig
 
@@ -21,7 +21,7 @@ else
 		https://netfilter.org/projects/nftables/files/${P}.tar.xz
 		verify-sig? ( https://netfilter.org/projects/nftables/files/${P}.tar.xz.sig )
 	"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-netfilter )"
 fi
 
@@ -33,7 +33,7 @@ RESTRICT="!test? ( test )"
 
 RDEPEND="
 	>=net-libs/libmnl-1.0.4:=
-	>=net-libs/libnftnl-1.2.6:=
+	>=net-libs/libnftnl-1.2.8:=
 	gmp? ( dev-libs/gmp:= )
 	json? ( dev-libs/jansson:= )
 	python? ( ${PYTHON_DEPS} )
@@ -177,7 +177,9 @@ pkg_preinst() {
 		# will not always be printed in a way that constitutes a valid
 		# syntax for ntf(8). Ignore them.
 		return
-	elif set -- "${ED}"/usr/lib*/libnftables.so; ! LD_LIBRARY_PATH=${1%/*} "${ED}"/sbin/nft -c -f -- "${T}"/ruleset.nft; then
+	elif set -- "${ED}"/usr/lib*/libnftables.so;
+		! LD_LIBRARY_PATH=${1%/*} "${ED}"/sbin/nft -c -f -- "${T}"/ruleset.nft
+	then
 		eerror "Your currently loaded ruleset cannot be parsed by the newly built instance of"
 		eerror "nft. This probably means that there is a regression introduced by v${PV}."
 		eerror "(To make the ebuild fail instead of warning, set NFTABLES_ABORT_ON_RELOAD_FAILURE=1.)"

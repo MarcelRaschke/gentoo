@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
@@ -25,11 +25,13 @@ KEYWORDS="amd64 ~arm arm64 x86"
 BDEPEND="
 	test? (
 		dev-db/redis
-		dev-python/pylibmc[${PYTHON_USEDEP}]
 		dev-python/pytest-xprocess[${PYTHON_USEDEP}]
 		dev-python/redis[${PYTHON_USEDEP}]
 		net-misc/memcached
 		www-servers/uwsgi[python,${PYTHON_USEDEP}]
+		!sparc? (
+			dev-python/pylibmc[${PYTHON_USEDEP}]
+		)
 	)
 "
 

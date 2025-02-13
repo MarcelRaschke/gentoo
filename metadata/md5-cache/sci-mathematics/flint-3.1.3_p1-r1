@@ -1,0 +1,16 @@
+BDEPEND=|| ( dev-lang/python:3.12 dev-lang/python:3.11 dev-lang/python:3.10 ) doc? ( app-text/texlive-core dev-python/sphinx dev-tex/latexmk dev-texlive/texlive-latex dev-texlive/texlive-latexextra ) app-alternatives/ninja >=dev-build/cmake-3.20.5
+DEFINED_PHASES=compile configure install prepare setup test
+DEPEND=dev-libs/gmp:= dev-libs/mpfr:= ntl? ( dev-libs/ntl:= ) virtual/cblas
+DESCRIPTION=Fast Library for Number Theory
+EAPI=8
+HOMEPAGE=https://www.flintlib.org/
+INHERIT=cmake flag-o-matic python-any-r1
+IUSE=doc ntl test
+KEYWORDS=amd64 ~arm arm64 ~loong ~ppc ~ppc64 ~riscv ~x86
+LICENSE=LGPL-2.1+
+RDEPEND=dev-libs/gmp:= dev-libs/mpfr:= ntl? ( dev-libs/ntl:= ) virtual/cblas !sci-mathematics/arb
+RESTRICT=!test? ( test )
+SLOT=0/19
+SRC_URI=https://github.com/flintlib/flint/archive/refs/tags/v3.1.3-p1.tar.gz -> flint-3.1.3_p1.tar.gz
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	multiprocessing	1e32df7deee68372153dca65f4a7c21f	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	cmake	10a50dfaf728b802fcfd37f8d0da9056	python-utils-r1	42c5abe4a656a4993a06a4fc61dbdd12	python-any-r1	6ddb5e75c10db046f89ebe39c85e1d82
+_md5_=54d173cd7b4112dcd85204b8baa1ead5

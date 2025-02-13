@@ -10,7 +10,7 @@ SRC_URI="http://lftp.yar.ru/ftp/${P}.tar.xz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 IUSE="convert-mozilla-cookies +gnutls idn nls socks5 +ssl verify-file"
 RESTRICT="test"
 
@@ -59,6 +59,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-4.9.2-ac-270.patch
 	"${FILESDIR}"/${PN}-4.9.2-configure-clang16.patch
 	"${FILESDIR}"/${PN}-4.9.2-libressl.patch #903001
+	"${FILESDIR}"/${PN}-4.9.2-socks.patch #903001
 )
 
 # Gnulib false positive #900064

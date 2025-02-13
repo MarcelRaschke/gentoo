@@ -14,7 +14,7 @@ SRC_URI="https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${P}.tar.xz"
 
 LICENSE="BSD LGPL-2.1"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~alpha amd64 arm ~arm64 ~hppa ~loong ppc ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 
 DEPEND="
 	>=media-libs/libcuefile-477
@@ -22,13 +22,12 @@ DEPEND="
 "
 RDEPEND="
 	${DEPEND}
-	!media-libs/libmpcdec
-	!media-libs/libmpcdecsv7
 "
 
 PATCHES=(
 	"${FILESDIR}"/${P}-respect-cflags.patch
 	"${FILESDIR}"/${P}-fixup-link-depends.patch
+	"${FILESDIR}"/${P}-incompatible-pointers.patch
 )
 
 src_configure() {

@@ -1,5 +1,18 @@
-# Copyright 2023 Gentoo Authors
+# Copyright 2023-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2025-02-03)
+# QtWebView is masked here
+dev-python/pyside webview
+
+# Michał Górny <mgorny@gentoo.org> (2024-06-05)
+# media-libs/exempi is seriously broken on big endian platforms.
+# https://gitlab.freedesktop.org/libopenraw/exempi/-/merge_requests/8#note_2277243
+app-misc/tracker-miners xmp
+games-fps/eduke32 xmp
+gnome-extra/nemo xmp
+media-gfx/eog xmp
+media-libs/gexiv2 test
 
 # matoro <matoro_gentoo@matoro.tk> (2023-11-16)
 # media-libs/libvpx casualties (#700902)
@@ -15,8 +28,9 @@ media-plugins/gst-plugins-meta vpx
 net-p2p/ktorrent rss webengine
 net-irc/quassel urlpreview
 kde-apps/kalarm pim
-dev-python/QtPy pyqt5
+dev-python/qtpy pyqt5
 gnome-base/gnome extras
+games-engines/scummvm vpx
 
 # matoro <matoro_gentoo@matoro.tk> (2023-11-16)
 # media-libs/libaom casualties
@@ -33,9 +47,11 @@ mail-client/thunderbird system-av1
 # dev-libs/weston casualties (#833010)
 # https://gitlab.freedesktop.org/wayland/weston/-/issues/739
 gui-libs/gtk wayland
+app-i18n/ibus wayland
 gnome-base/gnome-control-center wayland
 sys-apps/xdg-desktop-portal-gnome wayland
 net-libs/webkit-gtk:6 wayland
+dev-libs/libportal wayland
 
 # matoro <matoro_gentoo@matoro.tk> (2023-04-10)
 # media-libs/libldac casualties (#80238)

@@ -5,10 +5,10 @@ DESCRIPTION=Small Erlang app that provides fast event stream processing
 EAPI=8
 HOMEPAGE=https://github.com/DeadZen/goldrush
 INHERIT=rebar
-KEYWORDS=amd64 ~arm ~ia64 ~ppc ~sparc x86
+KEYWORDS=amd64 ~arm ~sparc x86
 LICENSE=ISC
 RDEPEND=>=dev-lang/erlang-17.1 dev-lang/erlang:=
 SLOT=0
 SRC_URI=https://github.com/DeadZen/goldrush/archive/0.2.0.tar.gz -> goldrush-0.2.0.tar.gz
-_eclasses_=rebar	ee6e83452f154c8ce7b91144005c5faf
-_md5_=21cadd98a6dd6d9e56870531770db0e8
+_eclasses_=rebar-utils	6ff3a08a9fb43ffe130089e51bd1cbf0	rebar	4a4d05b95ca1c02f225eba9c931e71de
+_md5_=dc8be139c56c54f8b46dc62d0c1a3dfd

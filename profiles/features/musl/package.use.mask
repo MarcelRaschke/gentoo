@@ -1,10 +1,44 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org> (2025-01-08)
+# Depends on currently-masked elogind version on musl profiles (bug #947739)
+sys-libs/pam elogind
+
+# Cheyenne Wills <cwills@witznd.net> (2025-01-05)
+# openafs hasn't been ported to / tested with musl bug #832428
+app-crypt/heimdal afs
+app-crypt/kstart afs
+net-mail/cyrus-imapd afs
+www-apps/webdavcgi afs
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-10-08)
+# Not all required dependencies are keyworded here
+sys-kernel/dracut test
+
+# Ian Jordan <immoloism@gmail.com> (2024-08-22)
+# Browser uses a prebuilt binary built against glibc (bug #934005)
+media-video/obs-studio browser
+
+# Sam James <sam@gentoo.org> (2024-08-21)
+# dev-debug/systemtap doesn't work on musl
+app-emulation/libvirt dtrace
+gui-libs/neatvnc tracing
+gui-apps/wayvnc tracing
+
+# Mattéo Rossillol‑‑Laruelle <beatussum@protonmail.com> (2024-08-06)
+# Requires llvm-runtimes/libcxx.
+dev-cpp/benchmark libcxx
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-07-25)
+# Requires systemd-detect-virt
+app-emulation/virt-firmware test
 
 # Sam James <sam@gentoo.org> (2024-06-03)
 # Poor rendering performance otherwise (bug #931215) but it doesn't
-# work on musl.
-kde-plasma/kwin caps
+# work on musl. Bugs #946505, #946643
+kde-plasma/kwin filecaps
+kde-plasma/powerdevil filecaps
 
 # Violet Purcell <vimproved@inventati.org> (2024-05-15)
 # Python does not support JIT on musl, see
@@ -18,7 +52,7 @@ dev-php/pecl-mongodb test
 dev-python/pymongo test-full
 net-analyzer/zmap mongo
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-04-25)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-04-25)
 # No Level-Zero on musl
 sys-apps/hwloc l0
 
@@ -49,10 +83,15 @@ dev-qt/qtbase renderdoc
 dev-debug/gdb cet
 sys-devel/binutils cet
 sys-devel/binutils-hppa64 cet
-sys-devel/clang-common cet
+llvm-core/clang-common cet
 sys-devel/gcc cet
 sys-libs/binutils-libs cet
 sys-libs/glibc cet
+
+# Andreas K. Hüttel <dilfridge@gentoo.org> (2024-03-05)
+# gprofng is still somewhat messed up with musl-1.2.4, does not build
+# bug 912284
+sys-devel/binutils gprofng
 
 # Violet Purcell <vimproved@inventati.org> (2024-01-25)
 # f16c support in gtk4 requires the ifunc attribute, which
@@ -60,7 +99,7 @@ sys-libs/glibc cet
 # this, however it seems to be unreliable, see bug #922897.
 gui-libs/gtk cpu_flags_x86_f16c
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-12)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-01-12)
 # The systemd flag is globally masked on musl. But we need
 # systemd's kernel-install to use systemd-boot which is still
 # possible on musl via systemd-utils[boot].
@@ -70,7 +109,7 @@ sys-kernel/installkernel -systemd
 # Requires dev-libs/level-zero.
 dev-lang/ispc gpu
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-12-18)
+# Nowa Ammerlaan <nowa@gentoo.org> (2023-12-18)
 # Requires systemd
 sys-kernel/gentoo-kernel generic-uki
 sys-kernel/gentoo-kernel-bin generic-uki
@@ -123,6 +162,7 @@ dev-libs/oneDNN mkl
 kde-apps/kdenetwork-meta dropbox
 media-libs/opencv atlas mkl
 media-video/ffmpeg amf
+media-video/handbrake amf
 net-fs/openafs tsm
 net-analyzer/nagios-plugin-check_raid megaraid-sas
 sys-apps/hwloc gl
@@ -138,6 +178,7 @@ www-client/qutebrowser widevine
 net-analyzer/wireshark sdjournal
 sys-apps/ipmitool openbmc
 sys-auth/pambase homed
+dev-qt/qtbase journald
 
 # Petr Vaněk <arkamar@atlas.cz> (2022-03-15)
 # musl package does not currently provide gencat binary, which is needed for
@@ -170,10 +211,10 @@ media-video/mkvtoolnix nls
 sci-electronics/kicad-meta doc
 sys-apps/fakeroot nls
 sys-apps/man-db nls
-sys-apps/man-pages l10n_cs l10n_da l10n_de l10n_el l10n_es l10n_fi l10n_fr l10n_hu
-sys-apps/man-pages l10n_id l10n_it l10n_mk l10n_nb l10n_nl l10n_pl l10n_pt-BR l10n_ro
-sys-apps/man-pages l10n_sr l10n_sv l10n_uk l10n_vi
-sys-apps/man-pages l10n_ja l10n_ru l10n_zh-CN
+sys-apps/man-pages l10n_cs l10n_da l10n_de l10n_el l10n_es l10n_fi l10n_fr
+sys-apps/man-pages l10n_hu l10n_id l10n_it l10n_ko l10n_mk l10n_nb l10n_nl
+sys-apps/man-pages l10n_pl l10n_pt-BR l10n_ro l10n_ru l10n_sr l10n_sv
+sys-apps/man-pages l10n_uk l10n_vi
 sys-apps/sysvinit nls
 sys-auth/sssd man
 sys-apps/util-linux nls
@@ -181,7 +222,7 @@ sys-apps/util-linux nls
 # Sam James <sam@gentoo.org> (2021-11-07)
 # Disable some sanitizers for LLVM, see bug #753935
 # Needs libexecinfo on musl, not yet packaged
-sys-libs/compiler-rt-sanitizers gwp-asan
+llvm-runtimes/compiler-rt-sanitizers gwp-asan
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2020-03-19)
 # check does not work on musl, bug #713138

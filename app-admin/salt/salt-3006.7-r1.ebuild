@@ -17,7 +17,7 @@ if [[ ${PV} == 9999* ]]; then
 	EGIT_BRANCH="develop"
 else
 	inherit pypi
-	KEYWORDS="amd64 ~riscv ~x86"
+	KEYWORDS="amd64 ~riscv x86"
 fi
 
 LICENSE="Apache-2.0"
@@ -32,7 +32,7 @@ RDEPEND="
 	sys-apps/pciutils
 	>=dev-python/cryptography-41.0.3[${PYTHON_USEDEP}]
 	>=dev-python/distro-1.5[${PYTHON_USEDEP}]
-	>=dev-python/jinja-3.1.3[${PYTHON_USEDEP}]
+	>=dev-python/jinja2-3.1.3[${PYTHON_USEDEP}]
 	dev-python/jmespath[${PYTHON_USEDEP}]
 	dev-python/libnacl[${PYTHON_USEDEP}]
 	dev-python/looseversion[${PYTHON_USEDEP}]

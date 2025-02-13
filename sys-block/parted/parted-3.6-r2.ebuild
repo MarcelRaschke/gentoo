@@ -16,7 +16,7 @@ SRC_URI="
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="+debug device-mapper nls readline"
 
 # util-linux for libuuid
@@ -51,6 +51,8 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-3.6-tests-non-bash.patch
 	# bug #910487
 	"${FILESDIR}"/${P}-underlinked-util-linux.patch
+	# bug #943690
+	"${FILESDIR}"/${P}-c23.patch
 )
 
 # false positive

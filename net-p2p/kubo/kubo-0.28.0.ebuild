@@ -6,13 +6,13 @@ EAPI=8
 inherit go-module shell-completion systemd
 
 DESCRIPTION="Main implementation of IPFS"
-HOMEPAGE="https://ipfs.io/ https://github.com/ipfs/kubo/"
+HOMEPAGE="https://ipfs.tech https://github.com/ipfs/kubo/"
 SRC_URI="https://github.com/ipfs/${PN}/releases/download/v${PV}/kubo-source.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}"
 
 LICENSE="Apache-2.0 BSD BSD-2 CC0-1.0 ISC MIT MPL-2.0"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 
 DEPEND="
 	acct-group/ipfs

@@ -30,7 +30,7 @@ RDEPEND="${PYTHON_DEPS}
 	dev-python/msgpack[${PYTHON_USEDEP}]
 	=dev-util/hip-5*
 	>=dev-util/rocm-smi-4.3.0
-	sys-devel/clang:${LLVM_MAX_SLOT}
+	llvm-core/clang:${LLVM_MAX_SLOT}
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -38,6 +38,7 @@ BDEPEND="
 		dev-python/pytest-forked[${PYTHON_USEDEP}]
 		dev-python/pytest-xdist[${PYTHON_USEDEP}]
 		dev-python/filelock[${PYTHON_USEDEP}]
+		dev-python/joblib[${PYTHON_USEDEP}]
 	)
 "
 

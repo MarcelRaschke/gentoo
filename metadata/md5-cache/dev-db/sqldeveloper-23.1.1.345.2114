@@ -1,5 +1,5 @@
 BDEPEND=app-arch/unzip
-DEFINED_PHASES=compile install nofetch postinst preinst prepare setup
+DEFINED_PHASES=install nofetch postinst preinst prepare setup
 DEPEND=>=dev-java/java-config-2.2.0-r3
 DESCRIPTION=Oracle SQL Developer is a graphical tool for database development
 EAPI=8
@@ -12,5 +12,5 @@ RDEPEND=dev-java/openjdk:11[javafx] virtual/jre:11 mssql? ( dev-java/jtds:1.3 ) 
 RESTRICT=bindist fetch
 SLOT=0
 SRC_URI=sqldeveloper-23.1.1.345.2114-no-jre.zip
-_eclasses_=desktop	021728fdc1b03b36357dbc89489e0f0d	java-utils-2	b346c3901e71ba37137bae0b25b00221	java-pkg-2	b6d755b4f6afabfd933932be28b46368
-_md5_=deab13d2b28e5a5a038174e0cf728137
+_eclasses_=desktop	3a72ffe0d8e1dd73af3a1c8c15a59fed	java-utils-2	c610b1541a10e37cb26ab5b707a744f1	java-pkg-2	38fd81c7880666a00a638ca8deb64d72
+_md5_=0fe206a5de8aace7661b673ea561d509

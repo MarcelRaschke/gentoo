@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -10,16 +10,16 @@ JAVA_TESTING_FRAMEWORKS="junit-4"
 inherit java-pkg-2 java-pkg-simple
 
 DESCRIPTION="Core barcode encoding/decoding library"
-HOMEPAGE="https://github.com/zxing/zxing/core"
+HOMEPAGE="https://zxing.github.io/zxing/"
 SRC_URI="https://github.com/zxing/zxing/archive/zxing-${PV}.tar.gz"
+S="${WORKDIR}/zxing-zxing-${PV}/core"
+
 LICENSE="Apache-2.0"
 SLOT="3"
-KEYWORDS="amd64 ~arm ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64"
 
 DEPEND=">=virtual/jdk-1.8:*"
 RDEPEND=">=virtual/jre-1.8:*"
-
-S="${WORKDIR}/zxing-zxing-${PV}/core"
 
 JAVA_AUTOMATIC_MODULE_NAME="com.google.zxing"
 JAVA_SRC_DIR="src/main/java"

@@ -9,7 +9,7 @@ PYTHON_COMPAT=( python3_{10..12} )
 
 inherit mate python-any-r1 virtualx
 
-KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
+KEYWORDS="amd64 ~arm ~arm64 ~loong ~riscv x86"
 
 DESCRIPTION="Atril document viewer for MATE"
 LICENSE="FDL-1.1+ GPL-2+ GPL-3+ LGPL-2+ LGPL-2.1+"
@@ -24,7 +24,7 @@ COMMON_DEPEND="
 	app-text/poppler[cairo]
 	dev-libs/glib:2
 	dev-libs/libxml2:2
-	>=mate-base/mate-desktop-1.27.1
+	>=mate-base/mate-desktop-$(ver_cut 1-2)
 	sys-libs/zlib
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3[introspection?]

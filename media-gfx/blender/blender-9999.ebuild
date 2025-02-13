@@ -4,8 +4,9 @@
 EAPI=8
 
 PYTHON_COMPAT=( python3_{11..12} )
-# matches media-libs/osl
-LLVM_COMPAT=( {15..17} )
+# NOTE must match media-libs/osl
+LLVM_COMPAT=( {15..18} )
+LLVM_OPTIONAL=1
 
 inherit check-reqs cmake cuda flag-o-matic llvm-r1 pax-utils python-single-r1 toolchain-funcs xdg-utils
 
@@ -17,7 +18,6 @@ if [[ ${PV} = *9999* ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://projects.blender.org/blender/blender.git"
 	EGIT_SUBMODULES=( '*' '-lib/*' )
-	ADDONS_EGIT_REPO_URI="https://projects.blender.org/blender/blender-addons.git"
 	RESTRICT="!test? ( test )"
 else
 	SRC_URI="
@@ -31,12 +31,12 @@ else
 	RESTRICT="test" # the test archive returns LFS references.
 fi
 
-LICENSE="|| ( GPL-3 BL )"
+LICENSE="GPL-3+ cycles? ( Apache-2.0 )"
 SLOT="${PV%.*}"
 IUSE="
 	alembic +bullet collada +color-management cuda +cycles +cycles-bin-kernels
-	debug doc +embree experimental +ffmpeg +fftw +fluid +gmp gnome hip jack
-	jemalloc jpeg2k man +nanovdb ndof nls +oidn oneapi openal +openexr +openmp openpgl
+	debug doc +embree +ffmpeg +fftw +fluid +gmp gnome hip jack
+	jemalloc jpeg2k man +nanovdb ndof nls +oidn oneapi openal +openexr +openmp +openpgl
 	+opensubdiv +openvdb optix osl +otf +pdf +potrace +pugixml pulseaudio
 	renderdoc sdl +sndfile +tbb test +tiff valgrind vulkan wayland +webp X
 "
@@ -83,9 +83,16 @@ RDEPEND="${PYTHON_DEPS}
 	embree? ( media-libs/embree:=[raymask] )
 	ffmpeg? ( media-video/ffmpeg:=[x264,mp3,encode,theora,jpeg2k?,vpx,vorbis,opus,xvid] )
 	fftw? ( sci-libs/fftw:3.0= )
-	gmp? ( dev-libs/gmp )
+	gmp? ( dev-libs/gmp[cxx] )
 	gnome? ( gui-libs/libdecor )
-	hip? ( >=dev-util/hip-5.7:= )
+	hip? (
+		llvm_slot_17? (
+			dev-util/hip:0/5.7
+		)
+		llvm_slot_18? (
+			>=dev-util/hip-6.1:=[llvm_slot_18(-)]
+		)
+	)
 	jack? ( virtual/jack )
 	jemalloc? ( dev-libs/jemalloc:= )
 	jpeg2k? ( media-libs/openjpeg:2= )
@@ -95,7 +102,7 @@ RDEPEND="${PYTHON_DEPS}
 	)
 	nls? ( virtual/libiconv )
 	openal? ( media-libs/openal )
-	oidn? ( >=media-libs/oidn-2.1.0 )
+	oidn? ( >=media-libs/oidn-2.1.0[${LLVM_USEDEP}] )
 	oneapi? ( dev-libs/intel-compute-runtime[l0] )
 	openexr? (
 		>=dev-libs/imath-3.1.7:=
@@ -109,11 +116,8 @@ RDEPEND="${PYTHON_DEPS}
 	)
 	optix? ( dev-libs/optix )
 	osl? (
-		>=media-libs/osl-1.13:=
-		$(llvm_gen_dep '
-			>=media-libs/osl-1.13[llvm_slot_${LLVM_SLOT}]
-			media-libs/mesa[llvm_slot_${LLVM_SLOT}]
-		')
+		>=media-libs/osl-1.13:=[${LLVM_USEDEP}]
+		media-libs/mesa[${LLVM_USEDEP}]
 	)
 	pdf? ( media-libs/libharu )
 	potrace? ( media-gfx/potrace )
@@ -182,6 +186,8 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}/${PN}-4.0.2-FindClang.patch"
 	"${FILESDIR}/${PN}-4.0.2-CUDA_NVCC_FLAGS.patch"
+	"${FILESDIR}/${PN}-4.1.1-FindLLVM.patch"
+	"${FILESDIR}/${PN}-4.1.1-numpy.patch"
 )
 
 blender_check_requirements() {
@@ -207,7 +213,11 @@ blender_get_version() {
 pkg_pretend() {
 	blender_check_requirements
 
-	use oneapi && einfo "The Intel oneAPI support is rudimentary. Please report any bugs you find to https://bugs.gentoo.org/"
+	if use oneapi; then
+		einfo "The Intel oneAPI support is rudimentary."
+		einfo ""
+		einfo "Please report any bugs you find to https://bugs.gentoo.org/"
+	fi
 }
 
 pkg_setup() {
@@ -225,9 +235,6 @@ src_unpack() {
 			EGIT_SUBMODULES+=( '-tests/*' )
 		fi
 		git-r3_src_unpack
-
-		git-r3_fetch "${ADDONS_EGIT_REPO_URI}"
-		git-r3_checkout "${ADDONS_EGIT_REPO_URI}" "${S}/scripts/addons"
 	else
 		default
 
@@ -310,6 +317,7 @@ src_configure() {
 		-DWITH_BULLET=$(usex bullet)
 		-DWITH_CODEC_FFMPEG=$(usex ffmpeg)
 		-DWITH_CODEC_SNDFILE=$(usex sndfile)
+		-DWITH_CPU_CHECK=no
 
 		-DWITH_CYCLES=$(usex cycles)
 
@@ -331,13 +339,10 @@ src_configure() {
 		-DWITH_CYCLES_STANDALONE_GUI=no
 
 		-DWITH_DOC_MANPAGE=$(usex man)
-		-DWITH_DRACO="no" # TODO: Package Draco
-		-DWITH_EXPERIMENTAL_FEATURES="$(usex experimental)"
+		-DWITH_DRACO="yes" # TODO: Package Draco
 		-DWITH_FFTW3=$(usex fftw)
 		-DWITH_GHOST_WAYLAND=$(usex wayland)
-		-DWITH_GHOST_WAYLAND_APP_ID="blender-${BV}"
 		-DWITH_GHOST_WAYLAND_DYNLOAD="no"
-		-DWITH_GHOST_WAYLAND_LIBDECOR="$(usex gnome)"
 		-DWITH_GHOST_X11=$(usex X)
 		-DWITH_GMP=$(usex gmp)
 		-DWITH_GTESTS=$(usex test)
@@ -385,6 +390,13 @@ src_configure() {
 		-DWITH_XR_OPENXR=no
 	)
 
+	if has_version ">=dev-python/numpy-2"; then
+		mycmakeargs+=(
+			-DPYTHON_NUMPY_INCLUDE_DIRS="$(python_get_sitedir)/numpy/_core/include"
+			-DPYTHON_NUMPY_PATH="$(python_get_sitedir)/numpy/_core/include"
+		)
+	fi
+
 	# requires dev-vcs/git
 	if [[ ${PV} = *9999* ]] ; then
 		mycmakeargs+=( -DWITH_BUILDINFO="yes" )
@@ -409,6 +421,13 @@ src_configure() {
 		mycmakeargs+=(
 			-DCYCLES_RUNTIME_OPTIX_ROOT_DIR="${EPREFIX}"/opt/optix
 			-DOPTIX_ROOT_DIR="${EPREFIX}"/opt/optix
+		)
+	fi
+
+	if use wayland; then
+		mycmakeargs+=(
+			-DWITH_GHOST_WAYLAND_APP_ID="blender-${BV}"
+			-DWITH_GHOST_WAYLAND_LIBDECOR="$(usex gnome)"
 		)
 	fi
 
@@ -460,15 +479,16 @@ src_test() {
 	DESTDIR="${T}" cmake_build install
 
 	blender_get_version
-	# Define custom blender data/script file paths not be able to find them otherwise during testing.
-	# (Because the data is in the image directory and it will default to look in /usr/share)
-	export BLENDER_SYSTEM_SCRIPTS="${T}/usr/share/blender/${BV}/scripts"
-	export BLENDER_SYSTEM_DATAFILES="${T}/usr/share/blender/${BV}/datafiles"
+	# By default, blender will look for system scripts and data in
+	# /usr/share/, but until this is installed, they are not necessarily
+	# available there.  Use this to have blender search the intermediate
+	# install directory instead.
+	export BLENDER_SYSTEM_RESOURCES="${T}/usr/share/blender/${BV}"
 
-	# Sanity check that the script and datafile path is valid.
-	# If they are not vaild, blender will fallback to the default path which is not what we want.
-	[ -d "$BLENDER_SYSTEM_SCRIPTS" ] || die "The custom script path is invalid, fix the ebuild!"
-	[ -d "$BLENDER_SYSTEM_DATAFILES" ] || die "The custom datafiles path is invalid, fix the ebuild!"
+	# Brake check:  Make sure the above path is valid.
+	# If not, blender will fallback to the default path which is not what
+	# we want.
+	[ -d "$BLENDER_SYSTEM_RESOURCES" ] || die "The custom script path is invalid, fix the ebuild!"
 
 	if use cuda; then
 		cuda_add_sandbox -w
@@ -479,6 +499,8 @@ src_test() {
 	if use X; then
 		xdg_environment_reset
 	fi
+
+	addwrite /dev/dri
 
 	cmake_src_test
 
@@ -500,10 +522,16 @@ src_install() {
 	fi
 
 	if use doc; then
-		# Define custom blender data/script file paths. Otherwise Blender will not be able to find them during doc building.
-		# (Because the data is in the image directory and it will default to look in /usr/share)
-		export BLENDER_SYSTEM_SCRIPTS=${ED}/usr/share/blender/${BV}/scripts
-		export BLENDER_SYSTEM_DATAFILES=${ED}/usr/share/blender/${BV}/datafiles
+		# By default, blender will look for system scripts and data in
+		# /usr/share/, but until this is installed, they are not necessarily
+		# available there.  Use this to have blender search the intermediate
+		# install directory instead.
+		export BLENDER_SYSTEM_RESOURCES="${ED}/usr/share/blender/${BV}"
+
+		# Brake check:  Make sure the above path is valid.
+		# If not, blender will fallback to the default path which is not what
+		# we want.
+		[ -d "$BLENDER_SYSTEM_RESOURCES" ] || die "The custom script path is invalid, fix the ebuild!"
 
 		# Workaround for binary drivers.
 		addpredict /dev/ati

@@ -66,7 +66,10 @@ COMMONDEPEND="
 	nls? ( >=sys-devel/gettext-0.18 )
 	nntp? ( >=net-libs/libetpan-0.57 )
 	notification? (
-		libcanberra? (  media-libs/libcanberra[gtk3] )
+		libcanberra? ( || (
+			media-libs/libcanberra-gtk3
+			media-libs/libcanberra[gtk3(-)]
+		) )
 		libnotify? ( x11-libs/libnotify )
 	)
 	perl? ( dev-lang/perl:= )
@@ -102,6 +105,7 @@ BDEPEND="
 	${PYTHON_DEPS}
 	app-arch/xz-utils
 	virtual/pkgconfig
+	doc? ( app-text/docbook-sgml-utils )
 "
 RDEPEND="${COMMONDEPEND}
 	app-misc/mime-types
@@ -117,8 +121,6 @@ PATCHES=(
 
 src_prepare() {
 	default
-	sed -e "s/webkit2gtk-4.0/webkit2gtk-4.1/" -i configure.ac || die
-
 	eautoreconf
 }
 
@@ -187,7 +189,7 @@ src_configure() {
 }
 
 src_install() {
-	local DOCS=( AUTHORS ChangeLog* INSTALL* NEWS README* TODO* )
+	local DOCS=( AUTHORS ChangeLog* INSTALL* NEWS README* )
 	default
 
 	# Makefile install claws-mail.png in /usr/share/icons/hicolor/48x48/apps

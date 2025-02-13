@@ -1,13 +1,13 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI="8"
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 inherit autotools python-single-r1
 
 if [[ ${PV} == *9999* ]]; then
-	EGIT_REPO_URI="git://sigrok.org/${PN}"
+	EGIT_REPO_URI="https://github.com/sigrokproject/${PN}.git"
 	inherit git-r3
 else
 	SRC_URI="https://sigrok.org/download/source/${PN}/${P}.tar.gz"

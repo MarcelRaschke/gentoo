@@ -3,19 +3,19 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit flag-o-matic meson-multilib python-any-r1 xdg-utils
 
 DESCRIPTION="An OpenType text shaping engine"
-HOMEPAGE="https://www.freedesktop.org/wiki/Software/HarfBuzz"
+HOMEPAGE="https://harfbuzz.github.io/"
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/harfbuzz/harfbuzz.git"
 	inherit git-r3
 else
 	SRC_URI="https://github.com/harfbuzz/harfbuzz/releases/download/${PV}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 LICENSE="Old-MIT ISC icu"
@@ -49,32 +49,17 @@ src_prepare() {
 
 	xdg_environment_reset
 
-	# bug #726120
-	sed -i \
-		-e '/tests\/macos\.tests/d' \
-		test/shape/data/in-house/Makefile.sources \
-		|| die
-
 	# bug #790359
 	filter-flags -fexceptions -fthreadsafe-statics
 
 	if ! use debug ; then
 		append-cppflags -DHB_NDEBUG
 	fi
-
-	# bug #762415
-	local pyscript
-	for pyscript in $(find -type f -name "*.py") ; do
-		python_fix_shebang -q "${pyscript}"
-	done
 }
 
 multilib_src_configure() {
 	# harfbuzz-gobject only used for introspection, bug #535852
 	local emesonargs=(
-		# ICU 75 needs C++17 (bug #931090)
-		-Dcpp_std=c++17
-
 		-Dcoretext=disabled
 		-Dchafa=disabled
 		-Dwasm=disabled

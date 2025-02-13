@@ -1,5 +1,33 @@
-# Copyright 2019-2024 Gentoo Authors
+# Copyright 2019-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Alexey Shvetsov <alexxy@gentoo.org> (2024-11-21)
+# sci-libs/caffe2 is not keyworded on arm64
+sci-chemistry/gromacs nnpot
+
+# Benda Xu <heroxbd@gentoo.org> (2024-10-10)
+# dev-util/nvidia-cuda-toolkit or sys-cluster/ucx are not keyworded on riscv
+sys-cluster/slurm nvml ucx
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2024-09-08)
+# needs re-keywording and clean-up of media-libs/opencollada
+media-libs/assimp collada
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-09-01)
+# Mask the optional plotting backend sci-libs/vtk because it's a beast
+# and I don't want to deal with it right now.
+sci-mathematics/maxima vtk
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-08-26)
+# There's an unexplained test failure in sci-libs/qd that I've emailed
+# the authors about. Until we know what's up with that, USE=qd should
+# remain masked for consumers.
+sci-libs/fplll qd
+sci-mathematics/lcalc double-double quad-double
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-15)
+# Requires unkeyworded dev-qt/qtwebengine (and revdeps)
+kde-plasma/plasma-nm openconnect
 
 # Sam James <sam@gentoo.org> (2024-05-19)
 # media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
@@ -17,14 +45,9 @@ media-gfx/openvdb alembic
 # No sys-block/nbdkit on riscv, yet
 app-emulation/libvirt nbd
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-13)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-01-13)
 # Unmask only where grub is keyworded
 sys-kernel/installkernel -grub
-
-# Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-22)
-# media-libs/libdisplay-info (drm) and dev-libs/libliftoff (liftoff)
-# are only available for amd64, arm64 and riscv
->=gui-libs/wlroots-0.17.0 -drm -liftoff
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
 # media-libs/shaderc is keyworded here.
@@ -33,10 +56,12 @@ media-libs/libplacebo -shaderc
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-08-30)
+# Nowa Ammerlaan <nowa@gentoo.org> (2023-08-30)
 # Avoid keywording more Qt stuff
-dev-python/pyside2 datavis
+dev-python/pyside httpserver remoteobjects
+dev-python/qtpy remoteobjects
 
 # Marek Szuba <marecki@gentoo.org> (2023-08-19)
 # dev-libs/pocl needs some work before it can be keyworded here (Bug #907333).
@@ -61,8 +86,10 @@ sys-kernel/installkernel -systemd-boot -ukify -uki
 sys-block/tgt rbd
 
 # jinqiang zhang <peeweep@0x0.ee> (2023-03-27)
-# Sanitizers supported on this architecture.
-sys-libs/compiler-rt-sanitizers -asan -lsan
+# Sanitizers supported on riscv64.
+llvm-runtimes/compiler-rt-sanitizers -asan -lsan
+>=llvm-runtimes/compiler-rt-sanitizers-19 -libfuzzer -hwasan -profile -tsan
+>=llvm-runtimes/compiler-rt-sanitizers-19 -ubsan -scudo
 
 # Yixun Lan <dlan@gentoo.org> (2023-02-16)
 # USE=java depend on virtual/jdk:1.8 which is not support on RISC-V
@@ -75,10 +102,6 @@ app-editors/neovim lua_single_target_luajit
 # Yixun Lan <dlan@gentoo.org> (2022-11-24)
 # depend on dev-libs/libpcre2[jit] which not supported yet, bug #879511
 www-servers/varnish jit
-
-# Xin Yang <yangmame@icloud.com> (2022-10-18)
-# requires qtwebengine, bug #876301
-app-i18n/fcitx-libpinyin dictionary-manager
 
 # Yixun Lan <dlan@gentoo.org> (2022-01-27)
 # This target supports ASAN/etc...
@@ -111,7 +134,7 @@ dev-libs/cyrus-sasl berkdb
 # Avoid dragging in "heavy"  parts of dev-qt/* unless/until
 # somebody needs them. bug #816981, bug #854261.
 # Unfortunately, tests demand qtwebengine too.
-dev-python/QtPy test
+dev-python/qtpy test
 
 # Marek Szuba <marecki@gentoo.org> (2022-04-30)
 # net-wireless/sdrplay contains prebuilt binaries, currently available
@@ -220,7 +243,6 @@ dev-libs/mongo-c-driver test
 # LuaJIT does not support riscv
 app-text/texlive-core luajittex
 dev-texlive/texlive-basic luajittex
-dev-texlive/texlive-context luajittex
 media-gfx/gimp lua
 www-servers/nginx nginx_modules_http_lua
 

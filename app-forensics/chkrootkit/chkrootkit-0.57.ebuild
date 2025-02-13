@@ -8,13 +8,13 @@ inherit systemd toolchain-funcs
 GENTOO_PATCH="${P}-gentoo.patch"
 
 DESCRIPTION="Tool to locally check for signs of a rootkit"
-HOMEPAGE="http://www.chkrootkit.org/"
-SRC_URI="ftp://chkrootkit.org/pub/seg/pac/${P}.tar.gz"
+HOMEPAGE="https://www.chkrootkit.org/"
+SRC_URI="ftp://ftp.chkrootkit.org/pub/seg/pac/${P}.tar.gz"
 SRC_URI+=" https://dev.gentoo.org/~tupone/distfiles/${CATEGORY}/${PN}/${GENTOO_PATCH}.bz2"
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm ~hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm ~hppa ~mips ppc ppc64 ~s390 sparc x86"
 IUSE="+cron"
 
 RDEPEND="cron? ( virtual/cron )"

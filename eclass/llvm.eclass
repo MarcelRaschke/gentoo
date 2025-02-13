@@ -9,6 +9,7 @@
 # @SUPPORTED_EAPIS: 7 8
 # @PROVIDES: llvm-utils
 # @BLURB: Utility functions to build against slotted LLVM
+# @DEPRECATED: llvm-r1.eclass
 # @DESCRIPTION:
 # The llvm.eclass provides utility functions that can be used to build
 # against specific version of slotted LLVM (with fallback to :0 for old
@@ -23,11 +24,11 @@
 # inherit cmake llvm
 #
 # RDEPEND="
-#	<sys-devel/llvm-11:=
+#	<llvm-core/llvm-11:=
 #	|| (
-#		sys-devel/llvm:9
-#		sys-devel/llvm:10
-#		sys-devel/llvm:11
+#		llvm-core/llvm:9
+#		llvm-core/llvm:10
+#		llvm-core/llvm:11
 #	)
 # "
 # DEPEND=${RDEPEND}
@@ -48,12 +49,12 @@
 # # note: do not use := on both clang and llvm, it can match different
 # # slots then. clang pulls llvm in, so we can skip the latter.
 # RDEPEND="
-#	>=sys-devel/clang-9:=[llvm_targets_AMDGPU(+)]
+#	>=llvm-core/clang-9:=[llvm_targets_AMDGPU(+)]
 # "
 # DEPEND=${RDEPEND}
 #
 # llvm_check_deps() {
-#	has_version -d "sys-devel/clang:${LLVM_SLOT}[llvm_targets_AMDGPU(+)]"
+#	has_version -d "llvm-core/clang:${LLVM_SLOT}[llvm_targets_AMDGPU(+)]"
 # }
 # @CODE
 
@@ -62,14 +63,14 @@ case ${EAPI} in
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ ! ${_LLVM_ECLASS} ]]; then
+if [[ -z ${_LLVM_ECLASS} ]]; then
 _LLVM_ECLASS=1
 
 inherit llvm-utils
 
 # make sure that the versions installing straight into /usr/bin
 # are uninstalled
-DEPEND="!!sys-devel/llvm:0"
+DEPEND="!!llvm-core/llvm:0"
 
 # @ECLASS_VARIABLE: LLVM_MAX_SLOT
 # @DEFAULT_UNSET
@@ -115,10 +116,10 @@ declare -g -r _LLVM_KNOWN_SLOTS=( {19..8} )
 # the function scope, LLVM_SLOT will be defined to the SLOT value
 # (0, 4, 5...). The function should return a true status if the slot
 # is acceptable, false otherwise. If llvm_check_deps() is not defined,
-# the function defaults to checking whether sys-devel/llvm:${LLVM_SLOT}
+# the function defaults to checking whether llvm-core/llvm:${LLVM_SLOT}
 # is installed.
 get_llvm_slot() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local hv_switch=-d
 	while [[ ${1} == -* ]]; do
@@ -146,7 +147,7 @@ get_llvm_slot() {
 			llvm_check_deps || continue
 		else
 			# check if LLVM package is installed
-			has_version ${hv_switch} "sys-devel/llvm:${slot}" || continue
+			has_version ${hv_switch} "llvm-core/llvm:${slot}" || continue
 		fi
 
 		echo "${slot}"
@@ -169,7 +170,7 @@ get_llvm_slot() {
 #
 # The options and behavior is the same as for get_llvm_slot.
 get_llvm_prefix() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local prefix=${ESYSROOT}
 	[[ ${1} == -b ]] && prefix=${BROOT}
@@ -192,7 +193,7 @@ get_llvm_prefix() {
 # If any other behavior is desired, the contents of the function
 # should be inlined into the ebuild and modified as necessary.
 llvm_pkg_setup() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	if [[ ${LLVM_ECLASS_SKIP_PKG_SETUP} ]]; then
 		return

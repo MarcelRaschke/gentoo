@@ -4,13 +4,13 @@
 EAPI=8
 
 DISTUTILS_EXT=1
-PYTHON_COMPAT=( python3_{10..12} )
+DISTUTILS_USE_PEP517="flit"
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE='threads(+)'
-DISTUTILS_USE_SETUPTOOLS=no
 
-inherit distutils-r1 flag-o-matic waf-utils systemd
+inherit distutils-r1 flag-o-matic multiprocessing waf-utils systemd
 
-if [[ ${PV} == *9999* ]]; then
+if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://gitlab.com/NTPsec/ntpsec.git"
 else
@@ -36,10 +36,9 @@ NTPSEC_REFCLOCK=(
 	shm pps hpgps zyfer arbiter nmea modem local
 )
 
-IUSE_NTPSEC_REFCLOCK=${NTPSEC_REFCLOCK[@]/#/rclock_}
-
-IUSE="${IUSE_NTPSEC_REFCLOCK} debug doc early heat libbsd nist ntpviz samba seccomp smear" #ionice
-REQUIRED_USE="${PYTHON_REQUIRED_USE} nist? ( rclock_local )"
+IUSE="${NTPSEC_REFCLOCK[@]} debug doc early heat libbsd nist ntpviz samba seccomp smear test" #ionice
+REQUIRED_USE="${PYTHON_REQUIRED_USE} nist? ( local )"
+RESTRICT="!test? ( test )"
 
 # net-misc/pps-tools oncore,pps
 DEPEND="
@@ -49,8 +48,8 @@ DEPEND="
 	sys-libs/libcap
 	libbsd? ( dev-libs/libbsd:0= )
 	seccomp? ( sys-libs/libseccomp )
-	rclock_oncore? ( net-misc/pps-tools )
-	rclock_pps? ( net-misc/pps-tools )
+	oncore? ( net-misc/pps-tools )
+	pps? ( net-misc/pps-tools )
 "
 RDEPEND="
 	${DEPEND}
@@ -73,9 +72,21 @@ BDEPEND+="
 PATCHES=(
 	"${FILESDIR}/${PN}-1.1.9-remove-asciidoctor-from-config.patch"
 	"${FILESDIR}/${PN}-1.2.2-logrotate.patch"
+	"${FILESDIR}/${PN}-1.2.3-pep517-no-egg.patch"
 )
 
 WAF_BINARY="${S}/waf"
+
+src_unpack() {
+	if [[ ${PV} == 9999 ]] ; then
+		git-r3_src_unpack
+	elif use verify-sig ; then
+		# Needed for downloaded waf which is unsigned
+		verify-sig_verify_detached "${DISTDIR}"/${P}.tar.gz{,.asc}
+	fi
+
+	default
+}
 
 src_prepare() {
 	default
@@ -87,8 +98,6 @@ src_prepare() {
 	fi
 	# remove extra default pool servers
 	sed -i '/use-pool/s/^/#/' "${S}"/etc/ntp.d/default.conf || die
-
-	python_copy_sources
 }
 
 src_configure() {
@@ -99,7 +108,7 @@ src_configure() {
 	local CLOCKSTRING=""
 
 	for refclock in ${NTPSEC_REFCLOCK[@]} ; do
-		if use rclock_${refclock} ; then
+		if use ${refclock} ; then
 			string_127+="$refclock,"
 		fi
 	done
@@ -109,7 +118,6 @@ src_configure() {
 		--notests
 		--nopyc
 		--nopyo
-		--enable-pylib ext
 		--refclock="${CLOCKSTRING}"
 		#--build-epoch="$(date +%s)"
 		$(use doc	|| echo "--disable-doc")
@@ -119,25 +127,29 @@ src_configure() {
 		$(use smear	&& echo "--enable-leap-smear")
 		$(use debug	&& echo "--enable-debug")
 	)
-
-	distutils-r1_src_configure
-}
-
-python_configure() {
+	python_setup
+	cp -v "${FILESDIR}/flit.toml" "pylib/pyproject.toml" || die
 	waf-utils_src_configure "${myconf[@]}"
 }
 
-python_compile() {
+src_compile() {
 	waf-utils_src_compile --notests
+
+	ln -svf pylib build/main/ntp || die
+	cd build/main || die
+	distutils-r1_src_compile
+}
+
+src_test() {
+	cd build/main || die
+	distutils-r1_src_test
 }
 
 python_test() {
-	waf-utils_src_compile check
+	"${EPYTHON}" "${WAF_BINARY}" check -v -j $(makeopts_jobs) || die
 }
 
 src_install() {
-	distutils-r1_src_install
-
 	# Install heat generating scripts
 	use heat && dosbin "${S}"/contrib/ntpheat{,usb}
 
@@ -164,9 +176,9 @@ src_install() {
 
 	# move doc files to /usr/share/doc/"${P}"
 	use doc && mv -v "${ED}"/usr/share/doc/"${PN}" "${ED}"/usr/share/doc/"${P}"/html
-}
 
-python_install() {
+	ln -svf pylib build/main/ntp || die
+	distutils-r1_src_install
 	waf-utils_src_install --notests
 	python_fix_shebang "${ED}"
 	python_optimize

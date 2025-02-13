@@ -6,10 +6,10 @@ EAPI=8
 HOMEPAGE=https://java.net/projects/swingx/
 INHERIT=java-pkg-2 java-pkg-simple
 IUSE=doc source
-KEYWORDS=~amd64 ~x86
+KEYWORDS=~amd64
 LICENSE=LGPL-2.1
 RDEPEND=>=virtual/jre-1.8:* dev-java/swingx:1.6 >=dev-java/java-config-2.2.0-r3 source? ( app-arch/zip )
 SLOT=0
 SRC_URI=https://java.net/downloads/swingx/releases/swingx-beaninfo-1.6.4-sources.jar
-_eclasses_=java-utils-2	b346c3901e71ba37137bae0b25b00221	java-pkg-2	b6d755b4f6afabfd933932be28b46368	java-pkg-simple	742531b28b0ce82ba9425bd2c28654f9
-_md5_=f12e43df4ba1e563f1b2e5f55c8df20c
+_eclasses_=java-utils-2	c610b1541a10e37cb26ab5b707a744f1	java-pkg-2	38fd81c7880666a00a638ca8deb64d72	java-pkg-simple	c346bc0ba9945618340315a1089a82ef
+_md5_=e4818d685692711ecc264e8bfd236fe3

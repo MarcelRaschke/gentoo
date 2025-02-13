@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..12} )
 
 DISTUTILS_USE_PEP517=setuptools
 PYPI_NO_NORMALIZE=1
@@ -12,9 +12,9 @@ inherit distutils-r1 pypi
 
 DESCRIPTION="A python library to analyze and manipulate molecular dynamics trajectories"
 HOMEPAGE="https://www.mdanalysis.org"
+LICENSE="GPL-2"
 
 SLOT="0"
-LICENSE="GPL-2"
 KEYWORDS="~amd64 ~amd64-linux"
 
 # TODO: fix this
@@ -26,7 +26,7 @@ RDEPEND="
 	>=dev-python/scipy-1.0.0[${PYTHON_USEDEP}]
 	>=sci-biology/biopython-1.71[${PYTHON_USEDEP}]
 	>=dev-python/networkx-1.0[${PYTHON_USEDEP}]
-	>=dev-python/GridDataFormats-0.4.0[${PYTHON_USEDEP}]
+	>=dev-python/griddataformats-0.4.0[${PYTHON_USEDEP}]
 	>=dev-python/joblib-0.12[${PYTHON_USEDEP}]
 	>=dev-python/matplotlib-1.5.1[${PYTHON_USEDEP}]
 	>=dev-python/mmtf-python-1.0.0[${PYTHON_USEDEP}]

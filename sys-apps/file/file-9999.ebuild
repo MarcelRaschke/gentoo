@@ -5,20 +5,20 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_OPTIONAL=1
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
-inherit distutils-r1 libtool toolchain-funcs multilib-minimal
+inherit distutils-r1 toolchain-funcs multilib-minimal
 
 if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/glensc/file.git"
 	inherit autotools git-r3
 else
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/file.asc
-	inherit verify-sig
+	inherit libtool verify-sig
 	SRC_URI="ftp://ftp.astron.com/pub/file/${P}.tar.gz"
 	SRC_URI+=" verify-sig? ( ftp://ftp.astron.com/pub/file/${P}.tar.gz.asc )"
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 	BDEPEND="verify-sig? ( sec-keys/openpgp-keys-file )"
 fi
@@ -59,7 +59,7 @@ QA_CONFIG_IMPL_DECL_SKIP=( makedev )
 
 PATCHES=(
 	"${FILESDIR}/file-5.43-seccomp-fstatat64-musl.patch" #789336, not upstream yet
-	"${FILESDIR}/file-5.43-portage-sandbox.patch" #889046
+	"${FILESDIR}/file-5.45-seccomp-sandbox.patch"
 )
 
 src_prepare() {
@@ -148,6 +148,19 @@ src_compile() {
 		cd python || die
 		distutils-r1_src_compile
 	fi
+}
+
+src_test() {
+	multilib-minimal_src_test
+
+	if use python ; then
+		cd python || die
+		distutils-r1_src_test
+	fi
+}
+
+python_test() {
+	eunittest
 }
 
 multilib_src_install() {

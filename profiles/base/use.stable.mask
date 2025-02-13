@@ -1,23 +1,20 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# This file requires eapi 5 or later. New entries go on top.
-# Please use the same syntax as in use.mask
+# New entries go on top.
+# Please use the same syntax as in use.mask.
+
+# Hans de Graaff <graaff@gentoo.org> (2024-12-26)
+# Currently in testing and not ready to go stable yet.
+ruby_targets_ruby34
+ruby_targets_ruby33
 
 # Michał Górny <mgorny@gentoo.org> (2024-05-08)
 # Python implementations without stable keywords.
-python_targets_python3_13
-python_single_target_python3_13
+python_targets_python3_13t
+python_single_target_python3_13t
 python_targets_pypy3
 python_single_target_pypy3
-
-# Michał Górny <mgorny@gentoo.org> (2024-04-04)
-# LLVM slots without stablekeywords.
-llvm_slot_18
-
-# Hans de Graaff <graaff@gentoo.org> (2023-12-25)
-# Currently in testing and not ready to go stable yet.
-ruby_targets_ruby33
 
 # Michael Orlitzky <mjo@gentoo.org> (2023-12-05)
 # New unstable PHP slot.

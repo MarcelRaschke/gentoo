@@ -13,7 +13,7 @@ SRC_URI="https://github.com/OpenLightingProject/${PN}/releases/download/${PV}/${
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 IUSE="doc examples ftdi http osc python rdm-tests tcmalloc test usb zeroconf"
 
 REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )
@@ -30,7 +30,7 @@ RDEPEND="<dev-libs/protobuf-22.5:=
 	python? (
 		${PYTHON_DEPS}
 		$(python_gen_cond_dep '
-			dev-python/protobuf-python[${PYTHON_USEDEP}]
+			dev-python/protobuf[${PYTHON_USEDEP}]
 		')
 	)
 	rdm-tests? (
@@ -56,13 +56,16 @@ BDEPEND="app-alternatives/yacc
 			${PYTHON_DEPS}
 			$(python_gen_cond_dep '
 				dev-python/numpy[${PYTHON_USEDEP}]
-				dev-python/protobuf-python[${PYTHON_USEDEP}]
+				dev-python/protobuf[${PYTHON_USEDEP}]
 			')
 		)
 	)"
 
+# ola-0.10.9-liblo.patch fixes compilation against
+# media-libs/liblo-0.32. See https://bugs.gentoo.org/927000
 PATCHES=(
 	"${FILESDIR}"/${PN}-0.10.9-nullptr.patch
+	"${FILESDIR}"/${PN}-0.10.9-liblo.patch
 )
 
 src_prepare() {

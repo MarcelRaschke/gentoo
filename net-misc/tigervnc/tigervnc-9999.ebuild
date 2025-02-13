@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,8 +6,8 @@ EAPI=8
 CMAKE_IN_SOURCE_BUILD=1
 inherit autotools cmake flag-o-matic java-pkg-opt-2 optfeature systemd xdg
 
-XSERVER_VERSION="21.1.8"
-XSERVER_PATCH_VERSION="21.1.1"
+XSERVER_VERSION="21.1.14"
+XSERVER_PATCH_VERSION="21"
 
 DESCRIPTION="Remote desktop viewer display system"
 HOMEPAGE="https://tigervnc.org"
@@ -18,7 +18,7 @@ if [[ ${PV} == *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/TigerVNC/tigervnc/"
 else
 	SRC_URI+=" https://github.com/TigerVNC/tigervnc/archive/v${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 LICENSE="GPL-2"
@@ -44,10 +44,10 @@ COMMON_DEPEND="
 	gnutls? ( net-libs/gnutls:= )
 	nls? ( virtual/libiconv )
 	server? (
-		dev-libs/libbsd
 		dev-libs/openssl:0=
 		sys-libs/pam
 		x11-libs/libXau
+		x11-libs/libxcvt
 		x11-libs/libXdamage
 		x11-libs/libXdmcp
 		x11-libs/libXfixes
@@ -59,12 +59,16 @@ COMMON_DEPEND="
 		x11-apps/xkbcomp
 		x11-apps/xsetroot
 		x11-misc/xkeyboard-config
+		dri3? (
+			media-libs/mesa[opengl]
+			x11-libs/libxshmfence
+		)
 		opengl? ( media-libs/libglvnd[X] )
 		!net-misc/turbovnc[server]
 	)
 	viewer? (
 		media-video/ffmpeg:=
-		x11-libs/fltk:1
+		x11-libs/fltk:1=
 		x11-libs/libXi
 		x11-libs/libXrender
 		!net-misc/turbovnc[viewer]
@@ -80,7 +84,6 @@ DEPEND="${COMMON_DEPEND}
 	server? (
 		media-fonts/font-util
 		x11-base/xorg-proto
-		x11-libs/libxcvt
 		x11-libs/libXi
 		x11-libs/libxkbfile
 		x11-libs/libXrender
@@ -97,8 +100,9 @@ BDEPEND="
 PATCHES=(
 	# Restore Java viewer
 	"${FILESDIR}"/${PN}-1.11.0-install-java-viewer.patch
-	"${FILESDIR}"/${PN}-1.12.0-xsession-path.patch
+	"${FILESDIR}"/${PN}-1.14.0-xsession-path.patch
 	"${FILESDIR}"/${PN}-1.12.80-disable-server-and-pam.patch
+	"${FILESDIR}"/${PN}-1.14.1-pam.patch
 )
 
 src_unpack() {
@@ -121,7 +125,6 @@ src_prepare() {
 		cd unix/xserver || die
 		eapply ../xserver${XSERVER_PATCH_VERSION}.patch
 		eautoreconf
-		sed -i 's:\(present.h\):../present/\1:' os/utils.c || die
 		sed -i '/strcmp.*-fakescreenfps/,/^        \}/d' os/utils.c || die
 
 		if use drm; then
@@ -173,7 +176,6 @@ src_configure() {
 			--enable-dri2 \
 			--with-pic \
 			--without-dtrace \
-			--disable-present \
 			--with-sha1=libcrypto
 	fi
 }
@@ -185,7 +187,7 @@ src_compile() {
 		# deps of the vnc module and the module itself
 		local d subdirs=(
 			fb xfixes Xext dbe $(usex opengl glx "") $(usev dri3) randr render
-			damageext miext Xi xkb composite dix mi os hw/vnc
+			damageext miext Xi xkb composite dix mi os present hw/vnc
 		)
 		for d in "${subdirs[@]}"; do
 			emake -C unix/xserver/"${d}"
@@ -200,14 +202,10 @@ src_install() {
 		emake -C unix/xserver/hw/vnc DESTDIR="${D}" install
 		rm -v "${ED}"/usr/$(get_libdir)/xorg/modules/extensions/libvnc.la || die
 
-		newconfd "${FILESDIR}"/${PN}-1.13.1.confd ${PN}
-		newinitd "${FILESDIR}"/${PN}-1.13.1.initd ${PN}
+		newconfd "${FILESDIR}"/${PN}-1.14.0.confd ${PN}
+		newinitd "${FILESDIR}"/${PN}-1.14.0.initd ${PN}
 
 		systemd_douserunit unix/vncserver/vncserver@.service
-
-		# comment out pam_selinux.so, the server does not start if missing
-		# part of bug #746227
-		sed -i -e '/pam_selinux/s/^/#/' "${ED}"/etc/pam.d/tigervnc || die
 
 		# install vncserver to /usr/bin too, see bug #836620
 		dosym -r /usr/libexec/vncserver /usr/bin/vncserver
@@ -217,7 +215,18 @@ src_install() {
 pkg_postinst() {
 	xdg_pkg_postinst
 
-	use server && elog 'OpenRC users: please migrate to one service per display as documented here'	#FIXME: add link
+	use server && [[ -n ${REPLACING_VERSIONS} ]] && ver_test "${REPLACING_VERSIONS}" -lt 1.13.1-r3 && {
+		elog 'OpenRC users: please migrate to one service per display as documented here:'
+		elog 'https://wiki.gentoo.org/wiki/TigerVNC#Migrating_from_1.13.1-r2_or_lower:'
+		elog
+	}
+
+	use server && {
+		elog 'PLEASE NOTE:'
+		elog '	The default config directory is now ${XDG_CONFIG_HOME}/tigervnc or'
+		elog '	~/.config/tigervnc instead of ~/.vnc'
+		elog
+	}
 
 	local OPTIONAL_DM="gnome-base/gdm x11-misc/lightdm x11-misc/sddm x11-misc/slim"
 	use server && \

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit readme.gentoo-r1
+inherit flag-o-matic readme.gentoo-r1
 
 DESCRIPTION="ECL is an embeddable Common Lisp implementation"
 HOMEPAGE="https://common-lisp.net/project/ecl/"
@@ -11,7 +11,7 @@ SRC_URI="https://common-lisp.net/project/ecl/static/files/release/${P}.tgz"
 
 LICENSE="BSD-2 LGPL-2.1+"
 SLOT="0/${PV}"
-KEYWORDS="~amd64 ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux"
+KEYWORDS="~amd64 ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux"
 IUSE="cxx debug emacs gengc precisegc cpu_flags_x86_sse +threads +unicode X"
 # test phase only works if ecl already installed #516876
 RESTRICT="test"
@@ -39,6 +39,8 @@ src_prepare() {
 }
 
 src_configure() {
+	filter-lto # bug #931081
+
 	econf \
 		--enable-gmp=system \
 		--enable-boehm=system \

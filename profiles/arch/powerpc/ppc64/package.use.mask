@@ -1,17 +1,29 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Michał Górny <mgorny@gentoo.org> (2024-12-24)
+# OpenMP offloading is supported on 64-bit architectures only.
+llvm-core/clang-runtime -offload
+
+# Sam James <sam@gentoo.org> (2024-12-17)
+# dev-lang/ada-bootstrap exists here
+>=sys-devel/gcc-11 -ada
+
+# David Roman <davidroman96@gmail.com> (2024-10-04)
+# dev-libs/libunibreak is not keyworded
+media-libs/libass libunibreak
+
+# Matt Jolly <kangie@gentoo.org> (2024-08-14)
+# QUIC dependencies are not keyworded
+net-misc/curl http3 quic curl_quic_openssl curl_quic_ngtcp2
 
 # Sam James <sam@gentoo.org> (2024-05-19)
 # media-libs/jasper not yet keyworded here: https://bugs.gentoo.org/921559
 media-gfx/graphicsmagick jpeg2k
 
-# José de Paula R. N. Assis <espinafre@gmail.com> (2024-03-25)
-# No PyQt6 (which is needed by USE=qt6 for qscintilla-python) on ppc64.
->=dev-python/qscintilla-python-2.14.1-r1 qt6
-
 # Sam James <sam@gentoo.org> (2024-03-23)
 # dev-qt/qtwebengine not available here
-dev-python/QtPy webengine test
+dev-python/qtpy webengine test
 
 # Michal Privoznik <michal.privoznik@gmail.com> (2024-01-21)
 # virtiofsd is available here
@@ -20,15 +32,6 @@ app-emulation/libvirt -virtiofsd
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
 # media-libs/shaderc is keyworded here.
 media-libs/libplacebo -shaderc
-
-# Sam James <sam@gentoo.org> (2023-09-22)
-# Qt 6 not keyworded here.
-dev-build/cmake gui
-
-# Joonas Niilola <juippis@gentoo.org> (2023-08-24)
-# media-video/libva-utils is masked on ppc64, so hwaccel on Firefox
-# wouldn't work.
-www-client/firefox hwaccel
 
 # Alexey Sokolov <alexey+gentoo@asokolov.org> (2023-08-14)
 # OpenMW is only playtested with LuaJIT, and in fact unit tests fail with Lua-5.
@@ -44,7 +47,7 @@ dev-python/nbval test
 
 # Michał Górny <mgorny@gentoo.org> (2023-01-24)
 # libomptarget is only supported on 64-bit architectures.
->=sys-libs/libomp-16.0.0_pre20230124 -offload
+>=llvm-runtimes/openmp-16.0.0_pre20230124 -offload
 
 # Niccolò Belli <niccolo.belli@linuxsystems.it> (2022-11-29)
 # media-libs/webrtc-audio-processing only has amd64, x86 and ppc64 keywords
@@ -59,10 +62,6 @@ sci-libs/symengine tcmalloc
 # https://github.com/rustsec/rustsec/issues/707
 dev-util/cargo-audit fix
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2022-07-17)
-# dev-python/pyside2 is not keyworded
-www-client/falkon python
-
 # Jimi Huotari <chiitoo@gentoo.org> (2022-05-08)
 # Not keyworded here yet.
 lxqt-base/lxqt-meta desktop-portal
@@ -71,10 +70,6 @@ lxqt-base/lxqt-meta desktop-portal
 # Don't apply stable masks to python-exec since we're forcing every
 # impl there anyway. Please keep this in sync with use.stable.mask.
 dev-lang/python-exec -python_targets_pypy3
-
-# Georgy Yakovlev <gyakovlev@gentoo.org> (2021-11-12)
-# telepathy stack is not keyworded
-dev-util/kdevelop reviewboard
 
 # Sam James <sam@gentoo.org> (2021-10-17)
 # Go doesn't support pie on ppc64, bug #818529
@@ -110,9 +105,10 @@ dev-util/diffoscope haskell
 
 # Michał Górny <mgorny@gentoo.org> (2020-12-21)
 # Sanitizers supported on this architecture.
-sys-libs/compiler-rt-sanitizers -asan -lsan -msan -tsan
-sys-libs/compiler-rt-sanitizers -ubsan -scudo
-sys-libs/compiler-rt-sanitizers -profile
+llvm-runtimes/compiler-rt-sanitizers -asan -lsan -msan -tsan
+llvm-runtimes/compiler-rt-sanitizers -ubsan -scudo
+llvm-runtimes/compiler-rt-sanitizers -profile
+>=llvm-runtimes/compiler-rt-sanitizers-19 -orc
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2020-01-25)
 # fwupd keyworded now on ppc64
@@ -140,10 +136,6 @@ x11-themes/arc-theme cinnamon
 # Bug #728558
 media-video/ffmpeg -rav1e
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2020-07-02)
-# media-libs/libplacebo is keyworded
-media-video/vlc -libplacebo
-
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2020-06-07)
 # works on ppc64
 app-emulation/qemu -spice -usbredir
@@ -162,7 +154,7 @@ kde-plasma/plasma-meta thunderbolt
 
 # Georgy Yakovlev <gyakovlev@gentoo.org> (2019-12-28)
 # not keyworded or irrelevant on ~ppc64, bug 679888
-app-emulation/libvirt virtualbox xen
+app-emulation/libvirt xen
 
 # Robin H. Johnson <robbat2@gentoo.org> (2019-12-06)
 # PPS should work on all arches, but only keyworded on some arches

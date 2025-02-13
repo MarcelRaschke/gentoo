@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,9 +12,11 @@ DESCRIPTION="Visual representation of a hash value"
 HOMEPAGE="https://github.com/PauloMigAlmeida/identicon"
 COMMIT="96902d3c7c9733d9da4cce9c5ed424557fc2ec3c"
 SRC_URI="https://github.com/PauloMigAlmeida/identicon/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/${PN}-${COMMIT}/core"
+
 LICENSE="MIT"
 SLOT="1"
-KEYWORDS="amd64 ~arm ~arm64 ~x86"
+KEYWORDS="amd64 ~arm64"
 
 CP_DEPEND="
 	dev-java/cache2k-api:0
@@ -28,8 +30,6 @@ RDEPEND="
 	${CP_DEPEND}
 	>=virtual/jre-1.8:*
 "
-
-S="${WORKDIR}/${PN}-${COMMIT}/core"
 
 JAVA_SRC_DIR="src/main/java"
 JAVA_TEST_GENTOO_CLASSPATH="cache2k-api-2"

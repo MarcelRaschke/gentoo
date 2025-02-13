@@ -1,4 +1,4 @@
-# Copyright 1999-2019 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -11,7 +11,7 @@ SRC_URI="https://github.com/JWasm/JWasm/archive/${PV}.tar.gz -> ${P}.tar.gz"
 LICENSE="Watcom-1.0"
 
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 ~x86"
 
 RDEPEND=""
 DEPEND=""
@@ -19,7 +19,10 @@ BDEPEND=""
 
 S="${WORKDIR}/JWasm-${PV}"
 
-PATCHES=("${FILESDIR}"/${PN}-2.11-types-test.patch)
+PATCHES=(
+	"${FILESDIR}"/${PN}-2.11-types-test.patch
+	"${FILESDIR}/makefile-dep-fix.patch"
+)
 
 src_prepare() {
 	default

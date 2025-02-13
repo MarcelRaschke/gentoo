@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -13,7 +13,7 @@ case "${PV}" in
 		;;
 	*)
 		SRC_URI="https://github.com/hroptatyr/dateutils/releases/download/v${PV}/${P}.tar.xz"
-		KEYWORDS="~amd64 ~x86"
+		KEYWORDS="amd64 x86"
 esac
 
 LICENSE="BSD"
@@ -21,6 +21,10 @@ SLOT="0"
 
 BDEPEND="app-arch/xz-utils"
 DEPEND="sys-libs/timezone-data"
+
+PATCHES=(
+	"${FILESDIR}"/${P}-gcc-14.patch
+)
 
 # bug 429810
 RDEPEND="${DEPEND}

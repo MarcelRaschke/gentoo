@@ -45,7 +45,7 @@ media-sound/jack2 ieee1394
 
 # Sam James <sam@gentoo.org> (2020-07-30)
 # vulkan-loader and glslang are not yet stable on ppc
-media-libs/mesa vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-12-12)
 # Needs stable net-libs/webkit-gtk, bug #684702
@@ -55,17 +55,13 @@ dev-util/geany-plugins markdown
 # media-video/pipewire is not stable yet
 x11-wm/mutter screencast
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2018-12-02)
-# gnome-base/nautilus is not stable
-media-sound/easytag nautilus
-
 # Michał Górny <mgorny@gentoo.org> (2018-08-26)
 # Non-stable dependency.  Used to be masked completely.
 media-sound/abcde replaygain
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2018-06-20)
-# dev-python/PyQt5 is not stable.
-dev-python/matplotlib qt5 test
+# dev-python/pyqt5 is not stable.
+dev-python/matplotlib qt5 qt6 test
 net-print/hplip qt5
 dev-python/pyudev qt5
 

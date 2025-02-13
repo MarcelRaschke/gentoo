@@ -1,12 +1,17 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-05-30)
-# Only up to python 3.11 supported, bug #929546
-<dev-util/kdevelop-python-24.07.50:5 python_single_target_python3_11
-~www-client/falkon-23.08.5 python_single_target_python3_11
-dev-python/pyside2 python_targets_python3_11
-dev-python/shiboken2 python_targets_python3_11
+# Mike Gilbert <floppym@gentoo.org> (2025-01-12)
+# Requires >= lua-5.3.
+>=dev-lua/lutok-0.6 lua_single_target_lua5-4
+
+# Michał Górny <mgorny@gentoo.org> (2024-09-15)
+# Each flag is used by exactly one version, so let's default-enable
+# them all to make tattoo not fail on almost everything.
+dev-python/python-tests:3.10 python_targets_python3_10
+dev-python/python-tests:3.11 python_targets_python3_11
+dev-python/python-tests:3.12 python_targets_python3_12
+dev-python/python-tests:3.13 python_targets_python3_13
 
 # Arthur Zamarin <arthurzam@gentoo.org> (2024-03-23)
 # Used by pkgcheck, so let's make it easier for all developers to install it
@@ -51,9 +56,9 @@ media-video/wireplumber lua_single_target_lua5-4
 
 # Michał Górny <mgorny@gentoo.org> (2016-09-24)
 # Enable the BPF target by default
-dev-ml/llvm-ocaml llvm_targets_BPF
-sys-devel/clang llvm_targets_BPF
-sys-devel/llvm llvm_targets_BPF
+dev-ml/llvm llvm_targets_BPF
+llvm-core/clang llvm_targets_BPF
+llvm-core/llvm llvm_targets_BPF
 
 # Chí-Thanh Christopher Nguyễn <chithanh@gentoo.org> (2012-07-27)
 # Modular X: Build the Xorg X server by default

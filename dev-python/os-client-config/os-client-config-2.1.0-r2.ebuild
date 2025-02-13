@@ -5,12 +5,16 @@ EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
 PYPI_NO_NORMALIZE=1
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1 pypi
 
 DESCRIPTION="OpenStack Client Configuation Library"
-HOMEPAGE="https://www.openstack.org/"
+HOMEPAGE="
+	https://opendev.org/openstack/os-client-config/
+	https://github.com/openstack/os-client-config/
+	https://pypi.org/project/os-client-config/
+"
 
 LICENSE="Apache-2.0"
 SLOT="0"
@@ -30,7 +34,7 @@ BDEPEND="
 		dev-python/python-glanceclient[${PYTHON_USEDEP}]
 		>=dev-python/oslo-config-6.1.0[${PYTHON_USEDEP}]
 		>=dev-python/oslotest-3.2.0[${PYTHON_USEDEP}]
-		dev-python/subunit[${PYTHON_USEDEP}]
+		dev-python/python-subunit[${PYTHON_USEDEP}]
 		>=dev-python/testscenarios-0.4[${PYTHON_USEDEP}]
 		>=dev-python/testtools-2.2.0[${PYTHON_USEDEP}]
 	)

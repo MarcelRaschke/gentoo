@@ -1,14 +1,15 @@
-# Copyright 2020-2024 Gentoo Authors
+# Copyright 2020-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
+KERNEL_IUSE_MODULES_SIGN=1
 inherit git-r3 kernel-build toolchain-funcs
 
 # https://koji.fedoraproject.org/koji/packageinfo?packageID=8
 # forked to https://github.com/projg2/fedora-kernel-config-for-gentoo
-CONFIG_VER=6.1.7-gentoo
-GENTOO_CONFIG_VER=g12
+CONFIG_VER=6.1.102-gentoo
+GENTOO_CONFIG_VER=g15
 
 DESCRIPTION="Linux kernel built from vanilla upstream sources"
 HOMEPAGE="
@@ -65,18 +66,15 @@ src_prepare() {
 
 	# prepare the default config
 	case ${ARCH} in
+		arm | hppa)
+			> .config || die
+		;;
 		amd64)
 			cp "${DISTDIR}/kernel-x86_64-fedora.config.${CONFIG_VER}" .config || die
-			;;
-		arm)
-			return
 			;;
 		arm64)
 			cp "${DISTDIR}/kernel-aarch64-fedora.config.${CONFIG_VER}" .config || die
 			biendian=true
-			;;
-		hppa)
-			return
 			;;
 		ppc)
 			# assume powermac/powerbook defconfig

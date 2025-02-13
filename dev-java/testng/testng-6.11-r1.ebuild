@@ -28,7 +28,7 @@ SRC_URI="https://github.com/testng-team/${PN}/archive/${PV}.tar.gz -> ${P}.tar.g
 S="${WORKDIR}/${P}"
 
 LICENSE="Apache-2.0"
-KEYWORDS="amd64 ~arm arm64 ppc64 x86"
+KEYWORDS="amd64 arm64 ppc64"
 SLOT="0"
 
 CP_DEPEND="
@@ -87,6 +87,7 @@ src_test() {
 		src/test/groovy/test/groovy/* || die
 
 	JAVA_GENTOO_CLASSPATH_EXTRA+=":${DISTDIR}/groovy-all-${GAV}.jar"
+	JAVA_TEST_EXTRA_ARGS=( -Dtest.resources.dir=src/test/resources )
 	java-pkg-simple_src_test
 }
 

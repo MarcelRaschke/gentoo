@@ -1,4 +1,4 @@
-BDEPEND=>=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
+BDEPEND=>=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.17-r1:1.17 >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
 DEFINED_PHASES=configure install prepare
 DEPEND=dev-libs/expat dev-libs/libpcre:3 sci-libs/plplot:= sys-libs/zlib mysql? ( dev-db/mysql-connector-c:0= ) pdf? ( media-libs/libharu:= ) png? ( media-libs/gd:2=[png] ) postgres? ( dev-db/postgresql:= ) X? ( x11-libs/libXt ) >=sci-biology/emboss-6.6.0-r1[mysql=,pdf=,png=,postgres=,X=]
 DESCRIPTION=EMBOSS integrated version of Applications from the CBS group
@@ -11,5 +11,5 @@ LICENSE=LGPL-2 GPL-2
 RDEPEND=dev-libs/expat dev-libs/libpcre:3 sci-libs/plplot:= sys-libs/zlib mysql? ( dev-db/mysql-connector-c:0= ) pdf? ( media-libs/libharu:= ) png? ( media-libs/gd:2=[png] ) postgres? ( dev-db/postgresql:= ) X? ( x11-libs/libXt ) >=sci-biology/emboss-6.6.0-r1[mysql=,pdf=,png=,postgres=,X=]
 SLOT=0
 SRC_URI=ftp://emboss.open-bio.org/pub/EMBOSS/CBSTOOLS-1.0.0.660.tar.gz -> embassy-cbstools-1.0.0.660.tar.gz
-_eclasses_=gnuconfig	a397adda6984a4c423e28ac274c1ba98	toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	libtool	5f49a16f67f81bdf873e3d1f10b10001	autotools	dc70c1dc473b68317fc4a86f5fbfc57d	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	emboss-r3	ed4c0b270092039c992b771a26ca322a
+_eclasses_=gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	libtool	6b28392a775f807c8be5fc7ec9a605b9	autotools	7d91cc798a8afd8f4e0c6e9587296ebe	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	emboss-r3	bd98b11ffc89ab4079e13e7d634fd143
 _md5_=56469e1c3bb7c4baac8ad99638b59ff0

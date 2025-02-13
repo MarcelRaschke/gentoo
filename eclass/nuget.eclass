@@ -71,6 +71,21 @@ export NUGET_PACKAGES
 # @DESCRIPTION:
 # String containing all NuGet packages that need to be downloaded.
 #
+# To generate the "NUGETS" list use the "gdmt restore" tool from the
+# "dev-dotnet/gentoo-dotnet-maintainer-tools" package. To see all "gdmt restore"
+# options invoke it with the "--help" flag. The Gentoo Wiki page
+# Dotnet/Devguide (https://wiki.gentoo.org/wiki/Dotnet/Devguide) contains some
+# examples and special cases to be beware of.
+#
+# Generally you will want to invoke "gdmt restore" form within a (clean) tagged
+# checkout of a given .NET-based project. The invocation will look something
+# like this: gdmt restore --sdk-ver SDK-VER --cache "$(pwd)/.cache" --project PROJECT
+# Where:
+#   * "SDK-VER" is a .NET version (6.0, 8.0), mind the full version, "8" is not allowed,
+#   * "PROJECT" is a given project file (.csproj or .fsproj) or a directory containing it.
+# So, for example:
+# gdmt restore --sdk-ver 8.0 --cache "$(pwd)/.cache" --project src/App/App.csproj
+#
 # Used by "_nuget_uris".
 #
 # Example:
@@ -245,7 +260,7 @@ nuget_unpack-non-nuget-archives() {
 # This function is used inside "dotnet-pkg_src_prepare"
 # from the "dotnet-pkg" eclass.
 nuget_writeconfig() {
-	debug-print-function "${FUNCNAME[0]}" "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	case "${1}" in
 		"" ) die "${FUNCNAME[0]}: no directory/file path specified" ;;

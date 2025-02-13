@@ -33,7 +33,7 @@ else
 	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT=$(ver_cut 1-2)
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 #
@@ -160,6 +160,8 @@ src_configure() {
 	# Keep things sane
 	strip-flags
 
+	# https://sourceware.org/PR32372
+	append-cflags $(test-flags-CC -std=gnu17)
 	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
 
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152

@@ -50,7 +50,7 @@ else
 		BDEPEND="verify-sig? ( sec-keys/openpgp-keys-alejandro-colomar )"
 	fi
 
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos"
 fi
 
 SRC_URI+="
@@ -95,21 +95,16 @@ src_unpack() {
 	fi
 
 	if [[ ${PV} != *_rc* ]] && ! [[ ${MAN_PAGES_GENTOO_DIST} -eq 1 ]] && use verify-sig ; then
-		mkdir "${T}"/verify-sig || die
-		pushd "${T}"/verify-sig &>/dev/null || die
-
 		# Upstream sign the decompressed .tar
-		# Let's do it separately in ${T} then cleanup to avoid external
-		# effects on normal unpack.
-		cp "${DISTDIR}"/${P}.tar.xz . || die
-		xz -d ${P}.tar.xz || die
-		verify-sig_verify_detached ${P}.tar "${DISTDIR}"/${P}.tar.sign
+		einfo "Unpacking ${P}.tar.xz ..."
+		verify-sig_verify_detached - "${DISTDIR}"/${P}.tar.sign \
+			< <(xz -cd "${DISTDIR}"/${P}.tar.xz | tee >(tar -xf -))
+		assert "Unpack failed"
 
-		popd &>/dev/null || die
-		rm -r "${T}"/verify-sig || die
+		unpack man-pages-gentoo-${GENTOO_PATCH}.tar.bz2
+	else
+		default
 	fi
-
-	default
 }
 
 src_prepare() {

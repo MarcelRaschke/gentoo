@@ -4,14 +4,14 @@
 # @ECLASS: java-vm-2.eclass
 # @MAINTAINER:
 # java@gentoo.org
-# @SUPPORTED_EAPIS: 7 8
+# @SUPPORTED_EAPIS: 8
 # @BLURB: Java Virtual Machine eclass
 # @DESCRIPTION:
 # This eclass provides functionality which assists with installing
 # virtual machines, and ensures that they are recognized by java-config.
 
 case ${EAPI} in
-	7|8) ;;
+	8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
@@ -161,58 +161,6 @@ get_system_arch() {
 				*) echo ${abi} ;;
 			esac ;;
 	esac
-}
-
-
-# @FUNCTION: set_java_env
-# @DESCRIPTION:
-# Installs a vm env file.
-# DEPRECATED, use java-vm_install-env instead.
-
-set_java_env() {
-	debug-print-function ${FUNCNAME} $*
-
-	local platform="$(get_system_arch)"
-	local env_file="${ED}${JAVA_VM_CONFIG_DIR}/${VMHANDLE}"
-
-	if [[ ${1} ]]; then
-		local source_env_file="${1}"
-	else
-		local source_env_file="${FILESDIR}/${VMHANDLE}.env"
-	fi
-
-	if [[ ! -f ${source_env_file} ]]; then
-		die "Unable to find the env file: ${source_env_file}"
-	fi
-
-	dodir ${JAVA_VM_CONFIG_DIR}
-	sed \
-		-e "s/@P@/${P}/g" \
-		-e "s/@PN@/${PN}/g" \
-		-e "s/@PV@/${PV}/g" \
-		-e "s/@PF@/${PF}/g" \
-		-e "s/@SLOT@/${SLOT}/g" \
-		-e "s/@PLATFORM@/${platform}/g" \
-		-e "s/@LIBDIR@/$(get_libdir)/g" \
-		-e "/^LDPATH=.*lib\\/\\\"/s|\"\\(.*\\)\"|\"\\1${platform}/:\\1${platform}/server/\"|" \
-		< "${source_env_file}" \
-		> "${env_file}" || die "sed failed"
-
-	(
-		echo "VMHANDLE=\"${VMHANDLE}\""
-		echo "BUILD_ONLY=\"${JAVA_VM_BUILD_ONLY}\""
-	) >> "${env_file}"
-
-	eprefixify ${env_file}
-
-	[[ -n ${JAVA_PROVIDE} ]] && echo "PROVIDES=\"${JAVA_PROVIDE}\"" >> ${env_file}
-
-	local java_home=$(source "${env_file}"; echo ${JAVA_HOME})
-	[[ -z ${java_home} ]] && die "No JAVA_HOME defined in ${env_file}"
-
-	# Make the symlink
-	dodir "${JAVA_VM_DIR}"
-	dosym "${java_home}" "${JAVA_VM_DIR}/${VMHANDLE}"
 }
 
 

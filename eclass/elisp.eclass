@@ -1,4 +1,4 @@
-# Copyright 2002-2023 Gentoo Authors
+# Copyright 2002-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: elisp.eclass
@@ -139,7 +139,7 @@ elisp_src_configure() { :; }
 elisp_src_compile() {
 	elisp-compile *.el
 	if [[ -n ${ELISP_TEXINFO} ]]; then
-		makeinfo ${ELISP_TEXINFO} || die
+		makeinfo --no-split ${ELISP_TEXINFO} || die
 	fi
 }
 
@@ -205,5 +205,11 @@ elisp_pkg_postrm() {
 	elisp-site-regen
 }
 
+elisp_pkg_info() {
+	if [[ -n ${_ELISP_EMACS_VERSION} ]]; then
+		echo "Built with Emacs version: ${_ELISP_EMACS_VERSION}"
+	fi
+}
+
 EXPORT_FUNCTIONS src_{unpack,prepare,configure,compile,test,install} \
-	pkg_{setup,postinst,postrm}
+	pkg_{setup,postinst,postrm,info}

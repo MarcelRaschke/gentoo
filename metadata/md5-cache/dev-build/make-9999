@@ -1,15 +1,16 @@
-BDEPEND=doc? ( virtual/texi2dvi ) nls? ( sys-devel/gettext ) verify-sig? ( sec-keys/openpgp-keys-make ) test? ( dev-lang/perl ) verify-sig? ( app-crypt/gnupg >=app-portage/gemato-20 ) >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3 >=dev-vcs/git-1.8.2.1[curl]
-DEFINED_PHASES=compile configure install prepare unpack
-DEPEND=guile? ( >=dev-scheme/guile-1.8:= )
+BDEPEND=doc? ( virtual/texi2dvi ) nls? ( sys-devel/gettext ) verify-sig? ( sec-keys/openpgp-keys-make ) test? ( dev-lang/perl ) verify-sig? ( app-crypt/gnupg >=app-portage/gemato-20 ) virtual/pkgconfig >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.17-r1:1.17 >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3 >=dev-vcs/git-1.8.2.1[curl]
+DEFINED_PHASES=compile configure install prepare setup unpack
+DEPEND=guile? ( guile_single_target_2-2? ( dev-scheme/guile:2.2 ) guile_single_target_3-0? ( dev-scheme/guile:3.0 ) )
 DESCRIPTION=Standard tool to compile source trees
 EAPI=8
 HOMEPAGE=https://www.gnu.org/software/make/make.html
-INHERIT=flag-o-matic unpacker verify-sig autotools git-r3
-IUSE=doc guile nls static test verify-sig
+INHERIT=flag-o-matic unpacker verify-sig guile-single autotools git-r3
+IUSE=doc guile nls static test verify-sig guile_single_target_2-2 guile_single_target_3-0
 LICENSE=GPL-3+
 PROPERTIES=live
-RDEPEND=guile? ( >=dev-scheme/guile-1.8:= ) nls? ( virtual/libintl )
+RDEPEND=guile? ( guile_single_target_2-2? ( dev-scheme/guile:2.2 ) guile_single_target_3-0? ( dev-scheme/guile:3.0 ) ) nls? ( virtual/libintl )
+REQUIRED_USE=guile? ( ^^ ( guile_single_target_2-2 guile_single_target_3-0 ) )
 RESTRICT=!test? ( test )
 SLOT=0
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	unpacker	7b40f3faa3e2e12f5cf6d36d0fbfcd09	verify-sig	a79ba011daaf532d71a219182474d150	gnuconfig	a397adda6984a4c423e28ac274c1ba98	libtool	5f49a16f67f81bdf873e3d1f10b10001	autotools	dc70c1dc473b68317fc4a86f5fbfc57d	git-r3	fbb2889c81f3a05910c1524db69425c1
-_md5_=c01c35e792936b8987e6dc3771734038
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	multiprocessing	1e32df7deee68372153dca65f4a7c21f	unpacker	fb4b84181244b3b9990fa0bf40232dd2	eapi9-pipestatus	d2c134036ac31c3085aebc9147f572bd	verify-sig	7433426b6b28bf2737ba4b82c8aa8c53	guile-utils	e45d014e2eb3f7fe4fdcd4e5eeafdb8b	guile-single	6e99296ff5eff20c16de5075dfe75616	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	6b28392a775f807c8be5fc7ec9a605b9	autotools	7d91cc798a8afd8f4e0c6e9587296ebe	git-r3	875eb471682d3e1f18da124be97dcc81
+_md5_=d10a084694a15393107354d7982ec090

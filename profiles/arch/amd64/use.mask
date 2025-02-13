@@ -4,6 +4,10 @@
 # Unmask the flag which corresponds to ARCH.
 -amd64
 
+# Thomas Bettler <thomas.bettler@gmail.com> (2024-11-04)
+# media-libs/tiff only keyworded on amd64
+-lerc
+
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-14)
 # media-libs/quirc is keyworded on amd64
 -quirc
@@ -28,7 +32,7 @@
 # ROCm/HIP works here
 -hip
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2023-07-11)
+# Nowa Ammerlaan <nowa@gentoo.org> (2023-07-11)
 # Unmask secureboot flag on arches where sbsigntools is keyworded
 -secureboot
 
@@ -60,16 +64,11 @@
 # Michael Orlitzky <mjo@gentoo.org> (2018-01-07)
 # Oracle database stuff should work on amd64.
 -oci8
--oci8-instant-client
 -oracle
 
 # Sven Wegener <swegener@gentoo.org> (2017-05-31)
 # libvirt is supported on amd64
 -libvirt
-
-# Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-26)
-# dev-db/firebird is keyworded ~amd64
--firebird
 
 # Mike Gilbert <floppym@gentoo.org> (2014-10-19)
 # Requires the following packages to be keyworded/stable:
@@ -141,10 +140,9 @@
 -video_cards_i965
 -video_cards_intel
 -video_cards_nvidia
+-video_cards_nvk
 -video_cards_siliconmotion
 -video_cards_vesa
--video_cards_via
--video_cards_virtualbox
 -video_cards_vmware
 -video_cards_qxl
 
@@ -156,12 +154,34 @@
 -cpu_flags_x86_aes
 -cpu_flags_x86_avx
 -cpu_flags_x86_avx2
+-cpu_flags_x86_avx512_4fmaps
+-cpu_flags_x86_avx512_4vnniw
+-cpu_flags_x86_avx512_bf16
+-cpu_flags_x86_avx512_bitalg
+-cpu_flags_x86_avx512_fp16
+-cpu_flags_x86_avx512_vbmi2
+-cpu_flags_x86_avx512_vnni
+-cpu_flags_x86_avx512_vp2intersect
+-cpu_flags_x86_avx512_vpopcntdq
+-cpu_flags_x86_avx512bw
+-cpu_flags_x86_avx512cd
+-cpu_flags_x86_avx512dq
+-cpu_flags_x86_avx512er
+-cpu_flags_x86_avx512f
+-cpu_flags_x86_avx512ifma
+-cpu_flags_x86_avx512pf
+-cpu_flags_x86_avx512vbmi
+-cpu_flags_x86_avx512vl
+-cpu_flags_x86_f16c
 -cpu_flags_x86_fma3
 -cpu_flags_x86_fma4
 -cpu_flags_x86_mmx
 -cpu_flags_x86_mmxext
 -cpu_flags_x86_padlock
+-cpu_flags_x86_pclmul
 -cpu_flags_x86_popcnt
+-cpu_flags_x86_rdrand
+-cpu_flags_x86_sha
 -cpu_flags_x86_sse
 -cpu_flags_x86_sse2
 -cpu_flags_x86_sse3
@@ -169,6 +189,7 @@
 -cpu_flags_x86_sse4_2
 -cpu_flags_x86_sse4a
 -cpu_flags_x86_ssse3
+-cpu_flags_x86_vpclmulqdq
 -cpu_flags_x86_xop
 
 # Robert Buchholz <rbu@gentoo.org> (2007-06-03)

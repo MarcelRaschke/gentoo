@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: toolchain.eclass
@@ -11,25 +11,34 @@
 # GNAT for Ada). If not building GCC itself, please use toolchain-funcs.eclass
 # instead.
 
+if [[ -z ${_TOOLCHAIN_ECLASS} ]]; then
+_TOOLCHAIN_ECLASS=1
+
+RUST_OPTIONAL="1"
+
 case ${EAPI} in
 	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ -z ${_TOOLCHAIN_ECLASS} ]]; then
-_TOOLCHAIN_ECLASS=1
-
 DESCRIPTION="The GNU Compiler Collection"
 HOMEPAGE="https://gcc.gnu.org/"
 
-inherit edo flag-o-matic gnuconfig libtool multilib pax-utils python-any-r1 toolchain-funcs prefix
+inherit edo flag-o-matic gnuconfig libtool multilib pax-utils rust toolchain-funcs prefix
+
+[[ -n ${TOOLCHAIN_HAS_TESTS} ]] && inherit python-any-r1
 
 tc_is_live() {
 	[[ ${PV} == *9999* ]]
 }
 
 if tc_is_live ; then
-	EGIT_REPO_URI="https://gcc.gnu.org/git/gcc.git https://github.com/gcc-mirror/gcc"
+	EGIT_REPO_URI="
+		https://gcc.gnu.org/git/gcc.git
+		https://git.sr.ht/~sourceware/gcc
+		https://gitlab.com/x86-gcc/gcc.git
+		https://github.com/gcc-mirror/gcc.git
+	"
 	# Naming style:
 	# gcc-10.1.0_pre9999 -> gcc-10-branch
 	#  Note that the micro version is required or lots of stuff will break.
@@ -143,6 +152,12 @@ tc_version_is_between() {
 # @DESCRIPTION:
 # Indicate the developer who hosts the patchset for an ebuild.
 
+# @ECLASS_VARIABLE: TOOLCHAIN_HAS_TESTS
+# @DEFAULT_UNSET
+# @DESCRIPTION:
+# Controls whether python-any-r1 is inherited and validate_failures.py
+# is used.
+
 # @ECLASS_VARIABLE: GCC_PV
 # @INTERNAL
 # @DESCRIPTION:
@@ -189,7 +204,7 @@ GCCMICRO=$(ver_cut 3 ${GCC_PV})
 # @INTERNAL
 # @DESCRIPTION:
 # Controls whether fixincludes should be used.
-GCC_RUN_FIXINCLUDES=0
+: "${GCC_RUN_FIXINCLUDES:=0}"
 
 tc_use_major_version_only() {
 	local use_major_version_only=0
@@ -273,6 +288,7 @@ STDCXX_INCDIR=${TOOLCHAIN_STDCXX_INCDIR:-${LIBPATH}/include/g++-v${GCC_BRANCH_VE
 LICENSE="GPL-3+ LGPL-3+ || ( GPL-3+ libgcc libstdc++ gcc-runtime-library-exception-3.1 ) FDL-1.3+"
 IUSE="test vanilla +nls"
 RESTRICT="!test? ( test )"
+[[ -z ${TOOLCHAIN_HAS_TESTS} ]] && RESTRICT+=" test"
 
 TC_FEATURES=()
 
@@ -283,7 +299,8 @@ tc_has_feature() {
 if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	IUSE+=" debug +cxx"
 	IUSE+=" +fortran" TC_FEATURES+=( fortran )
-	IUSE+=" doc hardened multilib objc"
+	IUSE+=" doc" TC_FEATURES+=( doc )
+	IUSE+=" hardened multilib objc"
 	IUSE+=" pgo"
 	IUSE+=" objc-gc" TC_FEATURES+=( objc-gc )
 	IUSE+=" libssp objc++"
@@ -321,6 +338,8 @@ if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] ; then
 	# and https://rust-gcc.github.io/2023/04/24/gccrs-and-gcc13-release.html for why
 	# it was disabled in 13.
 	tc_version_is_at_least 14.0.0_pre20230423 ${PV} && IUSE+=" rust" TC_FEATURES+=( rust )
+	tc_version_is_at_least 14.2.1_p20241026 ${PV} && IUSE+=" time64"
+	tc_version_is_at_least 15.0.0_pre20241124 ${PV} && IUSE+=" libgdiagnostics"
 fi
 
 if tc_version_is_at_least 10; then
@@ -353,6 +372,7 @@ fi
 
 BDEPEND="
 	app-alternatives/yacc
+	sys-devel/binutils:*
 	>=sys-devel/flex-2.5.4
 	nls? ( sys-devel/gettext )
 	test? (
@@ -361,6 +381,11 @@ BDEPEND="
 		>=sys-devel/autogen-5.5.4
 	)
 "
+
+if tc_has_feature doc ; then
+	BDEPEND+=" doc? ( app-text/doxygen )"
+fi
+
 DEPEND="${RDEPEND}"
 
 if [[ ${PN} == gcc && ${PV} == *_p* ]] ; then
@@ -391,10 +416,28 @@ if tc_has_feature valgrind ; then
 	BDEPEND+=" valgrind? ( dev-debug/valgrind )"
 fi
 
-# TODO: Add a pkg_setup & pkg_pretend check for whether the active compiler
-# supports Ada.
 if [[ ${PN} != gnat-gpl ]] && tc_has_feature ada ; then
-	BDEPEND+=" ada? ( || ( sys-devel/gcc[ada] dev-lang/gnat-gpl[ada] ) )"
+	if tc_use_major_version_only ; then
+		BDEPEND+="
+			ada? (
+				|| (
+					sys-devel/gcc:${SLOT}[ada]
+					<sys-devel/gcc-${SLOT}[ada]
+					<dev-lang/ada-bootstrap-$((${SLOT} + 1))
+				)
+			)
+		"
+	else
+                BDEPEND+="
+                        ada? (
+                                || (
+                                        sys-devel/gcc:${SLOT}[ada]
+                                        <sys-devel/gcc-${SLOT}[ada]
+                                        <dev-lang/ada-bootstrap-${SLOT}
+                                )
+                        )
+                "
+	fi
 fi
 
 # TODO: Add a pkg_setup & pkg_pretend check for whether the active compiler
@@ -403,13 +446,13 @@ if tc_has_feature d && tc_version_is_at_least 12.0 ; then
 	# D in 12+ is self-hosting and needs D to bootstrap.
 	# TODO: package some binary we can use, like for Ada
 	# bug #840182
-	BDEPEND+=" d? ( || ( sys-devel/gcc[d(-)] <sys-devel/gcc-12[d(-)] ) )"
+	BDEPEND+=" d? ( || ( sys-devel/gcc:${SLOT}[d(-)] <sys-devel/gcc-${SLOT}[d(-)] <sys-devel/gcc-12[d(-)] ) )"
 fi
 
 if tc_has_feature rust && tc_version_is_at_least 14.0.0_pre20230421 ; then
 	# This was added upstream in r14-9968-g3e1e73fc995844 as a temporary measure.
 	# See https://inbox.sourceware.org/gcc/34fec7ea-8762-4cac-a1c8-ff54e20e31ed@embecosm.com/
-	BDEPEND+=" rust? ( virtual/rust )"
+	BDEPEND+=" rust? ( ${RUST_DEPEND} )"
 fi
 
 PDEPEND=">=sys-devel/gcc-config-2.11"
@@ -526,7 +569,7 @@ get_gcc_src_uri() {
 		GCC_SRC_URI="mirror://gcc/snapshots/${SNAPSHOT}/gcc-${SNAPSHOT}.tar.xz"
 	else
 		GCC_SRC_URI="
-			mirror://gcc/gcc-${GCC_PV}/gcc-${GCC_RELEASE_VER}.tar.xz
+			mirror://gcc/releases/gcc-${GCC_PV}/gcc-${GCC_RELEASE_VER}.tar.xz
 			mirror://gnu/gcc/gcc-${GCC_PV}/gcc-${GCC_RELEASE_VER}.tar.xz
 		"
 	fi
@@ -536,7 +579,8 @@ get_gcc_src_uri() {
 	[[ -n ${MUSL_VER} ]] && \
 		GCC_SRC_URI+=" $(gentoo_urls gcc-${MUSL_GCC_VER}-musl-patches-${MUSL_VER}.tar.${TOOLCHAIN_PATCH_SUFFIX})"
 
-	GCC_SRC_URI+=" test? ( https://gitweb.gentoo.org/proj/gcc-patches.git/plain/scripts/testsuite-management/validate_failures.py?id=${GCC_VALIDATE_FAILURES_VERSION} -> gcc-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py )"
+	[[ -n ${TOOLCHAIN_HAS_TESTS} ]] && \
+		GCC_SRC_URI+=" test? ( https://gitweb.gentoo.org/proj/gcc-patches.git/plain/scripts/testsuite-management/validate_failures.py?id=${GCC_VALIDATE_FAILURES_VERSION} -> gcc-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py )"
 
 	echo "${GCC_SRC_URI}"
 }
@@ -547,10 +591,25 @@ SRC_URI=$(get_gcc_src_uri)
 
 toolchain_pkg_pretend() {
 	if ! _tc_use_if_iuse cxx ; then
+		_tc_use_if_iuse ada && \
+			ewarn 'Ada requires a C++ compiler, disabled due to USE="-cxx"'
 		_tc_use_if_iuse go && \
 			ewarn 'Go requires a C++ compiler, disabled due to USE="-cxx"'
 		_tc_use_if_iuse objc++ && \
 			ewarn 'Obj-C++ requires a C++ compiler, disabled due to USE="-cxx"'
+	fi
+
+	# Do the check for pure source builds only, since the override
+	# cannot work with binary packages, see https://bugs.gentoo.org/944198
+	if [[ ${BUILD_TYPE} == source ]] && in_iuse time64 && ! use time64 &&
+		has_version -r "${CATEGORY}/${PN}[time64(-)]" &&
+		[[ ! ${TC_FORCE_TIME32} ]]
+	then
+		eerror "Attempting to build USE=-time64 version of gcc when at least"
+		eerror "one USE=time64 version is installed. Did you accidentally"
+		eerror "switch back to a non-time64 profile? If this is really"
+		eerror "desirable, set TC_FORCE_TIME32=1 to force the build."
+		die "Attempting to build USE=-time64 on a USE=time64 system"
 	fi
 }
 
@@ -563,12 +622,17 @@ toolchain_pkg_setup() {
 	# bug #265283
 	unset LANGUAGES
 
+	# bug #932245
+	[[ ${LIBTOOL} = rlibtool ]] && die "\$LIBTOOL is using rlibtool from dev-build/slibtool. You must not use rlibtool, only rclibtool."
+
 	# See https://www.gnu.org/software/make/manual/html_node/Parallel-Output.html
 	# Avoid really confusing logs from subconfigure spam, makes logs far
 	# more legible.
 	MAKEOPTS="--output-sync=line ${MAKEOPTS}"
 
-	use test && python-any-r1_pkg_setup
+	[[ -n ${TOOLCHAIN_HAS_TESTS} ]] && use test && python-any-r1_pkg_setup
+
+	_tc_use_if_iuse rust && rust_pkg_setup
 }
 
 #---->> src_unpack <<----
@@ -589,7 +653,7 @@ toolchain_fetch_git_patches() {
 	mkdir "${WORKDIR}"/patch || die
 	mv "${WORKDIR}"/patch.tmp/${PATCH_GCC_VER}/gentoo/* "${WORKDIR}"/patch || die
 
-	if [[ -n ${MUSL_VER} || -d "${WORKDIR}"/musl ]] && [[ ${CTARGET} == *musl* ]] ; then
+	if [[ -z ${MUSL_VER} || -d "${WORKDIR}"/musl ]] && [[ ${CTARGET} == *musl* ]] ; then
 		mkdir "${WORKDIR}"/musl || die
 		mv "${WORKDIR}"/patch.tmp/${PATCH_GCC_VER}/musl/* "${WORKDIR}"/musl || die
 	fi
@@ -628,11 +692,16 @@ toolchain_src_prepare() {
 
 	eapply_user
 
+	# Workaround -march=native not working for stage1 with non-GCC (bug #933772).
+	if ! tc-is-gcc && [[ "${CFLAGS}${CXXFLAGS}" == *-march=native* ]] ; then
+		CLANG_DISABLE_CET_HACK=1
+	fi
+
 	if ! use vanilla ; then
 		tc_enable_hardened_gcc
 	fi
 
-	if use test ; then
+	if [[ -n ${TOOLCHAIN_HAS_TESTS} ]] && use test ; then
 		cp "${DISTDIR}"/gcc-validate-failures-${GCC_VALIDATE_FAILURES_VERSION}.py "${T}"/validate_failures.py || die
 		chmod +x "${T}"/validate_failures.py || die
 	fi
@@ -656,7 +725,7 @@ toolchain_src_prepare() {
 
 	gnuconfig_update
 
-	if ! use prefix-guest && [[ -n ${EPREFIX} ]] ; then
+	if ! is_crosscompile && ! use prefix-guest && [[ -n ${EPREFIX} ]] ; then
 		einfo "Prefixifying dynamic linkers..."
 		for f in gcc/config/*/*linux*.h ; do
 			ebegin "  Updating ${f}"
@@ -728,7 +797,7 @@ tc_enable_hardened_gcc() {
 		hardened_gcc_flags+=" -DDEF_GENTOO_ZNOW"
 	fi
 
-	if _tc_use_if_iuse cet && [[ ${CTARGET} == *x86_64*-linux-gnu* ]] ; then
+	if _tc_use_if_iuse cet && [[ -z ${CLANG_DISABLE_CET_HACK} && ${CTARGET} == *x86_64*-linux-gnu* ]] ; then
 		einfo "Updating gcc to use x86-64 control flow protection by default ..."
 		hardened_gcc_flags+=" -DEXTRA_OPTIONS_CF"
 	fi
@@ -761,7 +830,6 @@ tc_enable_hardened_gcc() {
 	sed -i \
 		-e "/^HARD_CFLAGS = /s|=|= ${hardened_gcc_flags} |" \
 		"${S}"/gcc/Makefile.in || die
-
 }
 
 # This is a historical wart.  The original Gentoo/amd64 port used:
@@ -806,6 +874,302 @@ setup_multilib_osdirnames() {
 	sed -i "${sed_args[@]}" "${S}"/gcc/config/${config} || die
 }
 
+# @FUNCTION: _get_bootstrap_gcc_info
+# @USAGE: [gcc_pkg|gcc_bin_base]...
+# @DESCRIPTION:
+# Get some information about the gcc that would be used to build this package.
+# All the variables that are passed as arguments will be set to their apropriate
+# values:
+#
+# - bootstrap_gcc_pkg = the ${CATEGORY}/${PN} that provides the build gcc
+#
+# - bootstrap_gcc_bin_base = the directory up to /gcc-bin but excluding the slot, of
+# the aformentioned package.
+_get_bootstrap_gcc_info() {
+	crossp() {
+		tc-is-cross-compiler && echo "${2}" || echo "${1}"
+	}
+
+	local arg
+	for arg ; do
+		case "${arg}" in
+			bootstrap_gcc_pkg)
+				bootstrap_gcc_pkg=$(crossp sys-devel/gcc cross-${CHOST}/gcc)
+				;;
+			bootstrap_gcc_bin_base)
+				bootstrap_gcc_bin_base=${BROOT}/usr/$(crossp ${CHOST} ${CBUILD}/${CHOST})/gcc-bin
+				;;
+			*)
+				die "Unknown argument '${arg}' passed to ${FUNCNAME}"
+		esac
+	done
+}
+
+# @FUNCTION: _find_bootstrap_gcc_with
+# @USAGE: <use_expression> <pretty_use_name> <minimum_slot>
+# @RETURN: Shell true if a matching gcc installation was found, false otherwise
+# @INTERNAL
+# @DESCRIPTION:
+# Check installed versions of gcc that can be used as a compiler for the current
+# build for one matching a certain USE expression.  The order of preference is
+# checking for the same SLOT we are building, then iterate downwards until (and
+# including) minimum_slot, then iterate upward starting with SLOT+1.  When
+# cross-compiling only SLOT is checked.
+#
+# If a proper installation is discovered this function will set
+# ${bootstrap_gcc_bin_dir} to the full path of the directory in which
+# ${CHOST}-gcc and friends are found and ${bootstrap_gcc_slot} to the slot that
+# was found.  If nothing was found those variables will be empty.
+#
+# This function is provided to aid languages like ada and d that require
+# bootstraping.
+_find_bootstrap_gcc_with() {
+	local use="${1}"
+	local pretty_use="${2}"
+	local bootstrap_gcc_pkg bootstrap_gcc_bin_base
+	_get_bootstrap_gcc_info bootstrap_gcc_pkg bootstrap_gcc_bin_base
+
+	local min_slot max_slot
+	if tc-is-cross-compiler ; then
+		min_slot="${SLOT}"
+		max_slot="${SLOT}"
+	else
+		min_slot="${3}"
+		max_slot=$(best_version -b "${bootstrap_gcc_pkg}")
+		max_slot="${max_slot#${bootstrap_gcc_pkg}-}"
+		max_slot=$(ver_cut 1 ${max_slot})
+	fi
+
+	local candidate result
+	for candidate in ${SLOT} $(seq $((${SLOT} - 1)) -1 ${min_slot}) $(seq $((${SLOT} + 1)) ${max_slot}) ; do
+		has_version -b "${bootstrap_gcc_pkg}:${candidate}" || continue
+
+		ebegin "Testing ${bootstrap_gcc_pkg}:${candidate} for ${pretty_use}"
+		if has_version -b "${bootstrap_gcc_pkg}:${candidate}${use}" ; then
+			result=${candidate}
+
+			eend 0
+			break
+		fi
+		eend 1
+	done
+
+	if [[ ${result} ]] ; then
+		bootstrap_gcc_bin_dir="${bootstrap_gcc_bin_base}/${result}"
+		bootstrap_gcc_slot=${result}
+		return 0
+	else
+		bootstrap_gcc_bin_dir=
+		bootstrap_gcc_slot=
+		return 1
+	fi
+}
+
+# @FUNCTION: toolchain_setup_ada
+# @INTERNAL
+# @DESCRIPTION:
+# Determine the most suitable GNAT (Ada compiler) for bootstrapping
+# and setup the environment, including wrappers, for building.
+toolchain_setup_ada() {
+	local ada_bootstrap
+	local ada_candidate
+	local ada_bootstrap_type
+	local ada_bootstrap_bin_dir
+	# GNAT can usually be built using the last major version and
+	# the current version, at least.
+	#
+	# Order of preference (descending):
+	# 1) Match the version being built;
+	# 2) Iterate downwards from the version being built;
+	# 3) Iterate upwards from the version being built to the greatest version installed.
+	local bootstrap_gcc_slot bootstrap_gcc_bin_dir
+	if _find_bootstrap_gcc_with "[ada(-)]" "Ada" 10 ; then
+		ada_bootstrap=${bootstrap_gcc_slot}
+		ada_bootstrap_type=gcc
+		ada_bootstrap_bin_dir="${bootstrap_gcc_bin_dir}"
+	fi
+
+	# As a penultimate resort, try dev-lang/ada-bootstrap.
+	if ver_test ${ada_bootstrap} -gt ${PV} || [[ -z ${ada_bootstrap} ]] ; then
+		ebegin "Testing fallback dev-lang/ada-bootstrap for Ada"
+		# XXX: This can be cleaned up like BDEPEND for tc_use_major_version_only
+		# once we only support such versions.
+		if has_version -b "=dev-lang/ada-bootstrap-${SLOT}*" || has_version -b "<dev-lang/ada-bootstrap-${SLOT}" ; then
+			# Workaround the old scheme
+			if has_version -b "=dev-lang/ada-bootstrap-0_p2021*" ; then
+				ada_bootstrap=10
+			else
+				local latest_ada_bootstrap=$(best_version -b "<dev-lang/ada-bootstrap-${SLOT}")
+				latest_ada_bootstrap="${latest_ada_bootstrap#dev-lang/ada-bootstrap-}"
+				latest_ada_bootstrap=$(ver_cut 1 ${latest_ada_bootstrap})
+				ada_bootstrap="${latest_ada_bootstrap}"
+
+				export ADA_INCLUDE_PATH="${BROOT}/usr/lib/ada-bootstrap/usr/lib/gcc/${CHOST}/${ada_bootstrap}/adainclude::${ADA_INCLUDE_PATH}"
+				export ADA_OBJECTS_PATH="${BROOT}/usr/lib/ada-bootstrap/usr/lib/gcc/${CHOST}/${ada_bootstrap}/adalib:${ADA_OBJECTS_PATH}"
+			fi
+
+			ada_bootstrap_type=ada-bootstrap
+			ada_bootstrap_bin_dir="${BROOT}/usr/lib/ada-bootstrap/bin"
+
+			eend 0
+		else
+			eend 1
+		fi
+	fi
+
+	# As a last resort, try dev-lang/gnat-gpl.
+	if ver_test ${ada_bootstrap} -gt ${PV} || [[ -z ${ada_bootstrap} ]] ; then
+		ebegin "Testing fallback dev-lang/gnat-gpl for Ada"
+		if has_version -b "dev-lang/gnat-gpl" ; then
+			ada_bootstrap=10
+			ada_bootstrap_type=gcc
+			ada_bootstrap_bin_dir="${BROOT}/usr/${CHOST}/gcc-bin/${ada_bootstrap}"
+			eend 0
+		else
+			eend 1
+		fi
+	fi
+
+	# OK, even gnat-gpl didn't work. Give up for now.
+	# TODO: Source a newer, or build our own, bootstrap tarball (bug #940472).
+	if [[ -z ${ada_bootstrap} ]] ; then
+		eerror "Couldn't find a suitable GNAT compiler for Ada!"
+		eerror "Please try installing dev-lang/ada-bootstrap or failing that, dev-lang/gnat-gpl."
+		eerror "For other platforms, you may need to use crossdev."
+		die "Couldn't find an Ada bootstrap compiler!"
+	fi
+
+	cat <<-"EOF" > "${T}"/ada.spec || die
+		# Extracted from gcc/ada/gcc-interface/lang-specs.h
+		.adb:
+		@ada
+
+		.ads:
+		@ada
+
+		# TODO: ADA_DUMPS_OPTIONS
+		@ada:
+		%{pg:%{fomit-frame-pointer:%e-pg and -fomit-frame-pointer are incompatible}} \
+			%{!S:%{!c:%e-c or -S required for Ada}} \
+			${gnat1_path} %{I*} %{k8:-gnatk8} %{!Q:-quiet} \
+			%{nostdinc*} %{nostdlib*} \
+			%{fcompare-debug-second:-gnatd_A} \
+			%{O*} %{W*} %{w} %{p} %{pg:-p} \
+			%{coverage:-fprofile-arcs -ftest-coverage} \
+			%{Wall:-gnatwa} %{Werror:-gnatwe} %{w:-gnatws} \
+			%{gnatea:-gnatez} %{g*&m*&f*} \
+			%1 %{!S:%{o*:%w%*-gnatO}} \
+			%i %{S:%W{o*}%{!o*:-o %w%b.s}} \
+			%{gnatc*|gnats*: -o %j} %{-param*} \
+			%{!gnatc*:%{!gnats*:%(invoke_as)}}
+
+		@adawhy:
+			%{!c:%e-c required for gnat2why} \
+			gnat1why %{I*} %{k8:-gnatk8} %{!Q:-quiet} \
+			%{nostdinc*} %{nostdlib*} \
+			%{a} \
+			%{gnatea:-gnatez} %{g*&m*&f*} \
+			%1 %{o*:%w%*-gnatO} \
+			%i \
+			%{gnatc*|gnats*: -o %j} %{-param*}
+
+		@adascil:
+			%{!c:%e-c required for gnat2scil} \
+			gnat1scil %{I*} %{k8:-gnatk8} %{!Q:-quiet} \
+			%{nostdinc*} %{nostdlib*} \
+			%{a} \
+			%{gnatea:-gnatez} %{g*&m*&f*} \
+			%1 %{o*:%w%*-gnatO} \
+			%i \
+			%{gnatc*|gnats*: -o %j} %{-param*}
+		EOF
+
+	old_path="${PATH}"
+	case ${ada_bootstrap_type} in
+		ada-bootstrap)
+			export PATH="${BROOT}/usr/lib/ada-bootstrap/bin:${PATH}"
+			gnat1_path=${BROOT}/usr/lib/ada-bootstrap/libexec/gcc/${CHOST}/${ada_bootstrap}/gnat1
+			;;
+		*)
+			gnat1_path=${BROOT}/usr/libexec/gcc/${CHOST}/${ada_bootstrap}/gnat1
+			;;
+	esac
+
+	# Easier to substitute these values in rather than escape lots of
+	# bits above in the heredoc.
+	sed -i \
+		-e "s:\${BROOT}:${BROOT}:" \
+		-e "s:\${CBUILD}:${CBUILD}:" \
+		-e "s:\${gnat1_path}:${gnat1_path}:" \
+		-e "s:\${ada_bootstrap}:${ada_bootstrap}:" \
+		"${T}"/ada.spec || die
+
+	# The Makefile tries to find libgnat by querying $(CC) which won't
+	# work for us as the stage1 compiler doesn't necessarily have Ada
+	# support. Substitute the Ada compiler we found earlier.
+	local adalib
+	adalib=$("${ada_bootstrap_bin_dir}"/${CHOST}-gcc -print-libgcc-file-name || die "Finding adalib dir failed")
+	adalib="${adalib%/*}/adalib"
+	sed -i \
+		-e "s:adalib=.*:adalib=${adalib}:" \
+		"${S}"/gcc/ada/gcc-interface/Make-lang.in || die
+
+	# Create bin wrappers because not all of the build system respects
+	# GNATBIND or GNATMAKE.
+	_toolchain_make_gnat_wrappers() {
+		mkdir "${T}"/ada-wrappers || die
+		local tool
+		for tool in gnat{,bind,chop,clean,kr,link,ls,make,name,prep} ; do
+			cat <<-EOF > "${T}"/ada-wrappers/${tool} || die
+			#!/bin/sh
+			exec "${ada_bootstrap_bin_dir}"/${CHOST}-${tool} "\$@"
+			EOF
+
+			export "${tool^^}"="${T}"/ada-wrappers/${tool}
+		done
+		chmod +x "${T}"/ada-wrappers/gnat{,bind,chop,clean,kr,link,ls,make,name,prep} || die
+
+		export PATH="${T}/ada-wrappers:${old_path}"
+	}
+
+	# Only make the wrappers for native builds. For cross, we can't
+	# do it as CBUILD vs CHOST will get mixed up then.
+	! tc-is-cross-compiler && _toolchain_make_gnat_wrappers
+
+	export CC="$(tc-getCC) -specs=${T}/ada.spec"
+}
+
+# @FUNCTION: toolchain_setup_d
+# @INTERNAL
+# @DESCRIPTION:
+# Determine the most suitable GDC (D compiler) for bootstrapping
+# and setup the environment for building.
+toolchain_setup_d() {
+	local bootstrap_gcc_slot bootstrap_gcc_bin_dir
+	_find_bootstrap_gcc_with "[d(-)]" "D" 11
+
+	if [[ -z ${bootstrap_gcc_bin_dir} ]] ; then
+		if tc-is-cross-compiler ; then
+			# We can't add cross-${CHOST}/gcc[d] to BDEPEND but we can
+			# print a useful message to the user.
+			local bootstrap_gcc_pkg
+			_get_bootstrap_gcc_info bootstrap_gcc_pkg
+			eerror "No ${bootstrap_gcc_pkg}[d] was found installed."
+			eerror "When cross-compiling GDC a bootstrap GDC is required."
+			eerror "Either disable the d USE flag or add:"
+			eerror ""
+			eerror "    ${bootstrap_gcc_pkg} d"
+			eerror ""
+			eerror "In your package.use and re-emerge it."
+			eerror ""
+		fi
+
+		die "Did not find any appropriate GDC compiler installed"
+	fi
+
+	export GDC=${bootstrap_gcc_bin_dir}/${CHOST}-gdc
+}
+
 #---->> src_configure <<----
 
 toolchain_src_configure() {
@@ -814,20 +1178,19 @@ toolchain_src_configure() {
 
 	downgrade_arch_flags
 	gcc_do_filter_flags
+	if [[ ${PN} != kgcc64 && ${PN} != gcc-* ]] && tc_version_is_at_least 14.2.1_p20241026 ${PV}; then
+		append-cppflags "-D_GENTOO_TIME64_FORCE=$(usex time64 1 0)"
+	fi
 
 	if ! tc_version_is_at_least 11 && [[ $(gcc-major-version) -ge 12 ]] ; then
-		# https://gcc.gnu.org/PR105695
-		# bug #849359
+		# https://gcc.gnu.org/PR105695 (bug #849359)
 		export ac_cv_std_swap_in_utility=no
 	fi
 
-	einfo "CFLAGS=\"${CFLAGS}\""
-	einfo "CXXFLAGS=\"${CXXFLAGS}\""
-	einfo "LDFLAGS=\"${LDFLAGS}\""
-
-	# Force internal zip based jar script to avoid random
-	# issues with 3rd party jar implementations. bug #384291
-	export JAR=no
+	local flag
+	for flag in $(all-flag-vars) ; do
+		einfo "${flag}=\"${!flag}\""
+	done
 
 	local confgcc=( --host=${CHOST} )
 
@@ -894,6 +1257,21 @@ toolchain_src_configure() {
 	is_modula2 && GCC_LANG+=",m2"
 	is_rust && GCC_LANG+=",rust"
 
+	_need_ada_bootstrap_mangling() {
+		if [[ ${CATEGORY}/${PN} == dev-lang/gnat-gpl ]] ; then
+			_tc_use_if_iuse system-bootstrap && return 0
+			return 1
+		fi
+
+		_tc_use_if_iuse ada
+	}
+	_need_d_bootstrap() {
+		_tc_use_if_iuse d && [[ ${GCCMAJOR} -ge 12 ]]
+	}
+
+	_need_ada_bootstrap_mangling && toolchain_setup_ada
+	_need_d_bootstrap && toolchain_setup_d
+
 	confgcc+=( --enable-languages=${GCC_LANG} )
 
 	### general options
@@ -918,7 +1296,17 @@ toolchain_src_configure() {
 		# unless USE=debug. Note that snapshots on stable branches don't count as "non-released"
 		# for these purposes.
 		if grep -q "experimental" gcc/DEV-PHASE ; then
-			# - USE=debug for pre-releases: yes,extra,rtl
+			# Tell users about the non-obvious behavior here so they don't think
+			# e.g. the next GCC release is super slow to compile things.
+			if ! use debug ; then
+				ewarn "Unreleased GCCs default to extra runtime checks even with USE=-debug,"
+				ewarn "matching upstream default behavior. We recommend keeping these enabled."
+				ewarn "The checks (sometimes substantially) increase build time but provide important protection"
+				ewarn "from potential miscompilations (wrong code) by turning them into build-time errors."
+				ewarn "To override (not recommended), set: GCC_CHECKS_LIST=\"release\"."
+			fi
+
+			# - USE=debug for pre-releases: yes,extra,rtl (stornger than USE=debug for releases)
 			# - USE=-debug for pre-releases: yes,extra (following upstream default)
 			confgcc+=( --enable-checking="${GCC_CHECKS_LIST:-$(usex debug yes,extra,rtl yes,extra)}" )
 		else
@@ -954,11 +1342,16 @@ toolchain_src_configure() {
 	confgcc+=( --enable-lto )
 
 	# Build compiler itself using LTO
-	if tc_version_is_at_least 9.1 && _tc_use_if_iuse lto ; then
-		BUILD_CONFIG_TARGETS+=( bootstrap-lto )
+	if _tc_use_if_iuse lto ; then
+		# GCC 11 at least has a -Wlto-type-mismatch issue with Ada
+		if ! tc_version_is_at_least 12.1 && is_ada ; then
+			:;
+		elif tc_version_is_at_least 9.1 ; then
+			BUILD_CONFIG_TARGETS+=( bootstrap-lto )
+		fi
 	fi
 
-	if tc_version_is_at_least 12 && _tc_use_if_iuse cet && [[ ${CTARGET} == x86_64-*-gnu* ]] ; then
+	if tc_version_is_at_least 12 && _tc_use_if_iuse cet && [[ -z ${CLANG_DISABLE_CET_HACK} && ${CTARGET} == x86_64-*-gnu* ]] ; then
 		BUILD_CONFIG_TARGETS+=( bootstrap-cet )
 	fi
 
@@ -979,7 +1372,10 @@ toolchain_src_configure() {
 	# 	;;
 	# esac
 
-	### Cross-compiler options
+	### Cross-compiler option
+	#
+	# Note that 'newlib' here doesn't have to mean genuine newlib.
+	# See https://gcc.gnu.org/pipermail/gcc/2014-January/211653.html.
 	if is_crosscompile ; then
 		# Enable build warnings by default with cross-compilers when system
 		# paths are included (e.g. via -I flags).
@@ -1019,8 +1415,31 @@ toolchain_src_configure() {
 				confgcc+=( --enable-shared --disable-threads )
 				;;
 			nvptx*)
-				# "LTO is not supported for this target"
-				confgcc+=( --disable-lto )
+				needed_libc=newlib
+				confgcc+=(
+					# "LTO is not supported for this target"
+					--disable-lto
+				)
+
+				# --enable-as-accelerator-for= seems to disable
+				# installing nvtpx-none-cc etc, so we have to
+				# avoid passing that for the stage1-build that
+				# crossdev does. If we pass it unconditionally,
+				# we can't build newlib after building stage1 gcc.
+				if has_version ${CATEGORY}/${PN} ; then
+					confgcc+=(
+						# It's unlikely that anyone will want
+						# to build nvptx-none as a pure standalone
+						# toolchain (which will be single-threaded, etc).
+						#
+						# If someone really wants it, we can see about
+						# adding a USE=offload or similar based on CTARGET
+						# for cross targets. But for now, we always assume
+						# we're being built as an offloading compiler (accelerator).
+						--enable-as-accelerator-for=${CHOST}
+						--disable-sjlj-exceptions
+					)
+				fi
 				;;
 		esac
 
@@ -1058,7 +1477,7 @@ toolchain_src_configure() {
 
 		confgcc+=(
 			# https://gcc.gnu.org/PR100289
-			# TOOD: Find a way to disable this just for stage1 cross?
+			# TODO: Find a way to disable this just for stage1 cross?
 			--disable-gcov
 
 			--disable-bootstrap
@@ -1097,7 +1516,7 @@ toolchain_src_configure() {
 	# __cxa_atexit is "essential for fully standards-compliant handling of
 	# destructors", but apparently requires glibc.
 	case ${CTARGET} in
-		*-elf|*-eabi)
+		nvptx*|*-elf|*-eabi)
 			confgcc+=( --with-newlib )
 			;;
 		*-musl*)
@@ -1214,7 +1633,14 @@ toolchain_src_configure() {
 			# - https://git.musl-libc.org/cgit/musl/tree/INSTALL
 			# - bug #704784
 			# - https://gcc.gnu.org/PR93157
-			[[ ${CTARGET} == powerpc64-*-musl ]] && confgcc+=( --with-abi=elfv2 )
+			# musl additionally does not support libquadmath.  See:
+			# - https://gcc.gnu.org/PR116007
+			[[ ${CTARGET} == powerpc64-*-musl ]] && confgcc+=(
+				--with-abi=elfv2
+				--disable-libquadmath
+				--disable-libquadmath-support
+				--with-long-double-128=no
+			)
 
 			if in_iuse ieee-long-double; then
 				# musl requires 64-bit long double, not IBM double-double or IEEE quad.
@@ -1246,6 +1672,13 @@ toolchain_src_configure() {
 	# particular need this over --libdir for bug #255315.
 	[[ ${CTARGET} == *-darwin* ]] && \
 		confgcc+=( --enable-version-specific-runtime-libs )
+
+	# Linux specifically here for bug #946397.
+	# TODO: amdgcn-amdhsa?
+	[[ ${CTARGET} == x86_64*-*-linux-* ]] && confgcc+=(
+		--enable-offload-defaulted
+		--enable-offload-targets=nvptx-none
+	)
 
 	### library options
 
@@ -1288,12 +1721,24 @@ toolchain_src_configure() {
 	fi
 
 	if in_iuse ada ; then
-		confgcc+=( --disable-libada )
+		confgcc+=( $(use_enable ada libada) )
 	fi
 
 	if in_iuse cet ; then
-		[[ ${CTARGET} == x86_64-*-gnu* ]] && confgcc+=( $(use_enable cet) )
-		[[ ${CTARGET} == aarch64-*-gnu* ]] && confgcc+=( $(use_enable cet standard-branch-protection) )
+		# Usage: triple_arch triple_env cet_name
+		enable_cet_for() {
+			if [[ ${CTARGET} == ${1}-* ]] ; then
+				if use cet && [[ ${CTARGET} == *-${2}* ]]; then
+					confgcc+=( --enable-${3} )
+				else
+					confgcc+=( --disable-${3} )
+				fi
+			fi
+		}
+
+		enable_cet_for 'x86_64' 'gnu' 'cet'
+		enable_cet_for 'aarch64' 'gnu' 'standard-branch-protection'
+		[[ -n ${CLANG_DISABLE_CET_HACK} || ${CTARGET} == i[34567]86-* ]] && confgcc+=( --disable-cet )
 	fi
 
 	if in_iuse systemtap ; then
@@ -1363,7 +1808,7 @@ toolchain_src_configure() {
 		fi
 
 		case ${CBUILD}-${CHOST}-${CTARGET} in
-			*i686-w64-mingw32*|*x86_64-w64-mingw32*)
+			*-w*-mingw*)
 				# config/i386/t-cygming requires fixincludes (bug #925204)
 				GCC_RUN_FIXINCLUDES=1
 				;;
@@ -1415,6 +1860,10 @@ toolchain_src_configure() {
 	einfo "DATAPATH:        ${DATAPATH}"
 	einfo "STDCXX_INCDIR:   ${STDCXX_INCDIR}"
 	einfo "Languages:       ${GCC_LANG}"
+	einfo "GCC version:     $($(tc-getCC) -v 2>&1 | grep ' version ' | awk '{ print $3 }')"
+	is_ada && einfo "GNAT version:    $(${GNAT} 2>&1 | grep GNAT | awk '{ print $2 }')"
+	is_d && einfo "GDC version:     $(${GDC} -v 2>&1 | grep ' version ' | awk '{ print $3 }')"
+
 	echo
 
 	# Build in a separate build tree
@@ -1431,8 +1880,8 @@ toolchain_src_configure() {
 		gcc_shell="${BROOT}"/bin/sh
 	fi
 
-	if is_jit ; then
-		einfo "Configuring JIT gcc"
+	if is_jit || _tc_use_if_iuse libgdiagnostics ; then
+		einfo "Configuring shared gcc for JIT/libgdiagnostics"
 
 		local confgcc_jit=(
 			"${confgcc[@]}"
@@ -1456,8 +1905,10 @@ toolchain_src_configure() {
 			--disable-nls
 			--disable-objc-gc
 			--disable-systemtap
+
 			--enable-host-shared
 			--enable-languages=jit
+
 			# Might be used for the just-built GCC. Easier to just
 			# respect USE=graphite here in case the user passes some
 			# graphite flags rather than try strip them out.
@@ -1465,6 +1916,10 @@ toolchain_src_configure() {
 			$(use_with zstd)
 			--with-system-zlib
 		)
+
+		if tc_version_is_at_least 15.0.0_pre20241124 ${PV} ; then
+			confgcc_jit+=( $(use_enable libgdiagnostics) )
+		fi
 
 		if tc_version_is_at_least 13.1 ; then
 			confgcc_jit+=( --disable-fixincludes )
@@ -1621,7 +2076,7 @@ gcc_do_filter_flags() {
 	declare -A l1_cache_sizes=()
 	# Workaround for inconsistent cache sizes on hybrid P/E cores
 	# See PR111768 (and bug #904426, bug #908523, and bug #915389)
-	if [[ ${CBUILD} == @(x86_64|i?86)* ]] && [[ ${CFLAGS} == *-march=native* ]] && tc-is-gcc ; then
+	if [[ ${CBUILD} == @(x86_64|i?86)* ]] && [[ "${CFLAGS}${CXXFLAGS}" == *-march=native* ]] && tc-is-gcc ; then
 		local x
 		local l1_cache_size
 		# Iterate over all cores and find their L1 cache size
@@ -1645,6 +2100,14 @@ gcc_do_filter_flags() {
 		fi
 	fi
 
+	# https://gcc.gnu.org/PR100431
+	filter-flags -Werror=format-security
+
+	if ver_test -lt 10.1 ; then
+		filter-flags '-fdiagnostics-urls=*'
+		filter-flags '-Wstringop-overread'
+	fi
+
 	if ver_test -lt 13.6 ; then
 		# These aren't supported by the just-built compiler either.
 		filter-flags -fharden-compares -fharden-conditional-branches \
@@ -1654,9 +2117,16 @@ gcc_do_filter_flags() {
 
 		# New in GCC 14.
 		filter-flags -Walloc-size
-	else
-		# Makes things painfully slow and no real benefit for the compiler.
-		append-flags $(test-flags-CC -fno-harden-control-flow-redundancy)
+	fi
+
+	if ver_test -lt 15.1 ; then
+		filter-flags -fdiagnostics-explain-harder -fdiagnostics-details
+		filter-flags -fdiagnostics-set-output=text:experimental-nesting=yes
+	fi
+
+	if is_d ; then
+		# bug #940750
+		filter-flags -Warray-bounds
 	fi
 
 	# Please use USE=lto instead (bug #906007).
@@ -1690,6 +2160,7 @@ gcc_do_filter_flags() {
 		CFLAGS="-O2 -pipe"
 		FFLAGS=${CFLAGS}
 		FCFLAGS=${CFLAGS}
+		GDCFLAGS=${CFLAGS}
 
 		# "hppa2.0-unknown-linux-gnu" -> hppa2_0_unknown_linux_gnu
 		local VAR="CFLAGS_"${CTARGET//[-.]/_}
@@ -1804,6 +2275,8 @@ gcc_do_make() {
 
 	local emakeargs=(
 		LDFLAGS="${LDFLAGS}"
+		# TODO: Can we replace this with --enable-version-specific-runtime-libs
+		# these days?
 		LIBPATH="${LIBPATH}"
 	)
 
@@ -1829,18 +2302,38 @@ gcc_do_make() {
 		# using not-O0 is just a build-time speed improvement anyway.
 		if ! tc-is-gcc || ver_test $(gcc-fullversion) -lt 10 ; then
 			STAGE1_CFLAGS="-O0"
+			STAGE1_CXXFLAGS="-O0"
+		# We have a very good host compiler but it may be a bit too good, and
+		# know about flags that the version we are compiling does not know
+		# about. In principle we could check e.g. which gnat1 we are using as
+		# a bootstrap. It's simpler to do it unconditionally for now.
+		elif _tc_use_if_iuse ada || _tc_use_if_iuse d; then
+			STAGE1_CFLAGS="-O2"
+			STAGE1_CXXFLAGS="-O2"
 		fi
 
 		# We only want to use the system's CFLAGS if not building a
 		# cross-compiler.
 		STAGE1_CFLAGS=${STAGE1_CFLAGS-"$(get_abi_CFLAGS ${TARGET_DEFAULT_ABI}) ${CFLAGS}"}
+		# multilib.eclass lacks get_abi_CXXFLAGS (bug #940501)
+		STAGE1_CXXFLAGS=${STAGE1_CXXFLAGS-"$(get_abi_CFLAGS ${TARGET_DEFAULT_ABI}) ${CXXFLAGS}"}
 		STAGE1_LDFLAGS=${STAGE1_LDFLAGS-"${abi_ldflags} ${LDFLAGS}"}
 		BOOT_CFLAGS=${BOOT_CFLAGS-"$(get_abi_CFLAGS ${TARGET_DEFAULT_ABI}) ${CFLAGS}"}
 		BOOT_LDFLAGS=${BOOT_LDFLAGS-"${abi_ldflags} ${LDFLAGS}"}
 		LDFLAGS_FOR_TARGET="${LDFLAGS_FOR_TARGET:-${LDFLAGS}}"
 
+		# If we need to in future, we could really simplify this
+		# to just be unconditional for stage1. It doesn't really
+		# matter there. If we want to go in the other direction
+		# and make this more conditional, we could check if
+		# the bootstrap compiler is < GCC 12. See bug #940470.
+		if _tc_use_if_iuse d && use hardened ; then
+			STAGE1_CXXFLAGS+=" -U_GLIBCXX_ASSERTIONS"
+		fi
+
 		emakeargs+=(
 			STAGE1_CFLAGS="${STAGE1_CFLAGS}"
+			STAGE1_CXXFLAGS="${STAGE1_CXXFLAGS}"
 			STAGE1_LDFLAGS="${STAGE1_LDFLAGS}"
 			BOOT_CFLAGS="${BOOT_CFLAGS}"
 			BOOT_LDFLAGS="${BOOT_LDFLAGS}"
@@ -1858,34 +2351,18 @@ gcc_do_make() {
 	pushd "${WORKDIR}"/build >/dev/null || die
 	emake "${emakeargs[@]}" ${GCC_MAKE_TARGET}
 
-	if is_ada; then
-		# Without these links, it is not getting the good compiler
-		# TODO: Need to check why
-		ln -s gcc ../build/prev-gcc || die
-		ln -s ${CHOST} ../build/prev-${CHOST} || die
+	if ! is_crosscompile && _tc_use_if_iuse cxx && tc_has_feature doc && _tc_use_if_iuse doc ; then
+		cd "${CTARGET}"/libstdc++-v3/doc || die
+		emake doc-man-doxygen
 
-		# Building standard ada library
-		emake -C gcc gnatlib-shared
-		# Building gnat toold
-		emake -C gcc gnattools
-	fi
+		# Clean bogus manpages. bug #113902
+		find -name '*_build_*' -delete || die
 
-	if ! is_crosscompile && _tc_use_if_iuse cxx && _tc_use_if_iuse doc ; then
-		if type -p doxygen > /dev/null ; then
-			cd "${CTARGET}"/libstdc++-v3/doc || die
-			emake doc-man-doxygen
-
-			# Clean bogus manpages. bug #113902
-			find -name '*_build_*' -delete || die
-
-			# Blow away generated directory references. Newer versions of gcc
-			# have gotten better at this, but not perfect. This is easier than
-			# backporting all of the various doxygen patches. bug #486754
-			find -name '*_.3' -exec grep -l ' Directory Reference ' {} + | \
-				xargs rm -f
-		else
-			ewarn "Skipping libstdc++ manpage generation since you don't have doxygen installed"
-		fi
+		# Blow away generated directory references. Newer versions of gcc
+		# have gotten better at this, but not perfect. This is easier than
+		# backporting all of the various doxygen patches. bug #486754
+		find -name '*_.3' -exec grep -l ' Directory Reference ' {} + | \
+			xargs rm -f
 	fi
 
 	popd >/dev/null || die
@@ -1894,7 +2371,6 @@ gcc_do_make() {
 #---->> src_test <<----
 
 # TODO: add JIT testing
-# TODO: add multilib testing
 toolchain_src_test() {
 	# GCC's testsuite is a special case.
 	#
@@ -1917,11 +2393,79 @@ toolchain_src_test() {
 	local -x LD_PRELOAD=
 
 	# Controls running expensive tests in e.g. the torture testsuite.
+	# Note that 'TEST', not 'TESTS', is correct here as it's a GCC
+	# testsuite variable, not ours.
 	local -x GCC_TEST_RUN_EXPENSIVE=1
 
-	# nonfatal here as we die if the comparison below fails. Also, note that
-	# the exit code of targets other than 'check' may be unreliable.
-	nonfatal emake -C "${WORKDIR}"/build -k "${GCC_TESTS_CHECK_TARGET}" RUNTESTFLAGS="${GCC_TESTS_RUNTESTFLAGS}"
+	# Use a subshell to allow meddling with flags just for the testsuite
+	(
+		# Workaround our -Wformat-security default which breaks
+		# various tests as it adds unexpected warning output.
+		if tc_version_is_at_least 13 ; then
+			GCC_TESTS_CFLAGS+=" -Wno-format-security -Wno-format"
+			GCC_TESTS_CXXFLAGS+=" -Wno-format-security -Wno-format"
+		fi
+
+		# Workaround our -Wtrampolines default which breaks
+		# tests too.
+		GCC_TESTS_CFLAGS+=" -Wno-trampolines"
+		GCC_TESTS_CXXFLAGS+=" -Wno-trampolines"
+		# A handful of Ada (and objc++?) tests need an executable stack
+		GCC_TESTS_LDFLAGS+=" -Wl,--no-warn-execstack"
+		# Avoid confusing tests like Fortran/C interop ones where
+		# CFLAGS are used.
+		if tc_version_is_at_least 13 ; then
+			GCC_TESTS_CFLAGS+=" -Wno-complain-wrong-lang"
+			GCC_TESTS_CXXFLAGS+=" -Wno-complain-wrong-lang"
+		fi
+
+		# Issues with Ada tests:
+		# gnat.dg/align_max.adb
+		# gnat.dg/trampoline4.adb
+		#
+		# A handful of Ada tests use -fstack-check and conflict
+		# with -fstack-clash-protection.
+		#
+		# TODO: This isn't ideal given it obv. affects codegen
+		# and we want to be sure it works.
+		GCC_TESTS_CFLAGS+=" -fno-stack-clash-protection"
+		GCC_TESTS_CXXFLAGS+=" -fno-stack-clash-protection"
+
+		# TODO: Does this handle s390 (-m31) correctly?
+		# TODO: What if there are multiple ABIs like x32 too?
+		# XXX: Disabled until validate_failures.py can handle 'variants'
+		# XXX: https://gcc.gnu.org/PR116260
+		#is_multilib && GCC_TESTS_RUNTESTFLAGS+=" --target_board=unix{,-m32}"
+
+		# nonfatal here as we die if the comparison below fails. Also, note that
+		# the exit code of targets other than 'check' may be unreliable.
+		#
+		# CFLAGS and so on are repeated here because of tests vs building test
+		# deps like libbacktrace.
+		#
+		# TODO: Should we try pass in the regular user flags for the non-RUNTESTFLAGS
+		# instances below for building e.g. libbacktrace?
+		nonfatal emake -C "${WORKDIR}"/build -k "${GCC_TESTS_CHECK_TARGET}" \
+			RUNTESTFLAGS=" \
+				${GCC_TESTS_RUNTESTFLAGS} \
+				CFLAGS_FOR_TARGET='${GCC_TESTS_CFLAGS_FOR_TARGET:-${GCC_TESTS_CFLAGS}}' \
+				CXXFLAGS_FOR_TARGET='${GCC_TESTS_CXXFLAGS_FOR_TARGET:-${GCC_TESTS_CXXFLAGS}}' \
+				LDFLAGS_FOR_TARGET='${TEST_LDFLAGS_FOR_TARGET:-${GCC_TESTS_LDFLAGS}}' \
+				CFLAGS='${GCC_TESTS_CFLAGS}' \
+				CXXFLAGS='${GCC_TESTS_CXXFLAGS}' \
+				FCFLAGS='${GCC_TESTS_FCFLAGS}' \
+				FFLAGS='${GCC_TESTS_FFLAGS}' \
+				LDFLAGS='${GCC_TESTS_LDFLAGS}' \
+			" \
+			CFLAGS_FOR_TARGET="${GCC_TESTS_CFLAGS_FOR_TARGET:-${GCC_TESTS_CFLAGS}}" \
+			CXXFLAGS_FOR_TARGET="${GCC_TESTS_CXXFLAGS_FOR_TARGET:-${GCC_TESTS_CXXFLAGS}}" \
+			LDFLAGS_FOR_TARGET="${GCC_TESTS_LDFLAGS_FOR_TARGET:-${GCC_TESTS_LDFLAGS}}" \
+			CFLAGS="${GCC_TESTS_CFLAGS}" \
+			CXXFLAGS="${GCC_TESTS_CXXFLAGS}" \
+			FCFLAGS="${GCC_TESTS_FCFLAGS}" \
+			FFLAGS="${GCC_TESTS_FFLAGS}" \
+			LDFLAGS="${GCC_TESTS_LDFLAGS}"
+	)
 
 	# Produce an updated failure manifest.
 	einfo "Generating a new failure manifest ${T}/${CHOST}.xfail"
@@ -1975,7 +2519,7 @@ toolchain_src_test() {
 			eerror "GCC_TESTS_IGNORE_NO_BASELINE is set, ignoring test result and creating a new baseline..."
 		elif [[ -n ${GCC_TESTS_REGEN_BASELINE} ]] ; then
 			eerror "GCC_TESTS_REGEN_BASELINE is set, ignoring test result and creating using a new baseline..."
-		elif [[ ${ret} != 0 ]]; then
+		elif [[ ${ret} != 0 ]] ; then
 			eerror "(Set GCC_TESTS_IGNORE_NO_BASELINE=1 to make this non-fatal and generate a baseline.)"
 			die "Tests failed (failures occurred with no reference data)"
 		fi
@@ -1992,11 +2536,7 @@ toolchain_src_install() {
 
 	if [[ ${GCC_RUN_FIXINCLUDES} == 0 ]] ; then
 		# We remove the generated fixincludes, as they can cause things to break
-		# (ncurses, openssl, etc).  We do not prevent them from being built, as
-		# in the following commit which we revert:
-		# https://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/eclass/toolchain.eclass?r1=1.647&r2=1.648
-		# This is because bsd userland needs fixedincludes to build gcc, while
-		# linux does not.  Both can dispose of them afterwards.
+		# (ncurses, openssl, etc).
 		while read x ; do
 			grep -q 'It has been auto-edited by fixincludes from' "${x}" \
 				&& rm -f "${x}"
@@ -2016,8 +2556,6 @@ toolchain_src_install() {
 		pushd "${WORKDIR}"/build-jit > /dev/null || die
 		S="${WORKDIR}"/build-jit emake DESTDIR="${D}" -j1 install
 
-		# Punt some tools which are really only useful while building gcc
-		find "${ED}" -name install-tools -prune -type d -exec rm -rf "{}" \; || die
 		# This one comes with binutils
 		find "${ED}" -name libiberty.a -delete || die
 
@@ -2040,8 +2578,6 @@ toolchain_src_install() {
 	# - https://gcc.gnu.org/PR109898
 	S="${WORKDIR}"/build emake DESTDIR="${D}" -j1 install
 
-	# Punt some tools which are really only useful while building gcc
-	find "${ED}" -name install-tools -prune -type d -exec rm -rf "{}" \; || die
 	# This one comes with binutils
 	find "${ED}" -name libiberty.a -delete || die
 
@@ -2063,7 +2599,7 @@ toolchain_src_install() {
 	cd "${D}"${BINPATH} || die
 	# Ugh: we really need to auto-detect this list.
 	#      It's constantly out of date.
-	for x in cpp gcc gccrs g++ c++ gcov g77 gfortran gccgo gnat* ; do
+	for x in cpp gcc gccrs g++ c++ gcov gdc g77 gfortran gccgo gnat* ; do
 		# For some reason, g77 gets made instead of ${CTARGET}-g77...
 		# this should take care of that
 		if [[ -f ${x} ]] ; then
@@ -2112,7 +2648,7 @@ toolchain_src_install() {
 	#  - "${D}${LIBPATH}"
 	# As dostrip does not specify host to override ${CHOST} tools just skip
 	# non-native binary stripping.
-	is_crosscompile && dostrip -x "${LIBPATH}"
+	is_crosscompile && dostrip -x "${LIBPATH#"${EPREFIX}"}"
 
 	cd "${S}" || die
 	if is_crosscompile; then
@@ -2203,7 +2739,7 @@ toolchain_src_install() {
 	pax-mark -r "${ED}/libexec/gcc/${CTARGET}/${GCC_CONFIG_VER}/cc1"
 	pax-mark -r "${ED}/libexec/gcc/${CTARGET}/${GCC_CONFIG_VER}/cc1plus"
 
-	if use test ; then
+	if [[ -n ${TOOLCHAIN_HAS_TESTS} ]] && use test ; then
 		mkdir "${T}"/test-results || die
 		cd "${WORKDIR}"/build || die
 		find . -name \*.sum -exec cp --parents -v {} "${T}"/test-results \; || die
@@ -2220,7 +2756,9 @@ gcc_movelibs() {
 	# code to run on the target.
 	if is_crosscompile ; then
 		dodir "${HOSTLIBPATH#${EPREFIX}}"
-		mv "${ED}"/usr/$(get_libdir)/libcc1* "${D}${HOSTLIBPATH}" || die
+		# XXX: Ideally, we'd use $(get_libdir) here, but it's
+		# not right for cross. See bug #942573 and bug #794181.
+		mv "${ED}"/usr/lib*/libcc1* "${D}${HOSTLIBPATH}" || die
 	fi
 
 	# libgccjit gets installed to /usr/lib, not /usr/$(get_libdir). Probably
@@ -2262,6 +2800,26 @@ gcc_movelibs() {
 		fix_libtool_libdir_paths "${LIBPATH}/${MULTIDIR}"
 	done
 
+	# Without this, we end up either unable to find the libgomp spec/archive, or
+	# we underlink and can't find gomp_nvptx_main (presumably because we can't find the plugin)
+	# https://src.fedoraproject.org/rpms/gcc/blob/02c34dfa3627ef05d676d30e152a66e77b58529b/f/gcc.spec#_1445
+	if [[ ${CTARGET} == nvptx* ]] && has_version ${CATEGORY}/${PN} ; then
+		rm -rf "${ED}"/usr/libexec/gcc/nvptx-none/${GCCMAJOR}/install-tools
+		rm -rf "${ED}"/usr/libexec/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/{install-tools,plugin,cc1,cc1plus,f951}
+		rm -rf "${ED}"/usr/lib/gcc/nvptx-none/${GCCMAJOR}/{install-tools,plugin}
+		rm -rf "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/{install-tools,plugin,include-fixed}
+		mv "${ED}"/usr/nvptx-none/lib/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/
+		mv "${ED}"/usr/nvptx-none/lib/mgomp/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mgomp/
+		mv "${ED}"/usr/nvptx-none/lib/mptx-3.1/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mptx-3.1/
+		mv "${ED}"/usr/nvptx-none/lib/mgomp/mptx-3.1/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mgomp/mptx-3.1/
+		mv "${ED}"/usr/lib/gcc/nvptx-none/${GCCMAJOR}/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/ || die
+		mv "${ED}"/usr/lib/gcc/nvptx-none/${GCCMAJOR}/mgomp/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mgomp/ || die
+		# Nonfatal because the multilib variants change: see r15-5975-g86b3a7532d56f7 and r15-6029-gd4e1f7cfdb8375
+		# TODO: Should we enable all of them unconditionally? Expose it somehow (USE_EXPAND?)?
+		mv "${ED}"/usr/lib/gcc/nvptx-none/${GCCMAJOR}/mptx-3.1/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mptx-3.1/
+		mv "${ED}"/usr/lib/gcc/nvptx-none/${GCCMAJOR}/mgomp/mptx-3.1/*.{a,spec} "${ED}"/usr/lib/gcc/${CHOST}/${GCCMAJOR}/accel/nvptx-none/mgomp/mptx-3.1/
+	fi
+
 	# We remove directories separately to avoid this case:
 	#	mv SRC/lib/../lib/*.o DEST
 	#	rmdir SRC/lib/../lib/
@@ -2282,7 +2840,7 @@ fix_libtool_libdir_paths() {
 	pushd "${D}" >/dev/null || die
 
 	pushd "./${libpath}" >/dev/null || die
-	local dir="${PWD#${D%/}}"
+	local dir="${PWD#${D}}"
 	local allarchives=$(echo *.la)
 	allarchives="\(${allarchives// /\\|}\)"
 	popd >/dev/null || die
@@ -2362,7 +2920,7 @@ create_revdep_rebuild_entry() {
 #---->> pkg_pre* <<----
 
 toolchain_pkg_preinst() {
-	if [[ ${MERGE_TYPE} != binary ]] && use test ; then
+	if [[ -n ${TOOLCHAIN_HAS_TESTS} && ${MERGE_TYPE} != binary ]] && use test ; then
 		# Install as orphaned to allow comparison across more versions even
 		# after unmerged. Also useful for historical records and tracking
 		# down regressions a while after they first appeared, but were only
@@ -2412,6 +2970,12 @@ toolchain_pkg_postrm() {
 			rm -f "${EROOT}"/usr/bin/${CTARGET}-{gcc,{g,c}++}{,32,64}
 		fi
 		return 0
+	else
+		# Removed the last GCC installed (bug #906040)
+		if ! has_version "sys-devel/gcc" && has_version "llvm-core/clang" ; then
+			einfo "Last GCC version removed. Cleaning up ${EROOT}/etc/clang/gentoo-gcc-install.cfg."
+			echo > "${EROOT}"/etc/clang/gentoo-gcc-install.cfg
+		fi
 	fi
 
 	# gcc stopped installing .la files fixer in June 2020.
@@ -2598,18 +3162,24 @@ XGCC() { get_make_var GCC_FOR_TARGET ; }
 
 has toolchain_death_notice ${EBUILD_DEATH_HOOKS} || EBUILD_DEATH_HOOKS+=" toolchain_death_notice"
 toolchain_death_notice() {
-	if [[ -e "${WORKDIR}"/build ]] ; then
-		pushd "${WORKDIR}"/build >/dev/null
-		(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > gccinfo.log
-		[[ -e "${T}"/build.log ]] && cp "${T}"/build.log .
-		tar -acf "${WORKDIR}"/gcc-build-logs.tar.xz \
-			gccinfo.log build.log $(find -name config.log)
-		rm gccinfo.log build.log
-		eerror
-		eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
-		eerror
-		popd >/dev/null
-	fi
+	# TODO: For bootstrap comparison failures, include the stage2 & stage3
+	# differing objects to avoid having to ask reporters to manually collect...
+	local dir
+	for dir in "${WORKDIR}"/build-jit "${WORKDIR}"/build ; do
+		if [[ -e "${dir}" ]] ; then
+			pushd "${WORKDIR}" >/dev/null
+			(echo '' | $(tc-getCC ${CTARGET}) ${CFLAGS} -v -E - 2>&1) > "${dir}"/gccinfo.log
+			[[ -e "${T}"/build.log ]] && cp "${T}"/build.log "${dir}"
+			tar -rf "${WORKDIR}"/gcc-build-logs.tar \
+				"${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log $(find "${dir#${WORKDIR}/}" -type f -name "config.log")
+			rm "${dir#${WORKDIR}/}"/gccinfo.log "${dir#${WORKDIR}/}"/build.log
+			eerror
+			eerror "Please include ${WORKDIR}/gcc-build-logs.tar.xz in your bug report."
+			eerror
+			popd >/dev/null
+		fi
+	done
+	xz -9e "${WORKDIR}"/gcc-build-logs.tar
 }
 
 fi

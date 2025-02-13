@@ -19,7 +19,7 @@ HOMEPAGE="
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~arm64-macos ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~arm64-macos ~x64-macos"
 IUSE="socks5 test-rust"
 
 RDEPEND="
@@ -27,14 +27,14 @@ RDEPEND="
 	<dev-python/charset-normalizer-4[${PYTHON_USEDEP}]
 	<dev-python/idna-4[${PYTHON_USEDEP}]
 	<dev-python/urllib3-3[${PYTHON_USEDEP}]
-	socks5? ( >=dev-python/PySocks-1.5.6[${PYTHON_USEDEP}] )
+	socks5? ( >=dev-python/pysocks-1.5.6[${PYTHON_USEDEP}] )
 "
 
 BDEPEND="
 	test? (
 		>=dev-python/pytest-httpbin-2.0.0[${PYTHON_USEDEP}]
 		dev-python/pytest-mock[${PYTHON_USEDEP}]
-		>=dev-python/PySocks-1.5.6[${PYTHON_USEDEP}]
+		>=dev-python/pysocks-1.5.6[${PYTHON_USEDEP}]
 		test-rust? (
 			dev-python/trustme[${PYTHON_USEDEP}]
 		)

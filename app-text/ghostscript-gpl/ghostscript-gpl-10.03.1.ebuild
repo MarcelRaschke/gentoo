@@ -7,6 +7,8 @@ inherit autotools flag-o-matic toolchain-funcs
 
 MY_PN=${PN/-gpl}
 MY_P="${MY_PN}-${PV/_}"
+PVM=$(ver_cut 1-2)
+PVM_S=$(ver_rs 1-2 "")
 
 # Use https://gitweb.gentoo.org/proj/codec/ghostscript-gpl-patches.git/ for patches
 # See 'index' branch for README
@@ -14,7 +16,7 @@ MY_PATCHSET="ghostscript-gpl-10.0-patches.tar.xz"
 
 DESCRIPTION="Interpreter for the PostScript language and PDF"
 HOMEPAGE="https://ghostscript.com/ https://git.ghostscript.com/?p=ghostpdl.git;a=summary"
-SRC_URI="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/${PV}/${MY_P}.tar.xz"
+SRC_URI="https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs${PVM_S}/${MY_P}.tar.xz"
 if [[ -n "${MY_PATCHSET}" ]] ; then
 	SRC_URI+=" https://dev.gentoo.org/~sam/distfiles/${CATEGORY}/${PN}/${MY_PATCHSET}"
 fi
@@ -22,8 +24,8 @@ S="${WORKDIR}/${MY_P}"
 
 LICENSE="AGPL-3 CPL-1.0"
 SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
-IUSE="cups dbus gtk l10n_de static-libs unicode X"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+IUSE="cups cpu_flags_arm_neon dbus gtk l10n_de static-libs unicode X"
 
 LANGS="ja ko zh-CN zh-TW"
 for X in ${LANGS} ; do
@@ -61,6 +63,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-10.03.0-c99.patch
+	"${FILESDIR}"/${PN}-10.03.1-arm64-neon-tesseract.patch
 )
 
 src_prepare() {
@@ -156,6 +159,7 @@ src_configure() {
 		$(use_enable cups) \
 		$(use_enable dbus) \
 		$(use_enable gtk) \
+		$(use_enable cpu_flags_arm_neon neon) \
 		$(use_with cups pdftoraster) \
 		$(use_with unicode libidn) \
 		$(use_with X x) \

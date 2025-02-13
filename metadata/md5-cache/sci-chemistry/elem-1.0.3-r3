@@ -1,0 +1,13 @@
+DEFINED_PHASES=compile configure install
+DEPEND=x11-libs/xforms
+DESCRIPTION=periodic table of the elements
+EAPI=8
+HOMEPAGE=http://elem.sourceforge.net/
+INHERIT=toolchain-funcs
+KEYWORDS=amd64 ~x86
+LICENSE=GPL-2
+RDEPEND=x11-libs/xforms
+SLOT=0
+SRC_URI=https://downloads.sourceforge.net/elem/elem-src-1.0.3-Linux.tgz
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96
+_md5_=0780abdcd22c8c27afec8380545ff843

@@ -1,10 +1,10 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 PYTHON_COMPAT=( python3_{10..13} )
-inherit edo flag-o-matic go-env optfeature multiprocessing
+inherit edo go-env optfeature multiprocessing
 inherit python-single-r1 toolchain-funcs xdg
 
 if [[ ${PV} == 9999 ]]; then
@@ -18,8 +18,6 @@ else
 		verify-sig? ( https://github.com/kovidgoyal/kitty/releases/download/v${PV}/${P}.tar.xz.sig )
 	"
 	VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/kovidgoyal.gpg
-	# x86 currently still works but note that upstream has dropped support and
-	# may ignore issues: https://github.com/kovidgoyal/kitty/commit/29cb128fd
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv ~x86"
 fi
 
@@ -42,13 +40,15 @@ RDEPEND="
 	${PYTHON_DEPS}
 	dev-libs/openssl:=
 	dev-libs/xxhash
-	media-libs/fontconfig
+	media-fonts/symbols-nerd-font
+	media-libs/freetype
 	media-libs/harfbuzz:=[truetype]
 	media-libs/lcms:2
 	media-libs/libglvnd[X?]
 	media-libs/libpng:=
 	sys-apps/dbus
 	sys-libs/zlib:=
+	x11-libs/cairo
 	x11-libs/libxkbcommon[X?]
 	x11-misc/xkeyboard-config
 	~x11-terms/kitty-shell-integration-${PV}
@@ -76,7 +76,7 @@ DEPEND="
 # bug #919751 wrt go subslot
 BDEPEND="
 	${PYTHON_DEPS}
-	>=dev-lang/go-1.22:=
+	>=dev-lang/go-1.23:=
 	sys-libs/ncurses
 	virtual/pkgconfig
 	test? ( $(python_gen_cond_dep 'dev-python/pillow[${PYTHON_USEDEP}]') )
@@ -119,6 +119,10 @@ src_prepare() {
 
 	sed -i setup.py "${sedargs[@]}" || die
 
+	# temporary, see --shell-integration below and try again on bump
+	sed -e "/shell_integration: /s/'enabled'/&, 'no-rc', 'no-sudo'/" \
+		-i kitty/options/types.py || die
+
 	local skiptests=(
 		# relies on 'who' command which doesn't detect users with pid-sandbox
 		kitty_tests/utmp.py
@@ -138,21 +142,12 @@ src_compile() {
 	local -x GOFLAGS="-p=$(makeopts_jobs) -v -x -buildvcs=false"
 	use ppc64 && [[ $(tc-endian) == big ]] || GOFLAGS+=" -buildmode=pie"
 
-	# workaround link errors with Go + gcc + -g3 (bug #924436),
-	# retry now and then to see if can be dropped
-	tc-is-gcc &&
-		CGO_CFLAGS=$(
-			CFLAGS=${CGO_CFLAGS}
-			replace-flags -g3 -g
-			replace-flags -ggdb3 -ggdb
-			printf %s "${CFLAGS}"
-		)
-
 	local conf=(
 		--disable-link-time-optimization
 		--ignore-compiler-warnings
 		--libdir-name=$(get_libdir)
-		--shell-integration="enabled no-rc no-sudo"
+		# option seems(?) currently broken, needs looking into (see sed above)
+#		--shell-integration="enabled no-rc no-sudo"
 		--update-check-interval=0
 		--verbose
 	)
@@ -182,6 +177,11 @@ src_test() {
 
 src_install() {
 	edo mv linux-package "${ED}"/usr
+
+	# kitty currently detects and copies the system's nerd font at build
+	# time, then uses that rather than the system's at runtime
+	dosym -r /usr/share/fonts/symbols-nerd-font/SymbolsNerdFontMono-Regular.ttf \
+		/usr/"$(get_libdir)"/kitty/fonts/SymbolsNerdFontMono-Regular.ttf
 }
 
 pkg_postinst() {

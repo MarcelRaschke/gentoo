@@ -17,7 +17,7 @@ S="${WORKDIR}/${PN}-engine-${MY_COMMIT}/${PN}-engine-core"
 
 LICENSE="Apache-2.0"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64"
+KEYWORDS="amd64 arm64 ppc64"
 
 CP_DEPEND="
 	>=dev-java/commons-io-2.8.0:1
@@ -94,7 +94,7 @@ src_prepare() {
 }
 
 src_test() {
-	pushd src/test/java || die
+	pushd src/test/java > /dev/null || die
 		# DataSourceResourceLoaderTestCase.java requires configured jdbc
 		local JAVA_TEST_RUN_ONLY=$(find * \
 			-name "*TestCase.java" \
@@ -103,6 +103,6 @@ src_test() {
 			)
 		JAVA_TEST_RUN_ONLY="${JAVA_TEST_RUN_ONLY//.java}"
 		JAVA_TEST_RUN_ONLY="${JAVA_TEST_RUN_ONLY//\//.}"
-	popd
+	popd > /dev/null || die
 	java-pkg-simple_src_test
 }

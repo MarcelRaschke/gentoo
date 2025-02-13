@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Keep them sorted
@@ -94,7 +94,6 @@ fltk - Add support for the Fast Light Toolkit gui interface
 fontconfig - Support for configuring and customizing font access via media-libs/fontconfig
 fortran - Add support for fortran
 freetds - Add support for the TDS protocol to connect to MSSQL/Sybase databases
-freewnn - Add support for FreeWnn kana to kanji conversion engine
 ftp - Add FTP (File Transfer Protocol) support
 gd - Add support for media-libs/gd (to generate graphics on the fly)
 gdbm - Add support for sys-libs/gdbm (GNU database libraries)
@@ -145,6 +144,7 @@ infiniband - Enable Infiniband RDMA transport support
 initramfs - Include kernel modules in the initramfs, and re-install the kernel (only effective for distribution kernels)
 inotify - Enable inotify filesystem monitoring support
 introspection - Add support for GObject based introspection
+io-uring - Enable the use of io_uring for efficient asynchronous IO and system requests
 iodbc - Add support for iODBC library
 ios - Enable support for Apple's iDevice with iOS operating system (iPad, iPhone, iPod, etc)
 ipod - Enable support for iPod device access
@@ -169,6 +169,7 @@ lash - Add LASH Audio Session Handler support
 latex - Add support for LaTeX (typesetting package)
 lcms - Add lcms support (color management engine)
 ldap - Add LDAP support (Lightweight Directory Access Protocol)
+lerc - Add LERC suppport (Limited Error Raster Compression)
 libass - SRT/SSA/ASS (SubRip / SubStation Alpha) subtitle support
 libcaca - Add support for colored ASCII-art graphics
 libedit - Use the libedit library (replacement for readline)
@@ -178,7 +179,7 @@ libsamplerate - Build with support for converting sample rates using libsamplera
 libwww - Add libwww support (General purpose WEB API)
 lirc - Add support for lirc (Linux's Infra-Red Remote Control)
 livecd - !!internal use only!! DO NOT SET THIS FLAG YOURSELF!, used during livecd building
-llvm-libunwind - Use sys-libs/llvm-libunwind instead of sys-libs/libunwind
+llvm-libunwind - Use llvm-runtimes/libunwind instead of sys-libs/libunwind
 lm-sensors - Add linux lm-sensors (hardware sensors) support
 lto - Enable Link-Time Optimization (LTO) to optimize the build
 lua - Enable Lua scripting support
@@ -335,11 +336,13 @@ tcmalloc - Use the dev-util/google-perftools libraries to replace the malloc() i
 tcpd - Add support for TCP wrappers
 telemetry - Send anonymized usage information to upstream so they can better understand our users
 test - Enable dependencies and/or preparations necessary to run tests (usually controlled by FEATURES=test but can be toggled independently)
+test-install - Install testsuite for manual execution by the user
 test-rust - Enable important test dependencies that require Rust toolchain
 theora - Add support for the Theora Video Compression Codec
 threads - Add threads support for various packages. Usually pthreads
 tidy - Add support for HTML Tidy
 tiff - Add support for the TIFF image format
+time64 - Use 64-bit time_t type instead of the regular 32-bit type. This flag is forced on time64 profiles, and masked elsewhere. It should be only used when detection of type width is not possible (e.g. for SRC_URI)
 timidity - Build with Timidity++ (MIDI sequencer) support
 tk - Add support for Tk GUI toolkit
 truetype - Add support for FreeType and/or FreeType2 fonts
@@ -366,6 +369,7 @@ videos - Install optional video files (used in some games)
 vim-syntax - Pulls in related vim syntax scripts
 vnc - Enable VNC (remote desktop viewer) support
 vorbis - Add support for the OggVorbis audio codec
+vpx - Add support for VP8/VP9 codecs (usually via media-libs/libvpx)
 vulkan - Add support for 3D graphics and computing via the Vulkan cross-platform API
 wavpack - Add support for wavpack audio compression tools
 wayland - Enable dev-libs/wayland backend

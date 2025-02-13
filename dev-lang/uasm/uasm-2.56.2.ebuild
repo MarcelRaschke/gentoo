@@ -12,9 +12,10 @@ S="${WORKDIR}/UASM-${PV}"
 
 LICENSE="Watcom-1.0"
 SLOT="0"
-KEYWORDS="~amd64"
+KEYWORDS="amd64"
 PATCHES=(
 	"${FILESDIR}/build-fix.patch"
+	"${FILESDIR}/makefile-dep-fix.patch"
 )
 
 src_prepare() {

@@ -16,11 +16,11 @@ IUSE="libobjc2 native-exceptions"
 DEPEND="${GNUSTEP_CORE_DEPEND}
 	>=dev-build/make-3.75
 	libobjc2? ( gnustep-base/libobjc2
-		sys-devel/clang:* )
+		llvm-core/clang:* )
 	!libobjc2? ( !!gnustep-base/libobjc2
 		|| (
 			sys-devel/gcc:*[objc]
-			sys-devel/clang:*
+			llvm-core/clang:*
 		) )"
 RDEPEND="${DEPEND}"
 
@@ -55,7 +55,7 @@ pkg_setup() {
 
 	# For existing installations, determine if we will use another libobjc.so
 	if has_version gnustep-base/gnustep-make; then
-		local current_libobjc="$(awk -F: '/^OBJC_LIB_FLAG/ {print $2}' ${EPREFIX}/usr/share/GNUstep/Makefiles/config.make)"
+		local current_libobjc="$(awk -F: '/^OBJC_LIB_FLAG/ {print $2}' "${EPREFIX}"/usr/share/GNUstep/Makefiles/config.make)"
 		# Old installations did not set this explicitely
 		: ${current_libobjc:=libobjc.so.2}
 

@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
-	<maintainer type="person">
-		<email>matthew@gentoo.org</email>
-		<name>Matthew Smith</name>
-	</maintainer>
+	<!-- maintainer-needed -->
 	<use>
 		<flag name="dnstap">
 			Build dnstap binary logging module
@@ -12,8 +9,17 @@
 		<flag name="kresc">
 			Build (experimental) command-line client
 		</flag>
+		<flag name="manager">
+			Manager is a user-friendly interface and a component handling rolling restarts, config update logic and more.
+		</flag>
 		<flag name="nghttp2">
 			DNS-over-HTTPS support
+		</flag>
+		<flag name="prometheus">
+			Metrics exported in Prometheus
+		</flag>
+		<flag name="xdp">
+			Enable eXpress Data Path
 		</flag>
 	</use>
 </pkgmetadata>
