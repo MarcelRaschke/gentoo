@@ -14,23 +14,23 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="https://github.com/containers/common/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${P#containers-}"
-	KEYWORDS="~amd64 ~arm64 ~riscv"
+	KEYWORDS="~amd64 ~arm64 ~loong ~riscv"
 fi
 
 LICENSE="Apache-2.0"
 SLOT="0"
 RESTRICT="test"
 RDEPEND="
-	>=app-containers/aardvark-dns-1.10.0
-	>=app-containers/crun-1.14.3
-	>=app-containers/containers-image-5.30.0
-	>=app-containers/containers-storage-1.53.0
+	>=app-containers/aardvark-dns-1.12.0
+	>=app-containers/crun-1.17
+	>=app-containers/containers-image-5.32.0
+	>=app-containers/containers-storage-1.55.0
 	app-containers/containers-shortnames
-	>=app-containers/netavark-1.10.3
+	>=app-containers/netavark-1.12.0
 	net-firewall/nftables
 	net-firewall/iptables[nftables]
-	>=net-misc/passt-2024.03.20
-	>=sys-fs/fuse-overlayfs-1.13
+	>=net-misc/passt-2024.09.06
+	>=sys-fs/fuse-overlayfs-1.14
 "
 
 BDEPEND="

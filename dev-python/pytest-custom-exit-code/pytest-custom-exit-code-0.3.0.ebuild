@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( pypy3 python3_{10..12} )
+PYTHON_COMPAT=( pypy3 python3_{10..13} )
 inherit distutils-r1
 
 MY_PN=${PN//-/_}
@@ -21,7 +21,7 @@ S="${WORKDIR}/${MY_PN}-${PV}"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~riscv ~x86"
+KEYWORDS="amd64 ~riscv x86"
 
 RDEPEND="
 	>=dev-python/pytest-7.0.2[${PYTHON_USEDEP}]

@@ -1,4 +1,4 @@
-# Copyright 2021-2024 Gentoo Authors
+# Copyright 2021-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: qt6-build.eclass
@@ -22,6 +22,7 @@ _QT6_BUILD_ECLASS=1
 	die "${ECLASS} is only to be used for building Qt6"
 
 inherit cmake flag-o-matic toolchain-funcs
+[[ ${EAPI} == 8 ]] && inherit eapi9-pipestatus
 
 # @ECLASS_VARIABLE: QT6_BUILD_TYPE
 # @DESCRIPTION:
@@ -59,28 +60,34 @@ if [[ ${PV} == *.9999 ]]; then
 else
 	QT6_BUILD_TYPE=release
 	_QT6_SRC=official
+	_QT6_SUBDIR=
 
 	if [[ ${PV} == *_@(alpha|beta|rc)* ]]; then
 		QT6_BUILD_TYPE=pre-release
 		_QT6_SRC=development
+
+		# TODO?: drop _QT6_SUBDIR if no longer used for 6.9, unknown
+		# if this was a one-time mistake or a permanent change
+		ver_test ${PV} -ge 6.8 && _QT6_SUBDIR=src/
 	fi
 
 	_QT6_P=${QT6_MODULE}-everywhere-src-${PV/_/-}
-	SRC_URI="https://download.qt.io/${_QT6_SRC}_releases/qt/${PV%.*}/${PV/_/-}/submodules/${_QT6_P}.tar.xz"
+	SRC_URI="https://download.qt.io/${_QT6_SRC}_releases/qt/${PV%.*}/${PV/_/-}/${_QT6_SUBDIR}submodules/${_QT6_P}.tar.xz"
 	S=${WORKDIR}/${_QT6_P}
 
-	unset _QT6_P _QT6_SRC
+	unset _QT6_P _QT6_SRC _QT6_SUBDIR
 fi
 readonly QT6_BUILD_TYPE
 
 HOMEPAGE="https://www.qt.io/"
 LICENSE="|| ( GPL-2 GPL-3 LGPL-3 ) FDL-1.3"
-SLOT=6/${PV%%_*}
+SLOT="6/${PV%%_*}"
+IUSE="custom-cflags"
 
 if [[ ${QT6_RESTRICT_TESTS} ]]; then
 	RESTRICT="test"
 else
-	IUSE="test"
+	IUSE+=" test"
 	RESTRICT="!test? ( test )"
 fi
 
@@ -122,18 +129,21 @@ qt6-build_src_prepare() {
 	fi
 
 	_qt6-build_prepare_env
-	_qt6-build_sanitize_cpu_flags
 
-	# LTO cause test failures in several components (e.g. qtcharts,
-	# multimedia, scxml, wayland, webchannel, ...).
-	#
-	# Exact extent/causes unknown, but for some related-sounding bugs:
-	# https://bugreports.qt.io/browse/QTBUG-112332
-	# https://bugreports.qt.io/browse/QTBUG-115731
-	#
-	# Does not manifest itself with clang:16 (did with gcc-13.2.0), but
-	# still assumed to be generally unsafe either way in current state.
-	in_iuse custom-cflags && use custom-cflags || filter-lto
+	if use !custom-cflags; then
+		_qt6-build_sanitize_cpu_flags
+
+		# LTO cause test failures in several components (e.g. qtcharts,
+		# multimedia, scxml, wayland, webchannel, ...).
+		#
+		# Exact extent/causes unknown, but for some related-sounding bugs:
+		# https://bugreports.qt.io/browse/QTBUG-112332
+		# https://bugreports.qt.io/browse/QTBUG-115731
+		#
+		# Does not manifest itself with clang:16 (did with gcc-13.2.0), but
+		# still assumed to be generally unsafe either way in current state.
+		filter-lto
+	fi
 }
 
 # @FUNCTION: qt6-build_src_configure
@@ -147,6 +157,11 @@ qt6-build_src_configure() {
 	fi
 
 	local defaultcmakeargs=(
+		# cmake defaults to "STATUS" but Qt changes that to "NOTICE" which
+		# hides a lot of information that is useful for bug reports
+		--log-level=STATUS
+		# ...but dev messages are noisy and not really useful downstream
+		-Wno-dev
 		# see _qt6-build_create_user_facing_links
 		-DINSTALL_PUBLICBINDIR="${QT6_PREFIX}"/bin
 		# note that if qtbase was built with tests, this is default ON
@@ -219,18 +234,33 @@ _qt6-build_create_user_facing_links() {
 	# even if no links (empty), if missing will assume that it is an error
 	[[ ${PN} == qttranslations ]] && return
 
-	# loop and match using paths (upstream suggests `xargs ln -s < ${links}`
-	# but, for what it is worth, that will fail if paths have spaces)
+	# TODO: drop when <6.8.3 is gone, unneeded version with relative paths
+	if ver_test -lt 6.8.3; then
+		local link
+		while IFS= read -r link; do
+			if [[ -z ${link} ]]; then
+				continue
+			elif [[ ${link} =~ ^("${QT6_PREFIX}"/.+)\ ("${QT6_PREFIX}"/bin/.+) ]]
+			then
+				dosym -r "${BASH_REMATCH[1]#"${EPREFIX}"}" \
+					"${BASH_REMATCH[2]#"${EPREFIX}"}"
+			else
+				die "unrecognized user_facing_tool_links.txt line: ${link}"
+			fi
+		done < "${BUILD_DIR}"/user_facing_tool_links.txt || die
+
+		return
+	fi
+
 	local link
 	while IFS= read -r link; do
 		if [[ -z ${link} ]]; then
 			continue
-		elif [[ ${link} =~ ^("${QT6_PREFIX}"/.+)\ ("${QT6_PREFIX}"/bin/.+) ]]
-		then
-			dosym -r "${BASH_REMATCH[1]#"${EPREFIX}"}" \
-				"${BASH_REMATCH[2]#"${EPREFIX}"}"
+		elif [[ ${link} =~ (../[^ ]+)\ (bin/.+) ]]; then
+			dosym "${BASH_REMATCH[1]}" \
+				"${QT6_PREFIX#"${EPREFIX}"}/${BASH_REMATCH[2]}"
 		else
-			die "unrecognized line '${link}' in '${links}'"
+			die "unrecognized user_facing_tool_links.txt line: ${link}"
 		fi
 	done < "${BUILD_DIR}"/user_facing_tool_links.txt || die
 }
@@ -264,39 +294,39 @@ _qt6-build_prepare_env() {
 # @FUNCTION: _qt6-build_sanitize_cpu_flags
 # @INTERNAL
 # @DESCRIPTION:
-# Qt hardly support use of -mno-* or -march=native for unusual CPUs
-# (or VMs) that support incomplete x86-64 feature levels, and attempts
-# to allow this anyway has worked poorly.  This instead tries to detect
-# unusual configurations and fallbacks to generic -march=x86-64* if so
-# (bug #898644,#908420,#913400,#933374).
+# Qt hardly supports use of -mno-* or -march=native for unusual CPUs
+# (or VMs) that support incomplete x86-64 feature levels among other
+# issues such as CPUs with buggy rdrand, and attempts to allow this
+# anyway has worked poorly.  This strips CPU instructions related
+# -m* flags and replaces with the highest -march=x86-64-v* usable as
+# a non-ideal solution (bug #898644,#908420,#913400,#922498,#933374).
 _qt6-build_sanitize_cpu_flags() {
 	# less of an issue with non-amd64, will revisit only if needed
 	use amd64 || return 0
 
 	local cpuflags=(
-		# list of checked cpu features by qtbase in configure.cmake
-		aes avx avx2 avx512{bw,cd,dq,er,f,ifma,pf,vbmi,vbmi2,vl}
-		f16c rdrnd rdseed sha sse2 sse3 sse4_1 sse4_2 ssse3 vaes
-
-		# extras checked by qtbase's qsimd_p.h
-		bmi bmi2 f16c fma lzcnt popcnt
+		# ideally update whenever compilers gain new ones, or could
+		# be offloaded to flag-o-matic if needed by other ebuilds
+		# grep -B 1 'Var(ix86_isa_flags' gcc/config/i386/i386.opt | grep ^m | grep -Ev '^m(16|32|64|x32)'
+		3dnow 3dnowa abm adx aes amx-avx512 amx-bf16 amx-complex
+		amx-fp16 amx-fp8 amx-int8 amx-movrs amx-tf32 amx-tile
+		amx-transpose apxf avx avx10.1-256 avx10.1-512 avx10.2-256
+		avx10.2-512 avx2 avx512bf16 avx512bitalg avx512bw avx512cd
+		avx512dq avx512f avx512fp16 avx512ifma avx512vbmi avx512vbmi2
+		avx512vl avx512vnni avx512vp2intersect avx512vpopcntdq avxifma
+		avxneconvert avxvnni avxvnniint16 avxvnniint8 bmi bmi2 cldemote
+		clflushopt clwb clzero cmpccxadd crc32 cx16 enqcmd evex512 f16c
+		fma fma4 fsgsbase fxsr gfni hle hreset kl lwp lzcnt mmx movbe
+		movdir64b movdiri movrs mwait mwaitx pclmul pconfig pku popcnt
+		prefetchi prfchw ptwrite raoint rdpid rdrnd rdseed rtm sahf
+		serialize sgx sha sha512 shstk sm3 sm4 sse sse2 sse3 sse4
+		sse4.1 sse4.2 sse4a ssse3 tbm tsxldtrk uintr usermsr vaes
+		vpclmulqdq waitpkg wbnoinvd widekl xop xsave xsavec xsaveopt
+		xsaves
 	)
 
-	# check if any known problematic -mno-* C(XX)FLAGS
-	if ! is-flagq "@($(IFS='|'; echo "${cpuflags[*]/#/-mno-}"))"; then
-		# check if qsimd_p.h (search for "enable all") will accept -march
-		: "$($(tc-getCXX) -E -P ${CXXFLAGS} ${CPPFLAGS} - <<-EOF | tail -n 1
-				#if (defined(__AVX2__) && (__BMI__ + __BMI2__ + __F16C__ + __FMA__ + __LZCNT__ + __POPCNT__) != 6) || \
-					(defined(__AVX512F__) && (__AVX512BW__ + __AVX512CD__ + __AVX512DQ__ + __AVX512VL__) != 4)
-				bad
-				#endif
-			EOF
-			assert
-		)"
-		[[ ${_} == bad ]] || return 0 # *should* be fine as-is
-	fi
-
-	# determine highest(known) usable x86-64 feature level
+	# determine and the highest(known) usable x86-64 feature level
+	# so users will not lose *all* CPU-specific optimizations
 	local march=$(
 		$(tc-getCXX) -E -P ${CXXFLAGS} ${CPPFLAGS} - <<-EOF | tail -n 1
 			default
@@ -310,12 +340,14 @@ _qt6-build_sanitize_cpu_flags() {
 			#  endif
 			#endif
 		EOF
-		assert
+		pipestatus || die
 	)
 
 	filter-flags '-march=*' "${cpuflags[@]/#/-m}" "${cpuflags[@]/#/-mno-}"
-	[[ ${march} == x86-64* ]] && append-flags $(test-flags-CXX -march=${march})
-	einfo "C(XX)FLAGS were adjusted due to Qt limitations: ${CXXFLAGS}"
+	[[ ${march} == x86-64* ]] && append-flags $(test-flags-CXX -march="${march}")
+	einfo "C(XX)FLAGS adjusted due to frequent -march=*/-m* issues with Qt:"
+	einfo "    \"${CXXFLAGS}\""
+	einfo "(can override with USE=custom-cflags, but no support will be given)"
 }
 
 fi

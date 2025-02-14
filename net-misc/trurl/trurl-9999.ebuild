@@ -1,9 +1,9 @@
-# Copyright 2023 Gentoo Authors
+# Copyright 2023-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 inherit toolchain-funcs python-any-r1
 
 DESCRIPTION="Command line tool for URL parsing and manipulation"
@@ -13,9 +13,7 @@ if [[ ${PV} == 9999 ]] ; then
 	EGIT_REPO_URI="https://github.com/curl/trurl"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/curl/trurl/archive/refs/tags/${P}.tar.gz"
-	S="${WORKDIR}"/${PN}-${P}
-
+	SRC_URI="https://github.com/curl/trurl/releases/download/${P}/${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm ~arm64"
 fi
 
@@ -29,16 +27,13 @@ DEPEND=">=net-misc/curl-7.81.0"
 RDEPEND="${DEPEND}"
 BDEPEND="test? ( ${PYTHON_DEPS} )"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-0.7-fix-makefile.patch
-)
-
 pkg_setup() {
 	use test && python-any-r1_pkg_setup
 }
 
 src_compile() {
 	tc-export CC
+	export NDEBUG=1
 
 	default
 }

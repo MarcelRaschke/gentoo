@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -23,7 +23,7 @@ S="${WORKDIR}/${PN/-compat}-$(ver_cut 1-3)"
 LICENSE="libtiff"
 SLOT="4"
 if [[ ${PV} != *_rc* ]] ; then
-	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 IUSE="+cxx jbig jpeg lzma test webp zlib zstd"
 RESTRICT="!test? ( test )"
@@ -32,13 +32,13 @@ RESTRICT="!test? ( test )"
 REQUIRED_USE="test? ( jpeg )"
 
 RDEPEND="
+	!=media-libs/tiff-4.4*
 	jbig? ( >=media-libs/jbigkit-2.1:=[${MULTILIB_USEDEP}] )
 	jpeg? ( media-libs/libjpeg-turbo:=[${MULTILIB_USEDEP}] )
 	lzma? ( >=app-arch/xz-utils-5.0.5-r1[${MULTILIB_USEDEP}] )
 	webp? ( media-libs/libwebp:=[${MULTILIB_USEDEP}] )
 	zlib? ( >=sys-libs/zlib-1.2.8-r1[${MULTILIB_USEDEP}] )
 	zstd? ( >=app-arch/zstd-1.3.7-r1:=[${MULTILIB_USEDEP}] )
-	!=media-libs/tiff-4.4*
 "
 DEPEND="${RDEPEND}"
 BDEPEND="verify-sig? ( sec-keys/openpgp-keys-evenrouault )"

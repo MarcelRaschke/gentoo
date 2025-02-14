@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 # vala and introspection support is broken, bug #468208
 VALA_USE_DEPEND=vapigen
 
@@ -15,7 +15,7 @@ if [[ ${PV} == *9999* ]]; then
 	SRC_URI=""
 else
 	SRC_URI="https://download.gimp.org/pub/${PN}/${PV:0:3}/${P}.tar.xz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 fi
 
 DESCRIPTION="A graph based image processing framework"
@@ -39,7 +39,7 @@ RESTRICT="!test? ( test )"
 RDEPEND="
 	>=dev-libs/glib-2.68.2:2
 	>=dev-libs/json-glib-1.2.6
-	>=media-libs/babl-0.1.98[introspection?,lcms?,vala?]
+	>=media-libs/babl-0.1.110[introspection?,lcms?,vala?]
 	media-libs/libjpeg-turbo
 	media-libs/libnsgif
 	>=media-libs/libpng-1.6.0:0=

@@ -12,7 +12,7 @@ HOMEPAGE="https://wiki.gnome.org/Projects/gtk-vnc https://gitlab.gnome.org/GNOME
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~loong ~ppc ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha amd64 ~arm arm64 ~loong ~ppc ppc64 ~riscv ~sparc x86"
 IUSE="+introspection pulseaudio sasl +vala"
 REQUIRED_USE="vala? ( introspection )"
 
@@ -26,7 +26,7 @@ RDEPEND="
 	>=x11-libs/gtk+-3.22.0:3[introspection?]
 	>=x11-libs/cairo-1.15.0
 	>=x11-libs/libX11-1.6.5
-	pulseaudio? ( >=media-sound/pulseaudio-11.0 )
+	pulseaudio? ( media-libs/libpulse )
 	introspection? ( >=dev-libs/gobject-introspection-1.56.0:= )
 "
 # Keymap databases code is generated with python3; configure picks up $PYTHON exported from python-any-r1_pkg_setup
@@ -44,7 +44,7 @@ BDEPEND="
 src_prepare() {
 	default
 
-	use vala & vala_setup
+	use vala && vala_setup
 }
 
 src_configure() {

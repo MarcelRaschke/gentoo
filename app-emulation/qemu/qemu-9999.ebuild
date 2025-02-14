@@ -6,15 +6,15 @@ EAPI=8
 # Generate using https://github.com/thesamesam/sam-gentoo-scripts/blob/main/niche/generate-qemu-docs
 # Set to 1 if prebuilt, 0 if not
 # (the construct below is to allow overriding from env for script)
-QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-0}
+QEMU_DOCS_PREBUILT=${QEMU_DOCS_PREBUILT:-1}
 QEMU_DOCS_PREBUILT_DEV=sam
 QEMU_DOCS_VERSION=$(ver_cut 1-3)
 # Default to generating docs (inc. man pages) if no prebuilt; overridden later
 # bug #830088
 QEMU_DOC_USEFLAG="+doc"
 
-PYTHON_COMPAT=( python3_{10..12} )
-PYTHON_REQ_USE="ncurses,readline"
+PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
 
@@ -66,14 +66,13 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xen
+	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
 	aarch64
 	alpha
 	arm
-	cris
 	hppa
 	i386
 	loongarch64
@@ -141,6 +140,7 @@ REQUIRED_USE="
 	vte? ( gtk )
 	multipath? ( udev )
 	plugins? ( !static-user )
+	xdp? ( bpf )
 "
 for smname in ${IUSE_SOFTMMU_TARGETS} ; do
 	REQUIRED_USE+=" qemu_softmmu_targets_${smname}? ( kernel_linux? ( seccomp ) )"
@@ -235,24 +235,25 @@ SOFTMMU_TOOLS_DEPEND="
 	vde? ( net-misc/vde[static-libs(+)] )
 	virgl? ( media-libs/virglrenderer[static-libs(+)] )
 	virtfs? ( sys-libs/libcap )
+	xdp? ( net-libs/xdp-tools )
 	xen? ( app-emulation/xen-tools:= )
 	zstd? ( >=app-arch/zstd-1.4.0[static-libs(+)] )
 "
 
 EDK2_OVMF_VERSION="202202"
-SEABIOS_VERSION="1.16.0"
+SEABIOS_VERSION="1.16.3"
 
 X86_FIRMWARE_DEPEND="
 	pin-upstream-blobs? (
-		~sys-firmware/edk2-ovmf-bin-${EDK2_OVMF_VERSION}
+		~sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
 		~sys-firmware/ipxe-1.21.1[binary,qemu]
 		~sys-firmware/seabios-bin-${SEABIOS_VERSION}
 		~sys-firmware/sgabios-0.1_pre10[binary]
 	)
 	!pin-upstream-blobs? (
 		|| (
-			>=sys-firmware/edk2-ovmf-${EDK2_OVMF_VERSION}
-			>=sys-firmware/edk2-ovmf-bin-${EDK2_OVMF_VERSION}
+			>=sys-firmware/edk2-${EDK2_OVMF_VERSION}
+			>=sys-firmware/edk2-bin-${EDK2_OVMF_VERSION}
 		)
 		sys-firmware/ipxe[qemu]
 		|| (
@@ -280,7 +281,6 @@ BDEPEND="
 	dev-lang/perl
 	>=dev-build/meson-0.63.0
 	app-alternatives/ninja
-	dev-python/pip[${PYTHON_USEDEP}]
 	virtual/pkgconfig
 	doc? (
 		>=dev-python/sphinx-1.6.0[${PYTHON_USEDEP}]
@@ -316,8 +316,7 @@ RDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-9.0.0-disable-keymap.patch
-	"${FILESDIR}"/${PN}-9.0.0-capstone-include-path.patch
-	"${FILESDIR}"/${PN}-9.0.0-also-build-virtfs-proxy-helper.patch
+	"${FILESDIR}"/${PN}-9.2.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
 
@@ -478,6 +477,14 @@ src_prepare() {
 	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
 	export WINDRES=${CHOST}-windres
 
+	# Workaround for bug #938302
+	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then
+		cat >> "${S}"/configs/meson/linux.txt <<-EOF || die
+		[binaries]
+		dtrace='stap-dtrace'
+		EOF
+	fi
+
 	# Verbose builds
 	MAKEOPTS+=" V=1"
 
@@ -511,6 +518,7 @@ qemu_src_configure() {
 		--disable-guest-agent
 		--disable-strip
 		--disable-download
+		--python="${PYTHON}"
 
 		# bug #746752: TCG interpreter has a few limitations:
 		# - it does not support FPU
@@ -625,6 +633,7 @@ qemu_src_configure() {
 		$(conf_softmmu virtfs)
 		$(conf_notuser vnc)
 		$(conf_notuser vte)
+		$(conf_softmmu xdp af-xdp)
 		$(conf_notuser xen)
 		$(conf_notuser xen xen-pci-passthrough)
 		# use prebuilt keymaps, bug #759604
@@ -667,6 +676,7 @@ qemu_src_configure() {
 			--disable-tools
 			--enable-cap-ng
 			--enable-seccomp
+			--disable-libcbor
 		)
 		local static_flag="none"
 		;;
@@ -684,7 +694,7 @@ qemu_src_configure() {
 	local targets="${buildtype}_targets"
 	[[ -n ${targets} ]] && conf_opts+=( --target-list="${!targets}" )
 
-	# Add support for SystemTAP
+	# Add support for SystemTap
 	use systemtap && conf_opts+=( --enable-trace-backends="dtrace" )
 
 	# We always want to attempt to build with PIE support as it results
@@ -946,10 +956,10 @@ pkg_postinst() {
 	if use pin-upstream-blobs && firmware_abi_change; then
 		ewarn "This version of qemu pins new versions of firmware blobs:"
 
-		if has_version 'sys-firmware/edk2-ovmf-bin'; then
-			ewarn "	$(best_version sys-firmware/edk2-ovmf-bin)"
+		if has_version 'sys-firmware/edk2-bin'; then
+			ewarn "	$(best_version sys-firmware/edk2-bin)"
 		else
-			ewarn " $(best_version sys-firmware/edk2-ovmf)"
+			ewarn " $(best_version sys-firmware/edk2)"
 		fi
 
 		if has_version 'sys-firmware/seabios-bin'; then
@@ -973,10 +983,10 @@ pkg_info() {
 	echo "Using:"
 	echo "  $(best_version app-emulation/spice-protocol)"
 
-	if has_version 'sys-firmware/edk2-ovmf-bin'; then
-		echo "  $(best_version sys-firmware/edk2-ovmf-bin)"
+	if has_version 'sys-firmware/edk2-bin'; then
+		echo "  $(best_version sys-firmware/edk2-bin)"
 	else
-		echo "  $(best_version sys-firmware/edk2-ovmf)"
+		echo "  $(best_version sys-firmware/edk2)"
 	fi
 
 	if has_version 'sys-firmware/seabios-bin'; then

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_RECIPE_TEST="none"
 RUBY_FAKEGEM_TASK_DOC=""
@@ -18,7 +18,7 @@ HOMEPAGE="https://github.com/knu/ruby-domain_name"
 
 LICENSE="BSD-2"
 SLOT="0"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="amd64 arm arm64 ~hppa ~loong ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="test"
 
 ruby_add_bdepend "

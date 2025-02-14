@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -54,7 +54,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="${MY_PV}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="afs bashlogger examples mem-scramble +net nls plugins +readline"
 
 DEPEND="
@@ -123,6 +123,10 @@ src_configure() {
 	# configure warns on use of non-Bison but doesn't abort. The result
 	# may misbehave at runtime.
 	unset YACC
+
+	# bash 5.3 drops unprototyped functions, earlier versions are
+	# incompatible with C23.
+	append-cflags $(test-flags-CC -std=gnu17)
 
 	local myconf=(
 		--disable-profiling

@@ -1,4 +1,4 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -41,7 +41,7 @@ fi
 
 LICENSE="GPL-3"
 SLOT="${MY_PV}"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~m68k ~mips ppc ppc64 ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~m68k ~mips ppc ppc64 ~s390 sparc x86"
 IUSE="afs mem-scramble +net nls +readline static"
 
 LIB_DEPEND=">=sys-libs/ncurses-5.2-r2[static-libs(+)]
@@ -92,6 +92,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# bash 5.3 drops unprototyped functions, earlier versions are
+	# incompatible with C23.
+	append-cflags $(test-flags-CC -std=gnu17)
+
 	local myconf=(
 		--with-installed-readline=.
 

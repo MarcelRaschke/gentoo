@@ -1,16 +1,16 @@
 DEFINED_PHASES=compile configure install postinst prepare setup test unpack
-DEPEND=postgres_targets_postgres14? ( dev-db/postgresql:14=[server,threads(+)] ) postgres_targets_postgres13? ( dev-db/postgresql:13=[server,threads(+)] ) postgres_targets_postgres12? ( dev-db/postgresql:12=[server,threads(+)] ) perl? ( dev-perl/DBD-Pg )
+DEPEND=postgres_targets_postgres14? ( dev-db/postgresql:14=[server,threads(+)] ) postgres_targets_postgres13? ( dev-db/postgresql:13=[server,threads(+)] ) perl? ( dev-perl/DBD-Pg )
 DESCRIPTION=A replication system for the PostgreSQL Database Management System
 EAPI=7
 HOMEPAGE=https://slony.info/
 INHERIT=flag-o-matic postgres-multi
-IUSE=doc perl postgres_targets_postgres14 postgres_targets_postgres13 postgres_targets_postgres12
+IUSE=doc perl postgres_targets_postgres14 postgres_targets_postgres13
 KEYWORDS=amd64 ppc x86
 LICENSE=BSD GPL-2
-RDEPEND=postgres_targets_postgres14? ( dev-db/postgresql:14=[server,threads(+)] ) postgres_targets_postgres13? ( dev-db/postgresql:13=[server,threads(+)] ) postgres_targets_postgres12? ( dev-db/postgresql:12=[server,threads(+)] ) perl? ( dev-perl/DBD-Pg )
-REQUIRED_USE=|| ( postgres_targets_postgres14 postgres_targets_postgres13 postgres_targets_postgres12 )
+RDEPEND=postgres_targets_postgres14? ( dev-db/postgresql:14=[server,threads(+)] ) postgres_targets_postgres13? ( dev-db/postgresql:13=[server,threads(+)] ) perl? ( dev-perl/DBD-Pg )
+REQUIRED_USE=|| ( postgres_targets_postgres14 postgres_targets_postgres13 )
 RESTRICT=test
 SLOT=0
 SRC_URI=https://slony.info/downloads/2.2/source/slony1-2.2.10.tar.bz2 doc? ( https://slony.info/downloads/2.2/source/slony1-2.2.10-docs.tar.bz2 )
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	out-of-source-utils	1a9007554652a6e627edbccb3c25a439	multibuild	d67e78a235f541871c7dfe4cf7931489	postgres	3f864368af6c0e46196e03821025f1f5	postgres-multi	eb5db133692fe18bccaa7c2c5f45306d
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	out-of-source-utils	dbf9e34ee8964084651e25907fa8f52c	multibuild	4650a65187015567b4e041bb9bfdb364	postgres	aa74feb4d9c1e9af578d99aea36bbace	postgres-multi	ccad35d745ce66b41837db8a6ee94601
 _md5_=78171c49a7f04bcb4b96b7c5dc122e14

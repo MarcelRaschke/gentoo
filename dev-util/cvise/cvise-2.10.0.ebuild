@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 LLVM_COMPAT=( {16..18} )
 inherit cmake llvm-r1 python-single-r1
 
@@ -15,15 +15,15 @@ SRC_URI="
 
 LICENSE="UoI-NCSA"
 SLOT="0"
-KEYWORDS="amd64 ~arm ~arm64 ~loong ~ppc ppc64 ~riscv ~sparc x86"
+KEYWORDS="amd64 ~arm ~arm64 ~loong ppc ppc64 ~riscv ~sparc x86"
 IUSE="test"
 RESTRICT="!test? ( test )"
 REQUIRED_USE=${PYTHON_REQUIRED_USE}
 
 DEPEND="
 	$(llvm_gen_dep '
-		sys-devel/clang:${LLVM_SLOT}
-		sys-devel/llvm:${LLVM_SLOT}
+		llvm-core/clang:${LLVM_SLOT}
+		llvm-core/llvm:${LLVM_SLOT}
 	')
 "
 RDEPEND="

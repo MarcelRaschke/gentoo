@@ -3,9 +3,9 @@ DESCRIPTION=Easily add ANSI colouring to shell scripts
 EAPI=8
 HOMEPAGE=http://www.runslinux.net/?page_id=10
 INHERIT=toolchain-funcs
-KEYWORDS=~alpha amd64 ~hppa ~ia64 ~mips ppc ppc64 ~sparc x86
+KEYWORDS=~alpha amd64 ~hppa ~mips ppc ppc64 ~sparc x86
 LICENSE=GPL-2
 SLOT=0
 SRC_URI=http://runslinux.net/projects/color/color-1.2.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0
-_md5_=b0aafc36085c0e763d930e5a0e77df53
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96
+_md5_=80e0842d1ae829d118602e39f6e05743

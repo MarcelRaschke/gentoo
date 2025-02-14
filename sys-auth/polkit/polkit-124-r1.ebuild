@@ -7,7 +7,7 @@ PYTHON_COMPAT=( python3_{10..12} )
 inherit meson pam pax-utils python-any-r1 systemd xdg-utils
 
 DESCRIPTION="Policy framework for controlling privileges for system-wide services"
-HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://gitlab.freedesktop.org/polkit/polkit"
+HOMEPAGE="https://www.freedesktop.org/wiki/Software/polkit https://github.com/polkit-org/polkit"
 if [[ ${PV} == *_p* ]] ; then
 	# Upstream don't make releases very often. Test snapshots throughly
 	# and review commits, but don't shy away if there's useful stuff there
@@ -22,7 +22,7 @@ fi
 
 LICENSE="LGPL-2"
 SLOT="0"
-KEYWORDS="~alpha amd64 ~arm arm64 ~hppa ~ia64 ~loong ~mips ppc ~ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="+daemon +duktape examples gtk +introspection kde pam selinux systemd test"
 RESTRICT="!test? ( test )"
 

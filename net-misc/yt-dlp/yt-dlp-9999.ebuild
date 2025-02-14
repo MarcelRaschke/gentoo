@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=hatchling
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( pypy3 python3_{10..13} )
 inherit bash-completion-r1 distutils-r1 git-r3 optfeature wrapper
 
 DESCRIPTION="youtube-dl fork with additional features and fixes"
@@ -24,15 +24,6 @@ BDEPEND="
 "
 
 distutils_enable_tests pytest
-
-src_prepare() {
-	distutils-r1_src_prepare
-
-	# adjust pycryptodome and drop optional dependencies (bug #828466)
-	sed -Ei pyproject.toml \
-		-e 's/("pycryptodome)x/\1/' \
-		-e '/"(brotli.*|certifi|mutagen|requests|urllib3|websockets)/d' || die
-}
 
 python_compile() {
 	# generate missing files in live, not in compile_all nor prepare

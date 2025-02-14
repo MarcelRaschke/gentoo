@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -7,7 +7,7 @@ inherit multilib-build
 
 DESCRIPTION="Virtual for OpenCL API"
 SLOT="0"
-KEYWORDS="amd64 ~loong ppc64 ~riscv x86"
+KEYWORDS="amd64 arm64 ~loong ppc64 ~riscv x86"
 
 RDEPEND="
 	>=dev-libs/opencl-icd-loader-2023.02.06[${MULTILIB_USEDEP}]
@@ -27,7 +27,7 @@ pkg_postinst() {
 	elog " * proprietary:"
 	elog "    - dev-libs/amdgpu-pro-opencl - AMD Polaris GPUs. 32-bit support;"
 	elog "    - dev-util/intel-ocl-sdk - Intel CPUs (*not* GPUs). 64-bit only;"
-	elog "    - x11-drivers/nvidia-drivers[uvm] - Nvidia GPUs; specific package versions"
+	elog "    - x11-drivers/nvidia-drivers - Nvidia GPUs; specific package versions"
 	elog "      required for older devices [2]. 32-bit support."
 	elog
 	elog " [1] https://dri.freedesktop.org/wiki/GalliumCompute/"

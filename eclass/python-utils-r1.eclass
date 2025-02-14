@@ -23,13 +23,13 @@
 # metadata/install-qa-check.d/60python-pyc
 # See bug #704286, bug #781878
 
+if [[ -z ${_PYTHON_UTILS_R1_ECLASS} ]]; then
+_PYTHON_UTILS_R1_ECLASS=1
+
 case ${EAPI} in
 	7|8) ;;
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
-
-if [[ ! ${_PYTHON_UTILS_R1_ECLASS} ]]; then
-_PYTHON_UTILS_R1_ECLASS=1
 
 [[ ${EAPI} == 7 ]] && inherit eapi8-dosym
 inherit multiprocessing toolchain-funcs
@@ -40,6 +40,7 @@ inherit multiprocessing toolchain-funcs
 # All supported Python implementations, most preferred last.
 _PYTHON_ALL_IMPLS=(
 	pypy3
+	python3_13t
 	python3_{10..13}
 )
 readonly _PYTHON_ALL_IMPLS
@@ -75,7 +76,7 @@ readonly _PYTHON_HISTORICAL_IMPLS
 # Verify whether the patterns passed to the eclass function are correct
 # (i.e. can match any valid implementation).  Dies on wrong pattern.
 _python_verify_patterns() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local impl pattern
 	for pattern; do
@@ -136,7 +137,7 @@ _python_set_impls() {
 			# please keep them in sync with _PYTHON_ALL_IMPLS
 			# and _PYTHON_HISTORICAL_IMPLS
 			case ${i} in
-				pypy3|python3_9|python3_1[0-3])
+				pypy3|python3_9|python3_1[0-3]|python3_13t)
 					;;
 				jython2_7|pypy|pypy1_[89]|pypy2_0|python2_[5-7]|python3_[1-9])
 					obsolete+=( "${i}" )
@@ -232,7 +233,7 @@ _python_impl_matches() {
 					return 0
 				;;
 			3.8|3.9|3.1[1-3])
-				[[ ${impl} == python${pattern/./_} ]] && return 0
+				[[ ${impl%t} == python${pattern/./_} ]] && return 0
 				;;
 			*)
 				# unify value style to allow lax matching
@@ -298,7 +299,7 @@ _python_impl_matches() {
 # PYTHON_SITEDIR. They are described more completely in the eclass
 # variable documentation.
 _python_export() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local impl var
 
@@ -331,6 +332,17 @@ _python_export() {
 				# <3.0.50 was buggy, and prefix users need this to update.
 				export PYTHON=${BROOT-${EPREFIX}}/usr/bin/${impl}
 				debug-print "${FUNCNAME}: PYTHON = ${PYTHON}"
+				;;
+			PYTHON_STDLIB)
+				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
+				PYTHON_STDLIB=$(
+					"${PYTHON}" - "${EPREFIX}/usr" <<-EOF || die
+						import sys, sysconfig
+						print(sysconfig.get_path("stdlib", vars={"installed_base": sys.argv[1]}))
+					EOF
+				)
+				export PYTHON_STDLIB
+				debug-print "${FUNCNAME}: PYTHON_STDLIB = ${PYTHON_STDLIB}"
 				;;
 			PYTHON_SITEDIR)
 				[[ -n ${PYTHON} ]] || die "PYTHON needs to be set for ${var} to be exported, or requested before it"
@@ -424,7 +436,7 @@ _python_export() {
 									or "")
 							EOF
 						)
-						val=${PYTHON}${flags}-config
+						val=${PYTHON%t}${flags}-config
 						;;
 					*)
 						die "${impl}: obtaining ${var} not supported"
@@ -438,19 +450,14 @@ _python_export() {
 				local d
 				case ${impl} in
 					python*)
-						PYTHON_PKG_DEP="dev-lang/python:${impl#python}"
+						PYTHON_PKG_DEP="dev-lang/python:${impl#python}${PYTHON_REQ_USE:+[${PYTHON_REQ_USE}]}"
 						;;
 					pypy3)
-						PYTHON_PKG_DEP="dev-python/${impl}:="
+						PYTHON_PKG_DEP=">=dev-lang/pypy-3.10:=[symlink${PYTHON_REQ_USE:+,${PYTHON_REQ_USE}}]"
 						;;
 					*)
 						die "Invalid implementation: ${impl}"
 				esac
-
-				# use-dep
-				if [[ ${PYTHON_REQ_USE} ]]; then
-					PYTHON_PKG_DEP+=[${PYTHON_REQ_USE}]
-				fi
 
 				export PYTHON_PKG_DEP
 				debug-print "${FUNCNAME}: PYTHON_PKG_DEP = ${PYTHON_PKG_DEP}"
@@ -466,6 +473,18 @@ _python_export() {
 	done
 }
 
+# @FUNCTION: python_get_stdlib
+# @USAGE: [<impl>]
+# @DESCRIPTION:
+# Obtain and print the 'stdlib' path for the given implementation. If no
+# implementation is provided, ${EPYTHON} will be used.
+python_get_stdlib() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	_python_export "${@}" PYTHON_STDLIB
+	echo "${PYTHON_STDLIB}"
+}
+
 # @FUNCTION: python_get_sitedir
 # @USAGE: [<impl>]
 # @DESCRIPTION:
@@ -473,7 +492,7 @@ _python_export() {
 # implementation. If no implementation is provided, ${EPYTHON} will
 # be used.
 python_get_sitedir() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_SITEDIR
 	echo "${PYTHON_SITEDIR}"
@@ -485,7 +504,7 @@ python_get_sitedir() {
 # Obtain and print the include path for the given implementation. If no
 # implementation is provided, ${EPYTHON} will be used.
 python_get_includedir() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_INCLUDEDIR
 	echo "${PYTHON_INCLUDEDIR}"
@@ -500,7 +519,7 @@ python_get_includedir() {
 # Please note that this function can be used with CPython only. Use
 # in another implementation will result in a fatal failure.
 python_get_library_path() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_LIBPATH
 	echo "${PYTHON_LIBPATH}"
@@ -517,7 +536,7 @@ python_get_library_path() {
 # It requires Python and pkg-config installed, and therefore proper
 # build-time dependencies need be added to the ebuild.
 python_get_CFLAGS() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_CFLAGS
 	echo "${PYTHON_CFLAGS}"
@@ -534,7 +553,7 @@ python_get_CFLAGS() {
 # It requires Python and pkg-config installed, and therefore proper
 # build-time dependencies need be added to the ebuild.
 python_get_LIBS() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_LIBS
 	echo "${PYTHON_LIBS}"
@@ -551,7 +570,7 @@ python_get_LIBS() {
 # It requires Python installed, and therefore proper build-time
 # dependencies need be added to the ebuild.
 python_get_PYTHON_CONFIG() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_CONFIG
 	echo "${PYTHON_CONFIG}"
@@ -564,7 +583,7 @@ python_get_PYTHON_CONFIG() {
 # implementation. If no implementation is provided, ${EPYTHON} will
 # be used.
 python_get_scriptdir() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_export "${@}" PYTHON_SCRIPTDIR
 	echo "${PYTHON_SCRIPTDIR}"
@@ -577,7 +596,7 @@ python_get_scriptdir() {
 # paths). If no directories are provided, the default system paths
 # are used (prepended with ${D}).
 python_optimize() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 
@@ -594,8 +613,8 @@ python_optimize() {
 			# 2) skip paths which do not exist
 			#    (python2.6 complains about them verbosely)
 
-			if [[ ${f} == /* && -d ${D%/}${f} ]]; then
-				set -- "${D%/}${f}" "${@}"
+			if [[ ${f} == /* && -d ${D}${f} ]]; then
+				set -- "${D}${f}" "${@}"
 			fi
 		done < <(
 			"${PYTHON}" - <<-EOF || die
@@ -611,7 +630,7 @@ python_optimize() {
 	local d
 	for d; do
 		# make sure to get a nice path without //
-		local instpath=${d#${D%/}}
+		local instpath=${d#${D}}
 		instpath=/${instpath##/}
 
 		einfo "Optimize Python modules for ${instpath}"
@@ -654,7 +673,7 @@ python_optimize() {
 # }
 # @CODE
 python_scriptinto() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_PYTHON_SCRIPTROOT=${1}
 }
@@ -668,7 +687,7 @@ python_scriptinto() {
 # The executable will be wrapped properly for the Python implementation,
 # though no shebang mangling will be performed.
 python_doexe() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EBUILD_PHASE} != install ]] &&
 		die "${FUNCNAME} can only be used in src_install"
@@ -689,7 +708,7 @@ python_doexe() {
 # though no shebang mangling will be performed. It will be renamed
 # to <new-name>.
 python_newexe() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EBUILD_PHASE} != install ]] &&
 		die "${FUNCNAME} can only be used in src_install"
@@ -718,7 +737,7 @@ python_newexe() {
 
 	# don't use this at home, just call python_doscript() instead
 	if [[ ${_PYTHON_REWRITE_SHEBANG} ]]; then
-		python_fix_shebang -q "${ED%/}/${d}/${newfn}"
+		python_fix_shebang -q "${ED}${d}/${newfn}"
 	fi
 }
 
@@ -739,7 +758,7 @@ python_newexe() {
 # }
 # @CODE
 python_doscript() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EBUILD_PHASE} != install ]] &&
 		die "${FUNCNAME} can only be used in src_install"
@@ -766,7 +785,7 @@ python_doscript() {
 # }
 # @CODE
 python_newscript() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EBUILD_PHASE} != install ]] &&
 		die "${FUNCNAME} can only be used in src_install"
@@ -804,7 +823,7 @@ python_newscript() {
 # }
 # @CODE
 python_moduleinto() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_PYTHON_MODULEROOT=${1}
 }
@@ -829,7 +848,7 @@ python_moduleinto() {
 # }
 # @CODE
 python_domodule() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EPYTHON} ]] || die 'No Python implementation set (EPYTHON is null).'
 
@@ -849,15 +868,15 @@ python_domodule() {
 			insinto "${d}"
 			doins -r "${@}" || return ${?}
 		)
-		python_optimize "${ED%/}/${d}"
+		python_optimize "${ED}${d}"
 	elif [[ -n ${BUILD_DIR} ]]; then
 		local dest=${BUILD_DIR}/install${EPREFIX}/${d}
 		mkdir -p "${dest}" || die
 		cp -pR "${@}" "${dest}/" || die
 		(
-			cd "${dest}" &&
-			chmod -R a+rX "${@##*/}"
-		) || die
+			cd "${dest}" || die
+			chmod -R a+rX "${@##*/}" || die
+		)
 	else
 		die "${FUNCNAME} can only be used in src_install or with BUILD_DIR set"
 	fi
@@ -877,7 +896,7 @@ python_domodule() {
 # }
 # @CODE
 python_doheader() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EBUILD_PHASE} != install ]] &&
 		die "${FUNCNAME} can only be used in src_install"
@@ -909,7 +928,7 @@ python_doheader() {
 # setup will be done. If wrapper update is requested, the directory
 # shall be removed first.
 _python_wrapper_setup() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local workdir=${1:-${T}/${EPYTHON}}
 	local impl=${2:-${EPYTHON}}
@@ -1011,7 +1030,7 @@ _python_wrapper_setup() {
 # Python version (but not non-Python shebangs).  --quiet causes
 # the function not to list modified files verbosely.
 python_fix_shebang() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ ${EPYTHON} ]] || die "${FUNCNAME}: EPYTHON unset (pkg_setup not called?)"
 
@@ -1080,17 +1099,17 @@ python_fix_shebang() {
 			fi
 
 			if [[ ! ${quiet} ]]; then
-				einfo "Fixing shebang in ${f#${D%/}}."
+				einfo "Fixing shebang in ${f#${D}}."
 			fi
 
 			if [[ ! ${error} ]]; then
-				debug-print "${FUNCNAME}: in file ${f#${D%/}}"
+				debug-print "${FUNCNAME}: in file ${f#${D}}"
 				debug-print "${FUNCNAME}: rewriting shebang: ${shebang}"
 				sed -i -e "1s@${from}@#!${EPREFIX}/usr/bin/${EPYTHON}@" "${f}" || die
 				any_fixed=1
 			else
 				eerror "The file has incompatible shebang:"
-				eerror "  file: ${f#${D%/}}"
+				eerror "  file: ${f#${D}}"
 				eerror "  current shebang: ${shebang}"
 				eerror "  requested impl: ${EPYTHON}"
 				die "${FUNCNAME}: conversion of incompatible shebang requested"
@@ -1098,7 +1117,7 @@ python_fix_shebang() {
 		done < <(find -H "${path}" -type f -print0 || die)
 
 		if [[ ! ${any_fixed} ]]; then
-			eerror "QA error: ${FUNCNAME}, ${path#${D%/}} did not match any fixable files."
+			eerror "QA error: ${FUNCNAME}, ${path#${D}} did not match any fixable files."
 			eerror "There are no Python files in specified directory."
 			die "${FUNCNAME} did not match any fixable files"
 		fi
@@ -1131,7 +1150,7 @@ _python_check_locale_sanity() {
 # nothing if LC_ALL is defined, or if the current locale uses a UTF-8 charmap.
 # This may be used to work around the quirky open() behavior of python3.
 python_export_utf8_locale() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	# If the locale program isn't available, just return.
 	type locale &>/dev/null || return 0
@@ -1183,7 +1202,7 @@ python_export_utf8_locale() {
 # to be taken to run einstalldocs from the same directory
 # (usually ${S}).
 build_sphinx() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	[[ ${#} -eq 1 ]] || die "${FUNCNAME} takes 1 arg: <directory>"
 
 	local dir=${1}
@@ -1229,7 +1248,7 @@ _python_check_EPYTHON() {
 # package sources that would block installed packages from being used
 # (and effectively e.g. make it impossible to load compiled extensions).
 _python_check_occluded_packages() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	[[ -z ${BUILD_DIR} || ! -d ${BUILD_DIR}/install ]] && return
 
@@ -1339,7 +1358,7 @@ _python_check_occluded_packages() {
 #
 # This command dies on failure and respects nonfatal.
 epytest() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_check_EPYTHON
 	_python_check_occluded_packages
@@ -1467,7 +1486,7 @@ epytest() {
 #
 # This command dies on failure and respects nonfatal.
 eunittest() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	_python_check_EPYTHON
 	_python_check_occluded_packages
@@ -1492,7 +1511,7 @@ eunittest() {
 # code.  Checks whether the interpreter is installed, runs
 # python_check_deps() if declared.
 _python_run_check_deps() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local impl=${1}
 
@@ -1524,7 +1543,7 @@ _python_run_check_deps() {
 # The wrapper accepts multiple package specifications.  For the check
 # to succeed, *all* specified atoms must match.
 python_has_version() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local root_arg=( -b )
 	case ${1} in
@@ -1542,6 +1561,40 @@ python_has_version() {
 	done
 
 	return 0
+}
+
+# @FUNCTION: _python_sanity_checks
+# @INTERNAL
+# @DESCRIPTION:
+# Perform additional environment sanity checks.
+_python_sanity_checks() {
+	debug-print-function ${FUNCNAME} "$@"
+
+	[[ ${_PYTHON_SANITY_CHECKED} ]] && return
+
+	if [[ -v PYTHONPATH ]]; then
+		local x paths=()
+		mapfile -d ':' -t paths <<<${PYTHONPATH}
+
+		for x in "${paths[@]}"; do
+			if [[ ${x} != /* ]]; then
+				eerror "Relative path found in PYTHONPATH:"
+				eerror
+				eerror "  PYTHONPATH=${PYTHONPATH@Q}"
+				eerror
+				eerror "This is guaranteed to cause random breakage.  Please make sure that"
+				eerror "your PYTHONPATH contains absolute paths only (and only if necessary)."
+				eerror "Note that empty values (including ':' at either end and an empty"
+				eerror "PYTHONPATH) count as the current directory.  If no PYTHONPATH"
+				eerror "is intended, it needs to be unset instead."
+				die "Relative paths in PYTHONPATH are forbidden: ${x@Q}"
+			fi
+		done
+
+		elog "PYTHONPATH=${PYTHONPATH@Q}"
+	fi
+
+	_PYTHON_SANITY_CHECKED=1
 }
 
 fi

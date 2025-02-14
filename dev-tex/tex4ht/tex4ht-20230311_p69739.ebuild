@@ -32,7 +32,7 @@ S="${WORKDIR}"
 
 LICENSE="LPPL-1.2"
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~x64-macos"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 IUSE="doc java source"
 
 COMMON_DEPEND="
@@ -78,7 +78,7 @@ src_compile() {
 	for f in tex4ht t4ht; do
 		$(tc-getCC) ${CPPFLAGS} ${CFLAGS} ${LDFLAGS} -o $f $f.c \
 			-DENVFILE="\"${EPREFIX}${TEXMF}/tex4ht/base/tex4ht.env\"" \
-			-DHAVE_DIRENT_H -DKPATHSEA -lkpathsea \
+			-DANSI -DHAVE_DIRENT_H -DKPATHSEA -lkpathsea \
 			|| die "Compiling $f failed"
 	done
 	popd > /dev/null || die

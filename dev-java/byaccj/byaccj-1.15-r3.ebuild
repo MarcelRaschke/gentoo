@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit toolchain-funcs
+inherit flag-o-matic toolchain-funcs
 
 DESCRIPTION="A Java extension of BSD YACC-compatible parser generator"
 HOMEPAGE="https://byaccj.sourceforge.net/"
@@ -12,7 +12,7 @@ SRC_URI="https://downloads.sourceforge.net/${PN}/${MY_P}.tar.gz"
 
 LICENSE="public-domain"
 SLOT="0"
-KEYWORDS="amd64 ~arm arm64 ppc64 x86 ~ppc-macos ~x64-macos"
+KEYWORDS="amd64 arm64 ppc64 ~ppc-macos ~x64-macos"
 
 S="${WORKDIR}/${PN}${PV}"
 
@@ -22,6 +22,9 @@ PATCHES=(
 
 src_compile() {
 	cp "${FILESDIR}/Makefile" src/Makefile || die
+
+	# bug #880329, bug #944104
+	append-cflags -std=gnu17
 	emake CC="$(tc-getCC)" LDFLAGS="${LDFLAGS}" CFLAGS="${CFLAGS}" -C src linux
 }
 

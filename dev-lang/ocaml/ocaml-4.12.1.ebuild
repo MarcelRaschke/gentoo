@@ -1,17 +1,17 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
 inherit flag-o-matic
 
+DESCRIPTION="Programming language supporting functional, imperative & object-oriented styles"
 HOMEPAGE="https://ocaml.org/"
 SRC_URI="https://github.com/ocaml/ocaml/archive/${PV}.tar.gz -> ${P}.tar.gz"
-DESCRIPTION="Programming language supporting functional, imperative & object-oriented styles"
 
 LICENSE="QPL-1.0 LGPL-2"
 SLOT="0/$(ver_cut 1-2)"
-KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
+KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~mips ~ppc ~ppc64 ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos"
 IUSE="emacs flambda latex +ocamlopt xemacs"
 
 RDEPEND="sys-libs/binutils-libs:="

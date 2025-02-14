@@ -5,8 +5,9 @@ EAPI=8
 
 DESCRIPTION="Mozilla Gecko based version of Internet Explorer for Wine"
 HOMEPAGE="
-	https://wiki.winehq.org/Gecko
-	https://gitlab.winehq.org/wine/wine-gecko/"
+	https://gitlab.winehq.org/wine/wine/-/wikis/Gecko/
+	https://gitlab.winehq.org/wine/wine-gecko/
+"
 SRC_URI="
 	shared? (
 		abi_x86_32? ( https://dl.winehq.org/wine/${PN}/${PV}/${P}-x86.tar.xz )
@@ -15,11 +16,15 @@ SRC_URI="
 	!shared? (
 		abi_x86_32? ( https://dl.winehq.org/wine/${PN}/${PV}/${P}-x86.msi )
 		abi_x86_64? ( https://dl.winehq.org/wine/${PN}/${PV}/${P}-x86_64.msi )
-	)"
-S="${WORKDIR}"
+	)
+"
+S=${WORKDIR}
 
 LICENSE="Apache-2.0 BSD BSD-2 MIT MPL-2.0"
 SLOT="${PV}"
+# keep straight-to-stable, builds nothing and the stabilization process
+# is wasteful and annoying for users using ~testing wine in stable
+# (wine also pins to specific versions, so stable won't use latest)
 KEYWORDS="amd64 x86"
 IUSE="+abi_x86_32 abi_x86_64 +shared"
 REQUIRED_USE="|| ( abi_x86_32 abi_x86_64 )"

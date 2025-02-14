@@ -7,5 +7,5 @@ KEYWORDS=amd64 ppc x86 ~arm64-macos ~x64-macos
 LICENSE=public-domain
 SLOT=0
 SRC_URI=https://foremost.sourceforge.net/pkg/foremost-1.5.7.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	prefix	eab3c99d77fe00506c109c8a736186f7
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	prefix	c3c4c93ebda319c0fa7ed6f942ba1010
 _md5_=5096521686dd6503f26744bba0b2431b

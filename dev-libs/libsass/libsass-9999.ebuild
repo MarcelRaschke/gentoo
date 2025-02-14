@@ -1,16 +1,16 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit autotools
+inherit autotools flag-o-matic
 
 if [[ ${PV} = *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/sass/libsass.git"
 	inherit git-r3
 else
 	SRC_URI="https://github.com/sass/libsass/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux"
+	KEYWORDS="~amd64 ~arm ~arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux"
 fi
 
 DESCRIPTION="A C/C++ implementation of a Sass CSS compiler"
@@ -34,6 +34,10 @@ src_configure() {
 	local myeconfargs=(
 		--enable-shared
 	)
+
+	# https://bugs.gentoo.org/948969
+	# https://github.com/sass/libsass/issues/3193
+	filter-flags -fno-semantic-interposition
 
 	econf "${myeconfargs[@]}"
 }

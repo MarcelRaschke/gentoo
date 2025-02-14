@@ -6,8 +6,11 @@ EAPI=8
 CARGO_OPTIONAL=1
 DISTUTILS_USE_PEP517="setuptools"
 DISTUTILS_EXT=1
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="threads(+)"
+
+# for stdsimd
+RUST_MAX_VER=1.77.1
 
 inherit bash-completion-r1 cargo elisp-common distutils-r1 mercurial flag-o-matic multiprocessing
 
@@ -38,11 +41,18 @@ SITEFILE="70${PN}-gentoo.el"
 
 RESTRICT="!test? ( test )"
 
+pkg_setup() {
+	use rust && rust_pkg_setup
+}
+
 src_unpack() {
 	mercurial_src_unpack
 	if use rust; then
 		local S="${S}/rust/hg-cpython"
 		cargo_live_src_unpack
+	else
+		# Needed because distutils-r1 install under cargo_env if cargo is inherited
+		cargo_gen_config
 	fi
 }
 
@@ -51,6 +61,13 @@ python_prepare_all() {
 	# certain cases), bug #362891
 	sed -i -e 's:xcodebuild:nocodebuild:' setup.py || die
 	sed -i -e 's/__APPLE__/__NO_APPLE__/g' mercurial/cext/osutil.c || die
+
+	# Build assumes the Rust target directory, which is wrong for us.
+	sed -i -r "s:\brust[/,' ]+target[/,' ]+release\b:rust/$(cargo_target_dir):g" \
+		Makefile \
+		setup.py \
+		tests/run-tests.py \
+		|| die
 
 	distutils-r1_python_prepare_all
 }
@@ -128,7 +145,7 @@ python_install_all() {
 		RM_CONTRIB+=( chg )
 	fi
 	if use rust; then
-		dobin rust/target/release/rhg
+		dobin "rust/$(cargo_target_dir)/rhg"
 	fi
 
 	for f in ${RM_CONTRIB[@]}; do

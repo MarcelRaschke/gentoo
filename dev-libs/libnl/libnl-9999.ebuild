@@ -22,7 +22,7 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/thom311/${PN}/releases/download/${PN}${LIBNL_DIR}/${P/_rc/-rc}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux"
 
 	S="${WORKDIR}/${LIBNL_P}"
 fi
@@ -30,7 +30,9 @@ fi
 LICENSE="LGPL-2.1 utils? ( GPL-2 )"
 SLOT="3"
 IUSE="+debug python test utils"
-RESTRICT="!test? ( test )"
+# Tests fail w/ sandboxes
+# https://github.com/thom311/libnl/issues/361
+RESTRICT="!test? ( test ) test"
 
 RDEPEND="python? ( ${PYTHON_DEPS} )"
 DEPEND="${RDEPEND}"
@@ -92,6 +94,17 @@ multilib_src_compile() {
 	if multilib_is_native_abi && use python ; then
 		pushd python > /dev/null || die
 		distutils-r1_src_compile
+		popd > /dev/null || die
+	fi
+}
+
+multilib_src_test() {
+	CK_VERBOSITY=verbose emake check VERBOSE=1
+
+	if multilib_is_native_abi && use python ; then
+		pushd python > /dev/null || die
+		# TODO: run python/tests/test-create-bridge.py
+		distutils-r1_src_test
 		popd > /dev/null || die
 	fi
 }

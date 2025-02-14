@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: plasma.kde.org.eclass
@@ -24,6 +24,13 @@ esac
 
 if [[ -z ${_PLASMA_KDE_ORG_ECLASS} ]]; then
 _PLASMA_KDE_ORG_ECLASS=1
+
+# @ECLASS_VARIABLE: KDE_CATV
+# @DESCRIPTION:
+# Holds main Plasma release number (major.minor.micro) for use on same-category
+# dependencies.
+KDE_CATV=$(ver_cut 1-3)
+readonly KDE_CATV
 
 # @ECLASS_VARIABLE: KDE_PV_UNRELEASED
 # @INTERNAL
@@ -63,11 +70,11 @@ if [[ ${KDE_BUILD_TYPE} == live ]]; then
 	fi
 elif [[ -z ${KDE_ORG_COMMIT} ]]; then
 	case ${PV} in
-		5.??.[6-9][05]* | 6.?.[6-9][05]* )
-			_KDE_SRC_URI+="unstable/plasma/$(ver_cut 1-3)/"
+		6.?.[6-9][0-5]* )
+			_KDE_SRC_URI+="unstable/plasma/${KDE_CATV}/"
 			RESTRICT+=" mirror"
 			;;
-		*) _KDE_SRC_URI+="stable/plasma/$(ver_cut 1-3)/" ;;
+		*) _KDE_SRC_URI+="stable/plasma/${KDE_CATV}/" ;;
 	esac
 
 	SRC_URI="${_KDE_SRC_URI}${KDE_ORG_TAR_PN}-${PV}.tar.xz"

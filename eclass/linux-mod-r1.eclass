@@ -1,4 +1,4 @@
-# Copyright 2023-2024 Gentoo Authors
+# Copyright 2023-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: linux-mod-r1.eclass
@@ -106,7 +106,7 @@ case ${EAPI} in
 	*) die "${ECLASS}: EAPI ${EAPI:-0} not supported" ;;
 esac
 
-if [[ ! ${_LINUX_MOD_R1_ECLASS} ]]; then
+if [[ -z ${_LINUX_MOD_R1_ECLASS} ]]; then
 _LINUX_MOD_R1_ECLASS=1
 
 inherit dist-kernel-utils edo linux-info multiprocessing toolchain-funcs
@@ -121,6 +121,7 @@ DEPEND="
 	virtual/linux-sources
 "
 BDEPEND="
+	dev-util/pahole
 	sys-apps/kmod[tools]
 	modules-sign? (
 		dev-libs/openssl
@@ -132,6 +133,7 @@ IDEPEND="
 "
 
 if [[ ${MODULES_INITRAMFS_IUSE} ]]; then
+	inherit mount-boot-utils
 	IUSE+=" ${MODULES_INITRAMFS_IUSE}"
 	IDEPEND+="
 		${MODULES_INITRAMFS_IUSE#+}? (
@@ -327,10 +329,20 @@ fi
 #    (normally these should not be used directly, for custom builds)
 #  3. perform various sanity checks to fail early on issues
 linux-mod-r1_pkg_setup() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
-	[[ ${MERGE_TYPE} != binary ]] || return 0
+	debug-print-function ${FUNCNAME} "$@"
 	_MODULES_GLOBAL[ran:pkg_setup]=1
 	_modules_check_function ${#} 0 0 || return 0
+
+	if [[ ${MODULES_INITRAMFS_IUSE} ]] &&
+		use dist-kernel && use ${MODULES_INITRAMFS_IUSE#+}
+	then
+		# Check, but don't die because we can fix the problem and then
+		# emerge --config ... to re-run installation.
+		nonfatal mount-boot_check_status
+	fi
+
+	[[ ${MERGE_TYPE} != binary ]] || return 0
+
 	_modules_check_migration
 
 	_modules_prepare_kernel
@@ -397,7 +409,7 @@ linux-mod-r1_pkg_setup() {
 # different make arguments per modules or intermediate steps -- albeit,
 # if atypical, may want to build manually (see eclass' example).
 linux-mod-r1_src_compile() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 0 0 || return 0
 
 	[[ ${modlist@a} == *a* && ${#modlist[@]} -gt 0 ]] ||
@@ -468,7 +480,7 @@ linux-mod-r1_src_compile() {
 # Installs modules built by linux-mod-r1_src_compile using
 # linux_domodule, then runs modules_post_process and einstalldocs.
 linux-mod-r1_src_install() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 0 0 || return 0
 
 	(( ${#_MODULES_INSTALL[@]} )) ||
@@ -490,13 +502,13 @@ linux-mod-r1_src_install() {
 # @DESCRIPTION:
 # Updates module dependencies using depmod.
 linux-mod-r1_pkg_postinst() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 0 0 || return 0
 
 	dist-kernel_compressed_module_cleanup "${EROOT}/lib/modules/${KV_FULL}"
 	_modules_update_depmod
 
-	if [[ -z ${ROOT} && ${MODULES_INITRAMFS_IUSE} ]] &&
+	if [[ ${MODULES_INITRAMFS_IUSE} ]] &&
 		use dist-kernel && use ${MODULES_INITRAMFS_IUSE#+}
 	then
 		dist-kernel_reinstall_initramfs "${KV_DIR}" "${KV_FULL}"
@@ -522,7 +534,7 @@ linux-mod-r1_pkg_postinst() {
 #
 # See also linux_moduleinto.
 linux_domodule() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 1 '' "<module>..." || return 0
 	(
 		# linux-mod-r0 formerly supported INSTALL_MOD_PATH (bug #642240), but
@@ -547,7 +559,7 @@ linux_domodule() {
 # this is like setting INSTALL_MOD_DIR which has the same default
 # for external modules.
 linux_moduleinto() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 1 1 "<install-dir>" || return 0
 	_MODULES_GLOBAL[moduleinto]=${1}
 }
@@ -570,7 +582,7 @@ linux_moduleinto() {
 # if modules were unexpectedly pre-compressed possibly due to using
 # make install without passing MODULES_MAKEARGS to disable it.
 modules_post_process() {
-	debug-print-function ${FUNCNAME[0]} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 	_modules_check_function ${#} 0 1 '[<path>]' || return 0
 	[[ ${EBUILD_PHASE} == install ]] ||
 		die "${FUNCNAME[0]} can only be called in the src_install phase"
@@ -1251,7 +1263,8 @@ _modules_set_makeargs() {
 		# these are only needed if using these arguments for installing, lets
 		# eclass handle strip, sign, compress, and depmod (CONFIG_ should
 		# have no impact on building, only used by Makefile.modinst)
-		CONFIG_MODULE_{SIG_ALL,COMPRESS_{GZIP,XZ,ZSTD}}=
+		# note: COMPRESS_ALL is enough for kernel >=6.12, rest is for compat
+		CONFIG_MODULE_{SIG_ALL,COMPRESS_{ALL,GZIP,XZ,ZSTD}}=
 		DEPMOD=true #916587
 		STRIP=true
 	)

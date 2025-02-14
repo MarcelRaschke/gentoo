@@ -1,10 +1,10 @@
-# Copyright 2019-2023 Gentoo Authors
+# Copyright 2019-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
@@ -23,7 +23,7 @@ SLOT="0"
 KEYWORDS="amd64 arm64 ~riscv x86"
 
 RDEPEND="
-	>=dev-python/Arpeggio-1.7[${PYTHON_USEDEP}]
+	>=dev-python/arpeggio-1.7[${PYTHON_USEDEP}]
 	>=dev-python/attrs-19.2[${PYTHON_USEDEP}]
 "
 

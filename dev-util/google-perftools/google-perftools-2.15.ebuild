@@ -17,7 +17,7 @@ SLOT="0/4"
 # linux amd64/arm/arm64/ppc/ppc64/riscv/x86
 # OSX ppc/amd64
 # AIX ppc/ppc64
-KEYWORDS="-* ~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="-* amd64 arm arm64 ppc ppc64 ~riscv x86 ~amd64-linux ~x86-linux"
 
 IUSE="pagesize-16k pagesize-32k pagesize-64k pagesize-128k pagesize-256k +debug llvm-libunwind minimal optimisememory test static-libs"
 REQUIRED_USE="?? ( pagesize-16k pagesize-32k pagesize-64k pagesize-128k pagesize-256k )"
@@ -25,7 +25,7 @@ REQUIRED_USE="?? ( pagesize-16k pagesize-32k pagesize-64k pagesize-128k pagesize
 RESTRICT="!test? ( test )"
 
 DEPEND="
-	llvm-libunwind? ( sys-libs/llvm-libunwind:= )
+	llvm-libunwind? ( llvm-runtimes/libunwind:= )
 	!llvm-libunwind? ( sys-libs/libunwind:= )
 "
 RDEPEND="${DEPEND}"

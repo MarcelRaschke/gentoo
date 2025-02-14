@@ -1,6 +1,6 @@
 BDEPEND=gui? ( kde-frameworks/extra-cmake-modules:0 ) app-alternatives/ninja >=dev-build/cmake-3.20.5 >=dev-vcs/git-1.8.2.1[curl]
-DEFINED_PHASES=compile configure install nofetch postinst postrm prepare test unpack
-DEPEND=dev-libs/boost:=[zstd?,zlib] sys-libs/libunwind:= sys-libs/zlib gui? ( dev-libs/kdiagram:5 dev-qt/qtcore:5 dev-qt/qtgui:5 dev-qt/qtwidgets:5 kde-frameworks/kconfig:5 kde-frameworks/kconfigwidgets:5 kde-frameworks/kcoreaddons:5 kde-frameworks/ki18n:5 kde-frameworks/kio:5 kde-frameworks/kitemmodels:5 kde-frameworks/kwidgetsaddons:5 kde-frameworks/threadweaver:5 ) zstd? ( app-arch/zstd:= )
+DEFINED_PHASES=compile configure info install nofetch postinst postrm prepare test unpack
+DEPEND=dev-libs/boost:=[zstd?,zlib] sys-libs/libunwind:= sys-libs/zlib gui? ( dev-libs/kdiagram:6 dev-qt/qtbase:6[gui,widgets] kde-frameworks/kconfig:6 kde-frameworks/kconfigwidgets:6 kde-frameworks/kcoreaddons:6 kde-frameworks/ki18n:6 kde-frameworks/kio:6 kde-frameworks/kitemmodels:6 kde-frameworks/kwidgetsaddons:6 kde-frameworks/threadweaver:6 ) zstd? ( app-arch/zstd:= )
 DESCRIPTION=Fast heap memory profiler
 EAPI=8
 HOMEPAGE=https://apps.kde.org/heaptrack/ https://milianw.de/blog/heaptrack-a-heap-memory-profiler-for-linux
@@ -8,8 +8,8 @@ INHERIT=cmake kde.org xdg-utils
 IUSE=+gui test zstd
 LICENSE=LGPL-2.1+
 PROPERTIES=live
-RDEPEND=dev-libs/boost:=[zstd?,zlib] sys-libs/libunwind:= sys-libs/zlib gui? ( dev-libs/kdiagram:5 dev-qt/qtcore:5 dev-qt/qtgui:5 dev-qt/qtwidgets:5 kde-frameworks/kconfig:5 kde-frameworks/kconfigwidgets:5 kde-frameworks/kcoreaddons:5 kde-frameworks/ki18n:5 kde-frameworks/kio:5 kde-frameworks/kitemmodels:5 kde-frameworks/kwidgetsaddons:5 kde-frameworks/threadweaver:5 ) zstd? ( app-arch/zstd:= ) gui? ( >=kde-frameworks/kf-env-4 )
+RDEPEND=dev-libs/boost:=[zstd?,zlib] sys-libs/libunwind:= sys-libs/zlib gui? ( dev-libs/kdiagram:6 dev-qt/qtbase:6[gui,widgets] kde-frameworks/kconfig:6 kde-frameworks/kconfigwidgets:6 kde-frameworks/kcoreaddons:6 kde-frameworks/ki18n:6 kde-frameworks/kio:6 kde-frameworks/kitemmodels:6 kde-frameworks/kwidgetsaddons:6 kde-frameworks/threadweaver:6 ) zstd? ( app-arch/zstd:= ) gui? ( >=kde-frameworks/kf-env-4 )
 RESTRICT=!test? ( test )
 SLOT=0
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	xdg-utils	baea6080dd821f5562d715887954c9d3	cmake	c7c9a62d6232cac66d4ea32d575c3e7c	git-r3	fbb2889c81f3a05910c1524db69425c1	kde.org	60fcb935e4206806bf9f38e3537521a2
-_md5_=ea784a1a13a9422191c360ea7a00886b
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	multiprocessing	1e32df7deee68372153dca65f4a7c21f	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	cmake	10a50dfaf728b802fcfd37f8d0da9056	git-r3	875eb471682d3e1f18da124be97dcc81	kde.org	2eea56ed41440913be4caa3d255d2db3
+_md5_=c65543c05049c666f691d95c7eee2941

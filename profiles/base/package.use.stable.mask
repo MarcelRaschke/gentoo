@@ -1,26 +1,28 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# This file requires eapi 5 or later. New entries go on top.
-# Please use the same syntax as in package.use.mask
+# New entries go on top.
+# Please use the same syntax as in package.use.mask.
 
-# Ionen Wolkens <ionen@gentoo.org> (2024-05-07)
-# ffmpeg[soc] is not stable yet
-media-video/mpv soc
+# Arthur Zamarin <arthurzam@gentoo.org> (2025-02-03)
+# Requires dev-util/shelltestrunner
+app-arch/mt-st test
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-04-14)
-# Qt6 dependencies are not yet available in stable. Moreover,
-# Qt6 support in freecad is not completely finished.
-media-gfx/freecad qt6
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-04)
+# dev-libs/protobuf-28.3 is not yet marked stable.
+>=dev-java/protobuf-java-4.28.3 system-protoc
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-08-29)
+# Pin down kf6compat mask to currently stable versions.
+<kde-apps/kio-extras-24.02.2-r2 kf6compat
+<kde-frameworks/kglobalaccel-5.116.0-r1 kf6compat
+<kde-frameworks/kguiaddons-5.116.0-r1 kf6compat
+<kde-frameworks/kwallet-5.116.0-r1 kf6compat
 
 # Joonas Niilola <juippis@gentoo.org> (2023-07-14)
 # Calendar is broken with some languages on 115.0 release with <icu-75.
 # Bug #910229, #920713
 >=mail-client/thunderbird-115.0 system-icu
-
-# Sam James <sam@gentoo.org> (2023-10-23)
-# Requires llvm-17.
->=www-client/chromium-118 libcxx lto pgo
 
 # Michał Górny <mgorny@gentoo.org> (2023-06-11)
 # xfce-base/libxfce4windowing is not ready to go stable (4.19 branch).
@@ -44,6 +46,7 @@ sci-physics/lammps hip
 # Sam James <sam@gentoo.org> (2022-12-07)
 # Needs unstable media-libs/libvpl
 media-video/ffmpeg qsv
+media-video/handbrake qsv
 
 # Guillermo Joandet <gjoandet@gmail.com> (2022-11-22)
 # app-text/pandoc is not stable
@@ -142,11 +145,6 @@ dev-lang/rust nightly system-bootstrap
 # Declared experimental, and dev-cpp/websocketpp not stable yet
 sci-libs/indilib websocket
 
-# Kent Fredric <kentnl@gentoo.org> (2019-08-29)
-# Support for DBD-mysql to use mariadb is sketchy. Use DBD-MariaDB
-# instead if you can.
-dev-perl/DBD-mysql mariadb
-
 # Kent Fredric <kentnl@gentoo.org> (2019-07-30)
 # These features require dev-perl/GD, which currently can't be
 # considered stable due to serious defects upstream. Bug #661634
@@ -177,28 +175,15 @@ sys-auth/pambase sssd
 # Needs dev-ruby/asciidoctor which has a lot of unstable deps
 net-analyzer/wireshark doc
 
-# Matthias Maier <tamiko@gentoo.org> (2018-03-18)
-# dev-libs/capstone hasn't been stabilized yet
-app-emulation/qemu capstone
-
 # Kent Fredric <kentnl@gentoo.org> (2018-03-03)
 # Not an officially supported configuration, as it causes unpredictable
 # fragility and/or dependency headaches due to the very narrow interop window
 # Bugs #649408, #641108, #640724
 dev-perl/DBD-SQLite system-sqlite
 
-# Andrey Grozin <grozin@gentoo.org> (2018-01-24)
-# Depends on unstable dev-python/sphinx-gallery.
-# Bug #643840.
-dev-python/matplotlib doc
-
 # Bernard Cafarelli <voyageur@gentoo.org> (2017-11-27)
 # Dependencies have no stable keyword
 app-backup/backup-manager s3
-
-# Brian Evans <grknight@gentoo.org> (2017-11-06)
-# Requires stable phpunit
-dev-php/PEAR-Text_Password test
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2017-10-22)
 # Requires unmaintained unstable dependency net-libs/gloox.

@@ -12,7 +12,7 @@ DISTUTILS_SINGLE_IMPL=1
 # >= 6.2.1 uses a bunch of setuptools hooks instead of vanilla setuptools
 # https://github.com/streamlink/streamlink/commit/194d9bc193f5285bc1ba33af5fd89209a96ad3a7
 DISTUTILS_USE_PEP517=standalone
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE='xml(+),threads(+)'
 inherit distutils-r1
 
@@ -47,7 +47,7 @@ RDEPEND="
 		>=dev-python/websocket-client-1.2.1[${PYTHON_USEDEP}]
 		dev-python/pycountry[${PYTHON_USEDEP}]
 		>=dev-python/pycryptodome-3.4.3[${PYTHON_USEDEP}]
-		>dev-python/PySocks-1.5.7[${PYTHON_USEDEP}]
+		>dev-python/pysocks-1.5.7[${PYTHON_USEDEP}]
 		>=dev-python/trio-0.22.0[${PYTHON_USEDEP}]
 		>=dev-python/trio-websocket-0.9.0[${PYTHON_USEDEP}]
 		>=dev-python/urllib3-1.26.0[${PYTHON_USEDEP}]
@@ -59,7 +59,6 @@ BDEPEND="
 		>=dev-python/versioningit-2.0.0[${PYTHON_USEDEP}]
 		test? (
 			>=dev-python/freezegun-1.0.0[${PYTHON_USEDEP}]
-			dev-python/pytest-asyncio[${PYTHON_USEDEP}]
 			dev-python/pytest-trio[${PYTHON_USEDEP}]
 			dev-python/requests-mock[${PYTHON_USEDEP}]
 		)
@@ -75,25 +74,3 @@ if [[ ${PV} == 9999* ]]; then
 fi
 
 distutils_enable_tests pytest
-
-python_test() {
-	# Skip tests requiring <dev-python/pytest-8.0.0
-	# https://github.com/streamlink/streamlink/pull/5901
-	EPYTEST_DESELECT+=(
-		tests/webbrowser/cdp/test_client.py::TestEvaluate::test_exception
-		tests/webbrowser/cdp/test_client.py::TestEvaluate::test_error
-		tests/webbrowser/cdp/test_client.py::TestNavigate::test_detach
-		tests/webbrowser/cdp/test_client.py::TestNavigate::test_error
-		tests/webbrowser/cdp/test_connection.py::TestCreateConnection::test_failure
-		tests/webbrowser/cdp/test_connection.py::TestReaderError::test_invalid_json
-		tests/webbrowser/cdp/test_connection.py::TestReaderError::test_unknown_session_id
-		'tests/webbrowser/cdp/test_connection.py::TestSend::test_timeout[Default timeout, response not in time]'
-		'tests/webbrowser/cdp/test_connection.py::TestSend::test_timeout[Custom timeout, response not in time]'
-		tests/webbrowser/cdp/test_connection.py::TestSend::test_bad_command
-		tests/webbrowser/cdp/test_connection.py::TestSend::test_result_exception
-		tests/webbrowser/cdp/test_connection.py::TestHandleCmdResponse::test_response_error
-		tests/webbrowser/cdp/test_connection.py::TestHandleCmdResponse::test_response_no_result
-	)
-
-	epytest
-}

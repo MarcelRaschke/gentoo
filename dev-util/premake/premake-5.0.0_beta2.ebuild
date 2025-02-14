@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,9 +14,12 @@ S="${WORKDIR}/${PN}-core-${MY_PV}"
 
 LICENSE="BSD"
 SLOT="5"
-KEYWORDS="~amd64 ~arm64 ~ppc ~x86"
+KEYWORDS="amd64 ~arm64 ppc x86"
 
-PATCHES=( "${FILESDIR}/${PN}-5.0.0-remove-hardcoded-libpath.patch" )
+PATCHES=(
+	"${FILESDIR}/${PN}-5.0.0-remove-hardcoded-libpath.patch"
+	"${FILESDIR}/${PN}-5.0.0-c99.patch"
+)
 
 src_compile() {
 	# bug #773505

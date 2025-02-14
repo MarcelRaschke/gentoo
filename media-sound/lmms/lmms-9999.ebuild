@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit cmake
+inherit cmake xdg
 
 DESCRIPTION="Cross-platform music production software"
 HOMEPAGE="https://lmms.io"
@@ -19,7 +19,9 @@ fi
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
 
-IUSE="alsa debug fluidsynth jack libgig mp3 ogg portaudio pulseaudio sdl soundio stk vst"
+IUSE="alsa debug fluidsynth jack libgig mp3 ogg portaudio pulseaudio sdl soundio stk test vst"
+
+RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	dev-qt/qtcore:5
@@ -30,7 +32,7 @@ COMMON_DEPEND="
 	>=media-libs/libsndfile-1.0.11
 	sci-libs/fftw:3.0
 	sys-libs/zlib
-	>=x11-libs/fltk-1.3.0_rc3:1
+	x11-libs/fltk:1=
 	alsa? ( media-libs/alsa-lib )
 	fluidsynth? ( media-sound/fluidsynth )
 	jack? ( virtual/jack )
@@ -52,6 +54,7 @@ COMMON_DEPEND="
 "
 DEPEND="${COMMON_DEPEND}
 	dev-qt/qtx11extras:5
+	test? ( dev-qt/qttest:5 )
 "
 BDEPEND="
 	dev-qt/linguist-tools:5
@@ -71,6 +74,14 @@ PATCHES=(
 	"${FILESDIR}/${PN}-9999-plugin-path.patch" #907285
 )
 
+src_prepare() {
+	cmake_src_prepare
+
+	if use !test; then
+		sed -i '/ADD_SUBDIRECTORY(tests)/d' CMakeLists.txt || die
+	fi
+}
+
 src_configure() {
 	local mycmakeargs=(
 		-DUSE_WERROR=FALSE
@@ -79,7 +90,6 @@ src_configure() {
 		-DWANT_SWH=FALSE
 		-DWANT_CMT=FALSE
 		-DWANT_CALF=FALSE
-		-DWANT_QT5=TRUE
 		-DWANT_ALSA=$(usex alsa)
 		-DWANT_JACK=$(usex jack)
 		-DWANT_GIG=$(usex libgig)
@@ -95,4 +105,11 @@ src_configure() {
 	)
 
 	cmake_src_configure
+}
+
+src_test() {
+	# tests are hidden inside a subdir and ctest does not detect them without
+	# running inside that subdir
+	local BUILD_DIR="${BUILD_DIR}/tests"
+	cmake_src_test
 }

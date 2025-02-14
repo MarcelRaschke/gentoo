@@ -11,7 +11,7 @@ HOMEPAGE="https://gitlab.freedesktop.org/wlroots/wlroots"
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://gitlab.freedesktop.org/${PN}/${PN}.git"
 	inherit git-r3
-	SLOT="0.18"
+	SLOT="0.19"
 else
 	SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/releases/${PV}/downloads/${P}.tar.gz"
 	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
@@ -19,29 +19,31 @@ else
 fi
 
 LICENSE="MIT"
-IUSE="liftoff +libinput +drm +session tinywl vulkan x11-backend xcb-errors X"
+IUSE="liftoff +libinput +drm +session lcms vulkan x11-backend xcb-errors X"
 REQUIRED_USE="
 	drm? ( session )
 	libinput? ( session )
+	liftoff? ( drm )
 	xcb-errors? ( || ( x11-backend X ) )
 "
 
 DEPEND="
-	>=dev-libs/wayland-1.22.0
+	>=dev-libs/wayland-1.23.0
 	media-libs/libglvnd
 	|| (
 		>=media-libs/mesa-24.1.0_rc1[opengl]
 		<media-libs/mesa-24.1.0_rc1[egl(+),gles2]
 	)
-	>=x11-libs/libdrm-2.4.120
+	>=x11-libs/libdrm-2.4.122
 	x11-libs/libxkbcommon
 	>=x11-libs/pixman-0.42.0
 	drm? (
-		media-libs/libdisplay-info
+		media-libs/libdisplay-info:=
 		sys-apps/hwdata
 		liftoff? ( >=dev-libs/libliftoff-0.4 )
 	)
-	libinput? ( >=dev-libs/libinput-1.14.0:= )
+	lcms? ( media-libs/lcms:2 )
+	libinput? ( >=dev-libs/libinput-1.19.0:= )
 	session? (
 		sys-auth/seatd:=
 		virtual/libudev
@@ -66,7 +68,7 @@ RDEPEND="
 	${DEPEND}
 "
 BDEPEND="
-	>=dev-libs/wayland-protocols-1.33
+	>=dev-libs/wayland-protocols-1.35
 	dev-util/wayland-scanner
 	virtual/pkgconfig
 "
@@ -80,11 +82,13 @@ src_configure() {
 	local meson_backends=$(IFS=','; echo "${backends[*]}")
 	local emesonargs=(
 		$(meson_feature xcb-errors)
-		$(meson_use tinywl examples)
+		-Dexamples=false
 		-Drenderers=$(usex vulkan 'gles2,vulkan' gles2)
 		$(meson_feature X xwayland)
 		-Dbackends=${meson_backends}
 		$(meson_feature session)
+		$(meson_feature lcms color-management)
+		$(meson_feature liftoff libliftoff)
 	)
 
 	meson_src_configure
@@ -93,10 +97,6 @@ src_configure() {
 src_install() {
 	meson_src_install
 	dodoc docs/*
-
-	if use tinywl; then
-		dobin "${BUILD_DIR}"/tinywl/tinywl
-	fi
 }
 
 pkg_postinst() {

@@ -6,12 +6,12 @@ EAPI=8
 HOMEPAGE=https://github.com/xianyi/OpenBLAS
 INHERIT=flag-o-matic fortran-2 toolchain-funcs
 IUSE=dynamic eselect-ldso index-64bit openmp pthread relapack test
-KEYWORDS=~amd64 ~arm ~arm64 ~loong ~riscv ~x86 ~amd64-linux ~x86-linux ~x64-macos
+KEYWORDS=amd64 ~arm ~arm64 ~loong ~riscv ~x86 ~amd64-linux ~x86-linux ~x64-macos
 LICENSE=BSD
 RDEPEND=eselect-ldso? ( >=app-eselect/eselect-blas-0.2 >=app-eselect/eselect-lapack-0.2 ) virtual/fortran
 REQUIRED_USE=?? ( openmp pthread )
 RESTRICT=!test? ( test )
 SLOT=0
 SRC_URI=https://github.com/OpenMathLib/OpenBLAS/releases/download/v0.3.26/OpenBLAS-0.3.26.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	fortran-2	40c4450f1c4ecb2ee694d96e1958d4ea	flag-o-matic	d309b9713dfc18e754cba88d3ba69653
-_md5_=fdd0a1d5160fd04b971a505f125d5c23
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	fortran-2	54fcb693257134adae26819685891ecc
+_md5_=7eb31fd0b159adef70fb303b8fb989fd

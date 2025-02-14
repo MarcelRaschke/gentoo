@@ -40,7 +40,7 @@ LICENSE="
 	ZPL BSD BSD-2 ISC LGPL-2+ LGPL-2.1+ MIT public-domain
 "
 SLOT="0"
-KEYWORDS="-* ~amd64 ~x86"
+KEYWORDS="-* amd64 x86"
 IUSE="+abi_x86_32 bin-symlinks custom-cflags +strip"
 
 RDEPEND="
@@ -69,6 +69,7 @@ QA_CONFIG_IMPL_DECL_SKIP=(
 PATCHES=(
 	"${FILESDIR}"/gcc-12.2.0-drop-cflags-sed.patch
 	"${FILESDIR}"/gcc-14.1.0-no-omit-fp-ice.patch
+	"${FILESDIR}"/binutils-2.42-c23.patch
 )
 
 pkg_pretend() {

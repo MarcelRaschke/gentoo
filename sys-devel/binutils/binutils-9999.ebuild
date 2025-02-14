@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
@@ -9,7 +9,7 @@ DESCRIPTION="Tools necessary to build programs"
 HOMEPAGE="https://sourceware.org/binutils/"
 
 LICENSE="GPL-3+"
-IUSE="cet debuginfod doc gold gprofng hardened multitarget +nls pgo +plugins static-libs test vanilla zstd"
+IUSE="cet debuginfod doc gprofng hardened multitarget +nls pgo +plugins static-libs test vanilla xxhash zstd"
 
 # Variables that can be set here  (ignored for live ebuilds)
 # PATCH_VER          - the patchset version
@@ -22,9 +22,12 @@ IUSE="cet debuginfod doc gold gprofng hardened multitarget +nls pgo +plugins sta
 PATCH_VER=1
 PATCH_DEV=dilfridge
 
-if [[ ${PV} == 9999* ]]; then
+if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	SLOT=${PV}
+elif [[ ${PV} == *9999 ]]; then
+	inherit git-r3
+	SLOT=$(ver_cut 1-2)
 else
 	PATCH_BINUTILS_VER=${PATCH_BINUTILS_VER:-${PV}}
 	PATCH_DEV=${PATCH_DEV:-dilfridge}
@@ -32,7 +35,7 @@ else
 	[[ -z ${PATCH_VER} ]] || SRC_URI="${SRC_URI}
 		https://dev.gentoo.org/~${PATCH_DEV}/distfiles/binutils-${PATCH_BINUTILS_VER}-patches-${PATCH_VER}.tar.xz"
 	SLOT=$(ver_cut 1-2)
-	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
+	#KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 fi
 
 #
@@ -57,9 +60,16 @@ RDEPEND="
 	)
 	zstd? ( app-arch/zstd:= )
 "
-DEPEND="${RDEPEND}"
+DEPEND="
+	${RDEPEND}
+	xxhash? ( dev-libs/xxhash )
+"
 BDEPEND="
 	doc? ( sys-apps/texinfo )
+	pgo? (
+		dev-util/dejagnu
+		app-alternatives/bc
+	)
 	test? (
 		dev-util/dejagnu
 		app-alternatives/bc
@@ -75,13 +85,23 @@ RESTRICT="!test? ( test )"
 MY_BUILDDIR=${WORKDIR}/build
 
 src_unpack() {
-	if [[ ${PV} == 9999* ]] ; then
-		EGIT_REPO_URI="https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git"
+	if [[ ${PV} == *9999 ]] ; then
+		EGIT_REPO_URI="
+			https://anongit.gentoo.org/git/proj/toolchain/binutils-patches.git
+			https://github.com/gentoo/binutils-patches
+		"
 		EGIT_CHECKOUT_DIR=${WORKDIR}/patches-git
 		git-r3_src_unpack
 		mv patches-git/9999 patch || die
 
-		EGIT_REPO_URI="https://sourceware.org/git/binutils-gdb.git"
+		if [[ ${PV} != 9999 ]] ; then
+			EGIT_BRANCH=binutils-$(ver_cut 1)_$(ver_cut 2)-branch
+		fi
+		EGIT_REPO_URI="
+			https://sourceware.org/git/binutils-gdb.git
+			https://git.sr.ht/~sourceware/binutils-gdb
+			https://gitlab.com/x86-binutils/binutils-gdb.git
+		"
 		S=${WORKDIR}/binutils
 		EGIT_CHECKOUT_DIR=${S}
 		git-r3_src_unpack
@@ -104,13 +124,15 @@ src_unpack() {
 
 src_prepare() {
 	local patchsetname
-	if [[ ${PV} == 9999* ]] ; then
+	if [[ ${PV} == 9999 ]] ; then
 		patchsetname="from git master"
+	elif [[ ${PV} == *9999 ]] ; then
+		patchsetname="from git branch ${EGIT_BRANCH}"
 	else
 		patchsetname="${PATCH_BINUTILS_VER}-${PATCH_VER}"
 	fi
 
-	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == 9999* ]] ; then
+	if [[ -n ${PATCH_VER} ]] || [[ ${PV} == *9999 ]] ; then
 		if ! use vanilla; then
 			einfo "Applying binutils patchset ${patchsetname}"
 			eapply "${WORKDIR}/patch"
@@ -119,8 +141,8 @@ src_prepare() {
 			# This is applied conditionally for now just out of caution.
 			# It should be okay on non-prefix systems though. See bug #892549.
 			if is_cross || use prefix; then
-				eapply "${FILESDIR}"/binutils-2.40-linker-search-path.patch \
-					   "${FILESDIR}"/binutils-2.41-linker-prefix.patch
+				eapply "${FILESDIR}"/binutils-2.43-linker-search-path.patch \
+					   "${FILESDIR}"/binutils-2.43-linker-prefix.patch
 			fi
 		fi
 	fi
@@ -173,8 +195,6 @@ src_configure() {
 	use cet && filter-flags -mindirect-branch -mindirect-branch=*
 	use elibc_musl && append-ldflags -Wl,-z,stack-size=2097152
 
-	append-ldflags $(test-flags-CCLD -Wl,--undefined-version)
-
 	local x
 	echo
 	for x in CATEGORY CBUILD CHOST CTARGET CFLAGS LDFLAGS ; do
@@ -187,10 +207,6 @@ src_configure() {
 
 	if use plugins ; then
 		myconf+=( --enable-plugins )
-	fi
-	# enable gold (installed as ld.gold) and ld's plugin architecture
-	if use gold ; then
-		myconf+=( --enable-gold )
 	fi
 
 	if use nls ; then
@@ -256,6 +272,7 @@ src_configure() {
 		--with-bugurl="$(toolchain-binutils_bugurl)"
 		--with-pkgversion="$(toolchain-binutils_pkgversion)"
 		$(use_enable static-libs static)
+		$(use_with xxhash)
 		$(use_with zstd)
 
 		# Disable modules that are in a combined binutils/gdb tree, bug #490566
@@ -277,11 +294,15 @@ src_configure() {
 
 		# We can enable this by default in future, but it's brand new
 		# in 2.39 with several bugs:
-		# - Doesn't build on musl (https://sourceware.org/bugzilla/show_bug.cgi?id=29477)
-		# - No man pages (https://sourceware.org/bugzilla/show_bug.cgi?id=29521)
-		# - Broken at runtime without Java (https://sourceware.org/bugzilla/show_bug.cgi?id=29479)
+		# - Doesn't build on musl (https://sourceware.org/PR29477)
+		# - No man pages (https://sourceware.org/PR29521)
+		# - Broken at runtime without Java (https://sourceware.org/PR29479)
 		# - binutils-config (and this ebuild?) needs adaptation first (https://bugs.gentoo.org/865113)
 		$(use_enable gprofng)
+
+		# Enables colored disassembly by default (equivalent to passing
+		# --disassembler-color=terminal to all objdump invocations).
+		--enable-colored-disassembly
 	)
 
 	case ${CTARGET} in
@@ -289,7 +310,7 @@ src_configure() {
 			# These hardening options are available from 2.39+ but
 			# they unconditionally enable the behaviour even on arches
 			# where e.g. execstacks can't be avoided.
-			# See https://sourceware.org/bugzilla/show_bug.cgi?id=29592.
+			# See https://sourceware.org/PR29592.
 			#
 			# TODO: Get the logic for this fixed upstream so it doesn't
 			# create impossible broken combinations on some arches, like mips.
@@ -303,7 +324,7 @@ src_configure() {
 
 			if use hardened ; then
 				myconf+=(
-					# TOOD: breaks glibc test suite
+					# TODO: breaks glibc test suite
 					#--enable-error-execstack=yes
 					#--enable-error-rwx-segments=yes
 					--enable-default-execstack=no
@@ -492,7 +513,7 @@ src_install() {
 pkg_postinst() {
 	# Make sure this ${CTARGET} has a binutils version selected
 	[[ -e ${EROOT}/etc/env.d/binutils/config-${CTARGET} ]] && return 0
-	binutils-config ${CTARGET}-${PV}
+	binutils-config ${CTARGET}-${PV} || eerror binutils-config returned an error
 }
 
 pkg_postrm() {
@@ -509,12 +530,12 @@ pkg_postrm() {
 		choice=${choice//$'\n'/ }
 		choice=${choice/* }
 		if [[ -z ${choice} ]] ; then
-			binutils-config -u ${CTARGET}
+			binutils-config -u ${CTARGET} || eerror binutils-config returned an error
 		else
-			binutils-config ${choice}
+			binutils-config ${choice} || eerror binutils-config returned an error
 		fi
 	elif [[ $(CHOST=${CTARGET} binutils-config -c) == ${CTARGET}-${PV} ]] ; then
-		binutils-config ${CTARGET}-${PV}
+		binutils-config ${CTARGET}-${PV} || eerror binutils-config returned an error
 	fi
 }
 

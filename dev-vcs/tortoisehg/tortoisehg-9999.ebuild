@@ -1,25 +1,23 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 DISTUTILS_USE_PEP517=setuptools
-
 inherit desktop distutils-r1 optfeature xdg-utils
 
 if [[ ${PV} != *9999* ]]; then
 	KEYWORDS="~amd64 ~arm64 ~x86"
 	SRC_URI="https://foss.heptapod.net/mercurial/${PN}/thg/-/archive/${PV}/thg-${PV}.tar.gz -> ${P}.tar.gz"
-	HG_DEPEND=">=dev-vcs/mercurial-6.2[${PYTHON_USEDEP}]
-		$(python_gen_cond_dep '>=dev-vcs/mercurial-6.3.2[${PYTHON_USEDEP}]' python3_11 )
-		<dev-vcs/mercurial-6.7[${PYTHON_USEDEP}]"
+	HG_DEPEND=">=dev-vcs/mercurial-6.3[${PYTHON_USEDEP}]
+		<dev-vcs/mercurial-6.10[${PYTHON_USEDEP}]"
 	S="${WORKDIR}/thg-${PV}"
 else
 	inherit mercurial
 	EHG_REPO_URI="https://foss.heptapod.net/mercurial/${PN}/thg"
 	EHG_REVISION="stable"
-	HG_DEPEND=">=dev-vcs/mercurial-6.2[${PYTHON_USEDEP}]"
+	HG_DEPEND=">=dev-vcs/mercurial-6.3[${PYTHON_USEDEP}]"
 fi
 
 DESCRIPTION="Set of graphical tools for Mercurial"
@@ -30,15 +28,14 @@ SLOT="0"
 IUSE="test"
 RESTRICT="!test? ( test )"
 
-RDEPEND="
-	${HG_DEPEND}
+RDEPEND="${HG_DEPEND}
 	dev-python/iniparse[${PYTHON_USEDEP}]
 	dev-python/pygments[${PYTHON_USEDEP}]
-	dev-python/PyQt5[network,svg,${PYTHON_USEDEP}]
-	>=dev-python/qscintilla-python-2.11.6[qt5(+),${PYTHON_USEDEP}]
+	dev-python/pyqt6[network,svg,${PYTHON_USEDEP}]
+	>=dev-python/qscintilla-2.14.1-r1[qt6(+),${PYTHON_USEDEP}]
 "
+DEPEND="${RDEPEND}"
 BDEPEND="
-	${RDEPEND}
 	test? (
 		dev-python/mock[${PYTHON_USEDEP}]
 		dev-python/pytest[${PYTHON_USEDEP}]
@@ -52,6 +49,7 @@ python_prepare_all() {
 	rm "${S}"/hgext3rd/__init__.py || die "can't remove /hgext3rd/__init__.py"
 
 	sed -i -e 's:share/doc/tortoisehg:share/doc/'"${PF}"':' setup.py || die
+	export THG_QT_API=PyQt6
 	distutils-r1_python_prepare_all
 }
 
@@ -61,6 +59,7 @@ python_test() {
 }
 
 python_install_all() {
+	export THG_QT_API=PyQt6
 	distutils-r1_python_install_all
 	dodoc doc/ReadMe*.txt doc/TODO contrib/mergetools.rc
 	newicon -s scalable icons/scalable/apps/thg.svg thg_logo.svg
@@ -70,8 +69,8 @@ python_install_all() {
 pkg_postinst() {
 	xdg_icon_cache_update
 	elog "When startup of ${PN} fails with an API version mismatch error"
-	elog "between dev-python/sip and dev-python/PyQt5 please rebuild"
-	elog "dev-python/qscintilla-python."
+	elog "between dev-python/sip and dev-python/pyqt6 please rebuild"
+	elog "dev-python/qscintilla."
 
 	optfeature "the core git extension support" dev-python/pygit2
 }

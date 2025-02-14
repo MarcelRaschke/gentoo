@@ -5,12 +5,12 @@ EAPI=8
 
 MATE_LA_PUNT="yes"
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{9..12} )
 
 inherit mate python-single-r1
 
 if [[ "${PV}" != *9999 ]]; then
-	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~riscv ~x86"
+	KEYWORDS="amd64 ~arm ~arm64 ~loong ~riscv x86"
 fi
 
 DESCRIPTION="Python bindings for the Caja file manager"

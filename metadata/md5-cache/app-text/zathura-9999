@@ -1,16 +1,16 @@
 BDEPEND=>=sys-devel/gettext-0.19.8 virtual/pkgconfig >=dev-build/meson-1.2.3 app-alternatives/ninja dev-build/meson-format-array test? ( x11-base/xorg-server[xvfb] x11-apps/xhost ) >=dev-vcs/git-1.8.2.1[curl]
 DEFINED_PHASES=compile configure install postinst postrm preinst test unpack
-DEPEND=>=dev-libs/girara-0.4.3 >=dev-libs/glib-2.50:2 dev-libs/json-glib sys-apps/file x11-libs/cairo >=x11-libs/gtk+-3.22:3 >=dev-db/sqlite-3.6.23:3 seccomp? ( sys-libs/libseccomp ) synctex? ( app-text/texlive-core ) test? ( dev-libs/check >=x11-libs/gtk+-3.22:3[X] )
+DEPEND=dev-libs/json-glib man? ( dev-python/sphinx ) seccomp? ( sys-libs/libseccomp ) synctex? ( app-text/texlive-core ) sys-apps/file x11-libs/cairo x11-libs/pango >=dev-db/sqlite-3.6.23:3 >=dev-libs/girara-0.4.3:= >=dev-libs/glib-2.72:2 >=x11-libs/gtk+-3.24:3 >=sys-kernel/linux-headers-5.13 test? ( dev-libs/check >=x11-libs/gtk+-3.24:3[X] )
 DESCRIPTION=A highly customizable and functional document viewer
 EAPI=8
 HOMEPAGE=https://pwmt.org/projects/zathura/
 IDEPEND=dev-util/desktop-file-utils x11-misc/shared-mime-info
 INHERIT=meson virtualx xdg git-r3
-IUSE=seccomp synctex test test
+IUSE=+man seccomp synctex test test
 LICENSE=ZLIB
 PROPERTIES=live
-RDEPEND=>=dev-libs/girara-0.4.3 >=dev-libs/glib-2.50:2 dev-libs/json-glib sys-apps/file x11-libs/cairo >=x11-libs/gtk+-3.22:3 >=dev-db/sqlite-3.6.23:3 seccomp? ( sys-libs/libseccomp ) synctex? ( app-text/texlive-core )
+RDEPEND=dev-libs/json-glib man? ( dev-python/sphinx ) seccomp? ( sys-libs/libseccomp ) synctex? ( app-text/texlive-core ) sys-apps/file x11-libs/cairo x11-libs/pango >=dev-db/sqlite-3.6.23:3 >=dev-libs/girara-0.4.3:= >=dev-libs/glib-2.72:2 >=x11-libs/gtk+-3.24:3
 RESTRICT=!test? ( test ) !test? ( test )
-SLOT=0/5.6
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	python-utils-r1	8b220bbce5c119fb1d4d5c2f5588f3ea	meson	aecae905c2e0c201d7925fae52a5576d	virtualx	817571665ee28575da44ee08135089e5	xdg-utils	baea6080dd821f5562d715887954c9d3	xdg	4a14c5c24f121e7da66e5aab4a168c6e	git-r3	fbb2889c81f3a05910c1524db69425c1
-_md5_=f8d32423a81bbd1b267a3f35159ba089
+SLOT=0/6.7
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	multiprocessing	1e32df7deee68372153dca65f4a7c21f	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	python-utils-r1	42c5abe4a656a4993a06a4fc61dbdd12	meson	99466844dd8d4fcfb07578a76f5a9922	virtualx	9741d451eb64ea8bb9faee90d68a9b68	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	xdg	3ef49a87c52c8b77c476351195dfe575	git-r3	875eb471682d3e1f18da124be97dcc81
+_md5_=f1ad00f5c73e764344d16bc361cd7f67

@@ -14,7 +14,7 @@ if [[ ${PV} == *9999 ]] ; then
 	inherit autotools git-r3
 else
 	SRC_URI="https://github.com/htop-dev/htop/releases/download/${PV}/${P}.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~x64-macos"
 fi
 
 S="${WORKDIR}/${P/_}"
@@ -28,7 +28,7 @@ RDEPEND="
 	hwloc? ( sys-apps/hwloc:= )
 	unwind? (
 		!llvm-libunwind? ( sys-libs/libunwind:= )
-		llvm-libunwind? ( sys-libs/llvm-libunwind:= )
+		llvm-libunwind? ( llvm-runtimes/libunwind:= )
 	)
 	kernel_linux? (
 		caps? ( sys-libs/libcap )

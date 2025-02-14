@@ -10,7 +10,7 @@ inherit prefix python-any-r1 qt6-build toolchain-funcs
 
 DESCRIPTION="Library for rendering dynamic web content in Qt6 C++ and QML applications"
 SRC_URI+="
-	https://dev.gentoo.org/~ionen/distfiles/${PN}-6.7-patchset-8.tar.xz
+	https://dev.gentoo.org/~ionen/distfiles/${PN}-6.9-patchset-1.tar.xz
 "
 
 if [[ ${QT6_BUILD_TYPE} == release ]]; then
@@ -70,6 +70,7 @@ RDEPEND="
 	designer? ( ~dev-qt/qttools-${PV}:6[designer] )
 	geolocation? ( ~dev-qt/qtpositioning-${PV}:6 )
 	kerberos? ( virtual/krb5 )
+	opengl? ( media-libs/libglvnd[X] )
 	pulseaudio? ( media-libs/libpulse[glib] )
 	screencast? (
 		dev-libs/glib:2
@@ -77,18 +78,15 @@ RDEPEND="
 	)
 	system-icu? ( dev-libs/icu:= )
 	vaapi? ( media-libs/libva:=[X] )
-	!vaapi? ( media-libs/libvpx:= )
 "
 DEPEND="
 	${RDEPEND}
 	media-libs/libglvnd
 	x11-base/xorg-proto
+	x11-libs/libXcursor
+	x11-libs/libXi
 	x11-libs/libxshmfence
 	screencast? ( media-libs/libepoxy[egl(+)] )
-	pdfium? ( net-print/cups )
-	test? (
-		widgets? ( app-text/poppler[cxx(+)] )
-	)
 	vaapi? (
 		vulkan? ( dev-util/vulkan-headers )
 	)
@@ -125,7 +123,7 @@ qtwebengine_check-reqs() {
 		ewarn "If run into issues, please try disabling before reporting a bug."
 	fi
 
-	local CHECKREQS_DISK_BUILD=8G
+	local CHECKREQS_DISK_BUILD=9G
 	local CHECKREQS_DISK_USR=360M
 
 	if ! has distcc ${FEATURES}; then #830661
@@ -189,38 +187,46 @@ src_configure() {
 		$(qt_feature vulkan webengine_vulkan)
 		-DQT_FEATURE_webengine_embedded_build=OFF
 		-DQT_FEATURE_webengine_extensions=ON
-		-DQT_FEATURE_webengine_ozone_x11=ON # needed, cannot do optional X yet
+		# TODO: it may be possible to make x11 optional since 6.8+
+		-DQT_FEATURE_webengine_ozone_x11=ON
 		-DQT_FEATURE_webengine_pepper_plugins=ON
 		-DQT_FEATURE_webengine_printing_and_pdf=ON
 		-DQT_FEATURE_webengine_spellchecker=ON
 		-DQT_FEATURE_webengine_webchannel=ON
 		-DQT_FEATURE_webengine_webrtc=ON
 
-		# needs a modified ffmpeg to be usable, and even then it may not
-		# cooperate with new major ffmpeg versions (bug #831487)
+		# needs a modified ffmpeg to be usable (bug #831487), and even then
+		# it is picky about codecs/version and system's can lead to unexpected
+		# issues (e.g. builds but some files don't play even with support)
 		-DQT_FEATURE_webengine_system_ffmpeg=OFF
 
-		# use bundled re2 to avoid complications, may revisit
-		# (see discussions in https://github.com/gentoo/gentoo/pull/32281)
+		# use bundled re2 to avoid complications, Qt has also disabled
+		# this by default in 6.7.3+ (bug #913923)
 		-DQT_FEATURE_webengine_system_re2=OFF
 
-		# bundled is currently required when using vaapi (forced regardless)
-		$(qt_feature !vaapi webengine_system_libvpx)
+		# system_libvpx=ON is intentionally ignored with USE=vaapi which leads
+		# to using system's being less tested, prefer disabling for now until
+		# vaapi can use it as well
+		-DQT_FEATURE_webengine_system_libvpx=OFF
 
 		# not necessary to pass these (default), but in case detection fails
+		# given qtbase's force_system_libs does not affect these right now
 		$(printf -- '-DQT_FEATURE_webengine_system_%s=ON ' \
 			freetype gbm glib harfbuzz lcms2 libevent libjpeg \
 			libopenjpeg2 libpci libpng libtiff libwebp libxml \
-			minizip opus poppler snappy zlib)
+			minizip opus snappy zlib)
 
 		# TODO: fixup gn cross, or package dev-qt/qtwebengine-gn with =ON
+		# (see also BUILD_ONLY_GN option added in 6.8+ for the latter)
 		-DINSTALL_GN=OFF
 	)
 
 	local mygnargs=(
 		# prefer no dlopen where possible
-		link_pulseaudio=true
-		rtc_link_pipewire=true
+		$(usev pulseaudio link_pulseaudio=true)
+		$(usev screencast rtc_link_pipewire=true)
+		# reduce default disk space usage
+		symbol_level=0
 	)
 
 	if use !custom-cflags; then
@@ -238,16 +244,7 @@ src_configure() {
 		use arm64 && tc-is-gcc && filter-flags '-march=*' '-mcpu=*'
 	fi
 
-	# Workaround for build failure with clang-18 and -march=native without
-	# avx512. Does not affect e.g. -march=skylake, only native (bug #931623).
-	# TODO: drop this when <=llvm-18.1.5-r1 >=18 been gone for some time
-	use amd64 && tc-is-clang && is-flagq -march=native &&
-		[[ $(clang-major-version) -ge 18 ]] &&
-		has_version '<sys-devel/llvm-18.1.5-r1' &&
-		tc-cpp-is-true "!defined(__AVX512F__)" ${CXXFLAGS} &&
-		append-flags -mevex512
-
-	export NINJA NINJAFLAGS=$(get_NINJAOPTS)
+	export NINJAFLAGS=$(get_NINJAOPTS)
 	[[ ${NINJA_VERBOSE^^} == OFF ]] || NINJAFLAGS+=" -v"
 
 	local -x EXTRA_GN="${mygnargs[*]} ${EXTRA_GN}"
@@ -272,6 +269,7 @@ src_test() {
 
 	local CMAKE_SKIP_TESTS=(
 		# fails with network sandbox
+		tst_certificateerror
 		tst_loadsignals
 		tst_qquickwebengineview
 		tst_qwebengineglobalsettings

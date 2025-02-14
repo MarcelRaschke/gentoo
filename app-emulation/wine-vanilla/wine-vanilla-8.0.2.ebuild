@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -92,7 +92,7 @@ WINE_COMMON_DEPEND="
 	scanner? ( media-gfx/sane-backends[${MULTILIB_USEDEP}] )
 	udev? ( virtual/libudev:=[${MULTILIB_USEDEP}] )
 	unwind? (
-		llvm-libunwind? ( sys-libs/llvm-libunwind[${MULTILIB_USEDEP}] )
+		llvm-libunwind? ( llvm-runtimes/libunwind[${MULTILIB_USEDEP}] )
 		!llvm-libunwind? ( sys-libs/libunwind:=[${MULTILIB_USEDEP}] )
 	)
 	usb? ( dev-libs/libusb:1[${MULTILIB_USEDEP}] )
@@ -144,6 +144,7 @@ QA_TEXTRELS="usr/lib/*/wine/i386-unix/*.so" # uses -fno-PIC -Wl,-z,notext
 PATCHES=(
 	"${FILESDIR}"/${PN}-7.0-noexecstack.patch
 	"${FILESDIR}"/${PN}-7.20-unwind.patch
+	"${FILESDIR}"/${PN}-10.0-binutils2.44.patch
 )
 
 pkg_pretend() {
@@ -254,6 +255,9 @@ src_configure() {
 	filter-flags -Wl,--gc-sections # runtime issues (bug #931329)
 	use custom-cflags || strip-flags # can break in obscure ways at runtime
 	use crossdev-mingw || PATH=${BROOT}/usr/lib/mingw64-toolchain/bin:${PATH}
+
+	# broken with gcc-15's c23 default (TODO: try w/o occasionally, bug #943849)
+	append-cflags -std=gnu17
 
 	# temporary workaround for tc-ld-force-bfd not yet enforcing with mold
 	# https://github.com/gentoo/gentoo/pull/28355

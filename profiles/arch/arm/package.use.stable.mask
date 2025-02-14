@@ -1,7 +1,23 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-21)
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-28)
+# PyQt 6 is not stable here
+>=app-admin/setools-4.5.1 gui test
+
+# Sam James <sam@gentoo.org> (2024-10-05)
+# media-libs/jasper fails tests (bug #907259)
+media-gfx/graphicsmagick jpeg2k
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-07-23)
+# kde-frameworks/kservice, dev-qt/qtpaths not stable here
+x11-misc/xdg-utils plasma
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-06-29)
+# media-libs/libplacebo is not stable here
+media-video/ffmpeg libplacebo
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-03-21)
 # Experimental, virt-firmware is keyworded only unstable
 sys-kernel/installkernel efistub
 
@@ -14,7 +30,6 @@ app-admin/syslog-ng grpc
 # almost one year to this this date. bug 915548#c6
 dev-libs/hiredis test
 dev-python/redis test
-dev-python/sentry-sdk test
 
 # Matt Turner <mattst88@gentoo.org> (2023-10-30)
 # libei not stable yet
@@ -52,11 +67,6 @@ dev-python/ipython nbconvert
 # dev-libs/criterion is not marked stable yet
 app-admin/syslog-ng test
 
-# Sam James <sam@gentoo.org> (2022-01-15)
-# Requires dev-util/pahole which is not yet marked stable on arm.
-sys-kernel/gentoo-kernel debug
-sys-kernel/vanilla-kernel debug
-
 # Sam James <sam@gentoo.org> (2021-10-25)
 # Various dependencies not yet stable on arm
 # bug #816981
@@ -85,11 +95,8 @@ media-libs/mesa vulkan-overlay
 # Deps not yet stable
 # Migrated from package.use.mask
 app-text/asciidoc test
-media-libs/phonon vlc
 net-misc/openssh security-key
 dev-util/geany-plugins markdown
-app-arch/rpm test
-net-misc/unison gtk
 
 # Michał Górny <mgorny@gentoo.org> (2019-09-08)
 # virtual/jdk is not stable here.
@@ -98,7 +105,6 @@ sci-mathematics/z3 java
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-02-10)
 # Needs kde-frameworks/{kwallet,ki18n,kconfig} stable
 dev-vcs/subversion kwallet
-net-libs/libproxy kde
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-02-10)
 # Needs kde-plasma/{polkit-kde-agent,plasma-workspace} stable
@@ -170,10 +176,6 @@ dev-db/mariadb jdbc
 # Ian Whyman <thev00d00@gentoo.org> (2016-05-22)
 # RPI support on arm
 dev-libs/libcec -raspberry-pi
-
-# Ilya Tumaykin <itumaykin+gentoo@gmail.com> (2016-04-13)
-# Requires special hardware to test and stabilize properly.
-media-video/mpv raspberry-pi
 
 # Brian Evans <grknight@gentoo.org> (2016-01-08)
 # net-misc/libteam is not yet stable on arm

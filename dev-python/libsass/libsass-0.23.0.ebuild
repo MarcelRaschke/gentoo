@@ -5,7 +5,7 @@ EAPI=8
 
 DISTUTILS_EXT=1
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
 inherit distutils-r1
 
@@ -33,7 +33,7 @@ RDEPEND="
 "
 BDEPEND="
 	test? (
-		dev-python/PyQt5[testlib,${PYTHON_USEDEP}]
+		dev-python/pyqt5[testlib,${PYTHON_USEDEP}]
 		dev-python/werkzeug[${PYTHON_USEDEP}]
 	)
 "

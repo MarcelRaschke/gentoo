@@ -4,7 +4,6 @@
 # @ECLASS: tree-sitter-grammar.eclass
 # @MAINTAINER:
 # Matthew Smith <matthew@gentoo.org>
-# Nick Sarnie <sarnex@gentoo.org>
 # Arthur Zamarin <arthurzam@gentoo.org>
 # @AUTHOR:
 # Matthew Smith <matthew@gentoo.org>
@@ -48,7 +47,7 @@ for _BINDING in "${TS_BINDINGS[@]}"; do
 			DISTUTILS_EXT=1
 			DISTUTILS_OPTIONAL=1
 			DISTUTILS_USE_PEP517=setuptools
-			PYTHON_COMPAT=( python3_{10..12} )
+			PYTHON_COMPAT=( python3_{10..13} )
 			inherit distutils-r1
 
 			IUSE+=" python"
@@ -88,7 +87,7 @@ _get_tsg_abi_ver() {
 }
 
 tree-sitter-grammar_src_prepare() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	default
 
@@ -103,7 +102,7 @@ tree-sitter-grammar_src_prepare() {
 }
 
 tree-sitter-grammar_src_configure() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	local binding
 	for binding in "${TS_BINDINGS[@]}"; do
@@ -157,12 +156,14 @@ _tree-sitter-grammar_legacy_compile() {
 }
 
 tree-sitter-grammar_src_compile() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	# legacy grammars don't have a pyproject.toml
 	if [[ -f "${S}/pyproject.toml" ]]; then
 		sed -e "/SONAME_MINOR :=/s/:=.*$/:= $(_get_tsg_abi_ver)/" -i "${S}/Makefile" || die
 		emake \
+			CC="$(tc-getCC)" \
+			AR="$(tc-getAR)" \
 			STRIP="" \
 			PREFIX="${EPREFIX}/usr" \
 			LIBDIR="${EPREFIX}/usr/$(get_libdir)"
@@ -185,13 +186,13 @@ tree-sitter-grammar_src_compile() {
 # Runs the Tree Sitter parser's test suite.
 # See: https://tree-sitter.github.io/tree-sitter/creating-parsers#command-test
 tree-sitter-grammar_src_test() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	tree-sitter test || die "Test suite failed"
 }
 
 tree-sitter-grammar_src_install() {
-	debug-print-function ${FUNCNAME} "${@}"
+	debug-print-function ${FUNCNAME} "$@"
 
 	# legacy grammars don't have a pyproject.toml
 	if [[ -f "${S}/pyproject.toml" ]]; then

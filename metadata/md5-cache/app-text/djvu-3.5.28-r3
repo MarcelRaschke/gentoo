@@ -1,4 +1,4 @@
-BDEPEND=app-arch/unzip || ( gnome-base/librsvg media-gfx/inkscape ) >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
+BDEPEND=app-arch/unzip || ( gnome-base/librsvg media-gfx/inkscape ) >=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.17-r1:1.17 >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
 DEFINED_PHASES=configure install postinst postrm preinst prepare
 DEPEND=jpeg? ( media-libs/libjpeg-turbo:= ) tiff? ( media-libs/tiff:= ) dev-util/desktop-file-utils x11-misc/shared-mime-info
 DESCRIPTION=DjVu viewers, encoders and utilities
@@ -6,10 +6,10 @@ EAPI=7
 HOMEPAGE=https://djvu.sourceforge.net/
 INHERIT=autotools flag-o-matic optfeature xdg
 IUSE=debug doc jpeg tiff xml
-KEYWORDS=~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos
+KEYWORDS=~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos
 LICENSE=GPL-2+
 RDEPEND=jpeg? ( media-libs/libjpeg-turbo:= ) tiff? ( media-libs/tiff:= )
 SLOT=0
 SRC_URI=https://downloads.sourceforge.net/djvu/djvulibre-3.5.28.tar.gz
-_eclasses_=gnuconfig	a397adda6984a4c423e28ac274c1ba98	toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	libtool	5f49a16f67f81bdf873e3d1f10b10001	autotools	dc70c1dc473b68317fc4a86f5fbfc57d	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	optfeature	222cb475c5a4f7ae7cfb0bf510a6fe54	xdg-utils	baea6080dd821f5562d715887954c9d3	xdg	4a14c5c24f121e7da66e5aab4a168c6e
-_md5_=294036719cc8b9eca5b78e31a4235663
+_eclasses_=gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	libtool	6b28392a775f807c8be5fc7ec9a605b9	autotools	7d91cc798a8afd8f4e0c6e9587296ebe	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	optfeature	538bce96e5589935b57e178e8635f301	xdg-utils	42869b3c8d86a70ef3cf75165a395e09	xdg	3ef49a87c52c8b77c476351195dfe575
+_md5_=18ebffdca748022ad0dc432ce5f512b8

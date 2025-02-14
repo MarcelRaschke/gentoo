@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -8,7 +8,7 @@ inherit autotools flag-o-matic multilib multilib-build optfeature
 inherit prefix toolchain-funcs wrapper
 
 WINE_GECKO=2.47.4
-WINE_MONO=9.1.0
+WINE_MONO=9.4.0
 
 if [[ ${PV} == *9999 ]]; then
 	inherit git-r3
@@ -26,15 +26,16 @@ HOMEPAGE="
 	https://gitlab.winehq.org/wine/wine/
 "
 
-LICENSE="LGPL-2.1+ BSD-2 IJG MIT OPENLDAP ZLIB gsm libpng2 libtiff"
+LICENSE="LGPL-2.1+ BSD BSD-2 IJG MIT OPENLDAP ZLIB gsm libpng2 libtiff"
 SLOT="${PV}"
 IUSE="
 	+X +abi_x86_32 +abi_x86_64 +alsa capi crossdev-mingw cups dos
-	llvm-libunwind custom-cflags +fontconfig +gecko gphoto2 +gstreamer
-	kerberos +mingw +mono netapi nls odbc opencl +opengl osmesa pcap
-	perl pulseaudio samba scanner +sdl selinux smartcard +ssl +strip
-	+truetype udev udisks +unwind usb v4l +vulkan wayland wow64
-	+xcomposite xinerama"
+	llvm-libunwind custom-cflags ffmpeg +fontconfig +gecko gphoto2
+	+gstreamer kerberos +mingw +mono netapi nls odbc opencl +opengl
+	osmesa pcap perl pulseaudio samba scanner +sdl selinux smartcard
+	+ssl +strip +truetype udev udisks +unwind usb v4l +vulkan wayland
+	wow64 +xcomposite xinerama
+"
 # bug #551124 for truetype
 # TODO?: wow64 can be done without mingw if using clang (needs bug #912237)
 REQUIRED_USE="
@@ -67,6 +68,7 @@ WINE_DLOPEN_DEPEND="
 	fontconfig? ( media-libs/fontconfig[${MULTILIB_USEDEP}] )
 	kerberos? ( virtual/krb5[${MULTILIB_USEDEP}] )
 	netapi? ( net-fs/samba[${MULTILIB_USEDEP}] )
+	odbc? ( dev-db/unixODBC[${MULTILIB_USEDEP}] )
 	sdl? ( media-libs/libsdl2[haptic,joystick,${MULTILIB_USEDEP}] )
 	ssl? ( net-libs/gnutls:=[${MULTILIB_USEDEP}] )
 	truetype? ( media-libs/freetype[${MULTILIB_USEDEP}] )
@@ -82,13 +84,13 @@ WINE_COMMON_DEPEND="
 	)
 	alsa? ( media-libs/alsa-lib[${MULTILIB_USEDEP}] )
 	capi? ( net-libs/libcapi:=[${MULTILIB_USEDEP}] )
+	ffmpeg? ( media-video/ffmpeg:=[${MULTILIB_USEDEP}] )
 	gphoto2? ( media-libs/libgphoto2:=[${MULTILIB_USEDEP}] )
 	gstreamer? (
 		dev-libs/glib:2[${MULTILIB_USEDEP}]
 		media-libs/gst-plugins-base:1.0[${MULTILIB_USEDEP}]
 		media-libs/gstreamer:1.0[${MULTILIB_USEDEP}]
 	)
-	odbc? ( dev-db/unixODBC[${MULTILIB_USEDEP}] )
 	opencl? ( virtual/opencl[${MULTILIB_USEDEP}] )
 	pcap? ( net-libs/libpcap[${MULTILIB_USEDEP}] )
 	pulseaudio? ( media-libs/libpulse[${MULTILIB_USEDEP}] )
@@ -96,7 +98,7 @@ WINE_COMMON_DEPEND="
 	smartcard? ( sys-apps/pcsc-lite[${MULTILIB_USEDEP}] )
 	udev? ( virtual/libudev:=[${MULTILIB_USEDEP}] )
 	unwind? (
-		llvm-libunwind? ( sys-libs/llvm-libunwind[${MULTILIB_USEDEP}] )
+		llvm-libunwind? ( llvm-runtimes/libunwind[${MULTILIB_USEDEP}] )
 		!llvm-libunwind? ( sys-libs/libunwind:=[${MULTILIB_USEDEP}] )
 	)
 	usb? ( dev-libs/libusb:1[${MULTILIB_USEDEP}] )
@@ -136,7 +138,7 @@ DEPEND="
 BDEPEND="
 	|| (
 		sys-devel/binutils
-		sys-devel/lld
+		llvm-core/lld
 	)
 	dev-lang/perl
 	sys-devel/bison
@@ -246,6 +248,7 @@ src_configure() {
 		$(use_with alsa)
 		$(use_with capi)
 		$(use_with cups)
+		$(use_with ffmpeg)
 		$(use_with fontconfig)
 		$(use_with gphoto2 gphoto)
 		$(use_with gstreamer)
@@ -254,7 +257,6 @@ src_configure() {
 		$(use_with mingw)
 		$(use_with netapi)
 		$(use_with nls gettext)
-		$(use_with odbc)
 		$(use_with opencl)
 		$(use_with opengl)
 		$(use_with osmesa)
@@ -275,11 +277,15 @@ src_configure() {
 		$(use_with wayland)
 		$(use_with xcomposite)
 		$(use_with xinerama)
+		$(usev !odbc ac_cv_lib_soname_odbc=)
 	)
 
 	filter-lto # build failure
 	filter-flags -Wl,--gc-sections # runtime issues (bug #931329)
 	use custom-cflags || strip-flags # can break in obscure ways at runtime
+
+	# broken with gcc-15's c23 default (TODO: try w/o occasionally, bug #943849)
+	append-cflags -std=gnu17
 
 	# wine uses linker tricks unlikely to work with non-bfd/lld (bug #867097)
 	# (do self test until https://github.com/gentoo/gentoo/pull/28355)
@@ -358,28 +364,8 @@ src_install() {
 	use abi_x86_32 && emake DESTDIR="${D}" -C ../build32 install
 	use abi_x86_64 && emake DESTDIR="${D}" -C ../build64 install # do last
 
-	# Ensure both wine64 and wine are available if USE=abi_x86_64 (wow64,
-	# -abi_x86_32, and/or EXTRA_ECONF could cause varying scenarios where
-	# one or the other could be missing and that is unexpected for users
-	# and some tools like winetricks)
-	if use abi_x86_64; then
-		if [[ -e ${ED}${WINE_PREFIX}/bin/wine64 && ! -e ${ED}${WINE_PREFIX}/bin/wine ]]; then
-			dosym wine64 ${WINE_PREFIX}/bin/wine
-			dosym wine64-preloader ${WINE_PREFIX}/bin/wine-preloader
-
-			# also install wine(1) man pages (incl. translations)
-			local man
-			for man in ../build64/loader/wine.*man; do
-				: "${man##*/wine}"
-				: "${_%.*}"
-				insinto ${WINE_DATADIR}/man/${_:+${_#.}/}man1
-				newins ${man} wine.1
-			done
-		elif [[ ! -e ${ED}${WINE_PREFIX}/bin/wine64 && -e ${ED}${WINE_PREFIX}/bin/wine ]]; then
-			dosym wine ${WINE_PREFIX}/bin/wine64
-			dosym wine-preloader ${WINE_PREFIX}/bin/wine64-preloader
-		fi
-	fi
+	# "wine64" is no longer provided, but a keep symlink for old scripts
+	use abi_x86_64 && dosym wine ${WINE_PREFIX}/bin/wine64
 
 	use perl || rm "${ED}"${WINE_DATADIR}/man/man1/wine{dump,maker}.1 \
 		"${ED}"${WINE_PREFIX}/bin/{function_grep.pl,wine{dump,maker}} || die

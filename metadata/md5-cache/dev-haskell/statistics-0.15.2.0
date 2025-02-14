@@ -6,11 +6,11 @@ EAPI=8
 HOMEPAGE=https://github.com/bos/statistics
 INHERIT=haskell-cabal
 IUSE=doc hscolour profile test
-KEYWORDS=amd64 ~arm64 ~ppc64 ~riscv ~x86
+KEYWORDS=~amd64 ~arm64 ~ppc64 ~riscv ~x86
 LICENSE=BSD-2
 RDEPEND=>=dev-haskell/aeson-0.6.0.0:=[profile?] >=dev-haskell/async-2.2.2:=[profile?] <dev-haskell/async-2.3:=[profile?] >=dev-haskell/base-orphans-0.6:=[profile?] <dev-haskell/base-orphans-0.9:=[profile?] >=dev-haskell/data-default-class-0.1.2:=[profile?] >=dev-haskell/dense-linear-algebra-0.1:=[profile?] <dev-haskell/dense-linear-algebra-0.2:=[profile?] >=dev-haskell/math-functions-0.3:=[profile?] >=dev-haskell/monad-par-0.3.4:=[profile?] >=dev-haskell/mwc-random-0.13.0.0:=[profile?] >=dev-haskell/primitive-0.3:=[profile?] >=dev-haskell/vector-0.10:=[profile?] >=dev-haskell/vector-algorithms-0.4:=[profile?] >=dev-haskell/vector-binary-instances-0.2.1:=[profile?] dev-haskell/vector-th-unbox:=[profile?] >=dev-lang/ghc-7.4.1:= dev-lang/ghc:=[profile?]
 RESTRICT=!test? ( test )
 SLOT=0/0.15.2.0
 SRC_URI=https://hackage.haskell.org/package/statistics-0.15.2.0/statistics-0.15.2.0.tar.gz
-_eclasses_=multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ghc-package	8e4f6eb2d0e798049f6fcaf3b84c0d4a	multilib	c19072c3cd7ac5cb21de013f7e9832e0	toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	haskell-cabal	7a05e05c4a785428f7c2f31e22667fea
-_md5_=341186cc56efbd85bd1f57955a05db1e
+_eclasses_=multiprocessing	1e32df7deee68372153dca65f4a7c21f	ghc-package	8e4f6eb2d0e798049f6fcaf3b84c0d4a	multilib	b2a329026f2e404e9e371097dda47f96	toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	haskell-cabal	7a05e05c4a785428f7c2f31e22667fea
+_md5_=44e79c2f473fb6b235af0c462221af74

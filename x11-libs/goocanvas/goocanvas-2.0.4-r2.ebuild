@@ -10,7 +10,7 @@ HOMEPAGE="https://wiki.gnome.org/GooCanvas"
 
 LICENSE="LGPL-2"
 SLOT="2.0"
-KEYWORDS="~alpha amd64 ~arm64 ~ia64 ppc ppc64 ~riscv sparc x86"
+KEYWORDS="~alpha amd64 ~arm64 ppc ppc64 ~riscv sparc x86"
 IUSE="examples +introspection"
 
 RDEPEND="
@@ -26,6 +26,10 @@ BDEPEND="
 	>=sys-devel/gettext-0.19.4
 	virtual/pkgconfig
 "
+
+PATCHES=(
+	"${FILESDIR}"/goocanvas-3.0.0-fix-gcc14.patch
+)
 
 src_prepare() {
 	# Do not build demos

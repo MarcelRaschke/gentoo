@@ -10,6 +10,6 @@ KEYWORDS=amd64 arm64 ppc64
 LICENSE=CPL-1.0 LGPL-2.1 MPL-1.1
 RDEPEND=app-accessibility/at-spi2-core:2 dev-libs/glib x11-libs/gtk+:3 x11-libs/libXtst cairo? ( x11-libs/cairo ) opengl? ( virtual/glu virtual/opengl ) webkit? ( net-libs/webkit-gtk:4.1 ) >=virtual/jre-1.8:* x11-libs/libX11 >=dev-java/java-config-2.2.0-r3 source? ( app-arch/zip )
 SLOT=4.27
-SRC_URI=amd64? ( https://download.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-x86_64.zip ) arm64? ( https://download.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-aarch64.zip ) ppc64? ( https://download.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-ppc64le.zip )
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	java-utils-2	b346c3901e71ba37137bae0b25b00221	java-pkg-2	b6d755b4f6afabfd933932be28b46368	java-pkg-simple	742531b28b0ce82ba9425bd2c28654f9
-_md5_=347677291d56e584526afcf3bba8607b
+SRC_URI=amd64? ( https://archive.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-x86_64.zip ) arm64? ( https://archive.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-aarch64.zip ) ppc64? ( https://archive.eclipse.org/eclipse/downloads/drops4/R-4.29-202309031000/swt-4.29-gtk-linux-ppc64le.zip )
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	java-utils-2	c610b1541a10e37cb26ab5b707a744f1	java-pkg-2	38fd81c7880666a00a638ca8deb64d72	java-pkg-simple	c346bc0ba9945618340315a1089a82ef
+_md5_=663c0dbf3d1164427e86eed6488b6025

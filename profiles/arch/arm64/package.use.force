@@ -1,13 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Paul Zander <negril.nx+gentoo@gmail.com> (2024-04-12)
 # supports 64 bit neon
 media-libs/opencv cpu_flags_arm_neon
-
-# Matt Jolly <kangie@gentoo.org> (2024-01-30)
-# Google does not provide an arm64 toolchain
-www-client/chromium system-toolchain
 
 # matoro <matoro_gentoo@matoro.tk> (2022-08-31)
 # GHC does not gain native codegen for arm64 until 9.2.
@@ -35,6 +31,6 @@ dev-lang/rust llvm_targets_AArch64
 
 # Michał Górny <mgorny@gentoo.org> (2016-09-24)
 # Force the host target to avoid dependency hell
-dev-ml/llvm-ocaml llvm_targets_AArch64
-sys-devel/clang llvm_targets_AArch64
-sys-devel/llvm llvm_targets_AArch64
+dev-ml/llvm llvm_targets_AArch64
+llvm-core/clang llvm_targets_AArch64
+llvm-core/llvm llvm_targets_AArch64

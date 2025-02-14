@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -8,21 +8,22 @@ if [[ ${PV} = 9999* ]]; then
 	inherit git-r3
 else
 	inherit pypi
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="amd64 x86"
 fi
 
-PYTHON_COMPAT=( python3_{9..11} )
+PYTHON_COMPAT=( python3_{10..11} )
 DISTUTILS_USE_PEP517=setuptools
 DISTUTILS_SINGLE_IMPL=yes
 DISTUTILS_EXT=1
 
-inherit xdg xdg-utils distutils-r1 multibuild prefix tmpfiles udev
+inherit xdg distutils-r1 prefix tmpfiles udev
 
 DESCRIPTION="X Persistent Remote Apps (xpra) and Partitioning WM (parti) based on wimpiggy"
 HOMEPAGE="https://xpra.org/"
 LICENSE="GPL-2 BSD"
 SLOT="0"
 IUSE="brotli +client +clipboard crypt csc cups dbus doc ffmpeg jpeg html ibus +lz4 lzo minimal oauth opengl pinentry pulseaudio +server sound systemd test +trayicon udev vpx webcam webp xdg xinerama"
+IUSE+=" +python_single_target_python3_11"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	|| ( client server )
@@ -87,7 +88,7 @@ RDEPEND="
 		lz4? ( dev-python/lz4[${PYTHON_USEDEP}] )
 		lzo? ( >=dev-python/python-lzo-0.7.0[${PYTHON_USEDEP}] )
 		oauth? ( dev-python/oauthlib[${PYTHON_USEDEP}] )
-		opengl? ( dev-python/pyopengl_accelerate[${PYTHON_USEDEP}] )
+		opengl? ( dev-python/pyopengl-accelerate[${PYTHON_USEDEP}] )
 		webcam? (
 			dev-python/numpy[${PYTHON_USEDEP}]
 			dev-python/pyinotify[${PYTHON_USEDEP}]
@@ -127,7 +128,7 @@ python_prepare_all() {
 		sed -r -e '/pam_ENABLED/s/DEFAULT/False/' \
 			-e 's/^(xdg_open)_ENABLED = .*/\1_ENABLED = False/' \
 			-i setup.py || die
-		PATCHES+=( "${FILESDIR}"/${PN}-4.4.6_xpra-4.4.6_minimal-features.patch )
+		PATCHES+=( "${FILESDIR}"/${PN}-4.4.6_minimal-features.patch )
 	fi
 
 	distutils-r1_python_prepare_all

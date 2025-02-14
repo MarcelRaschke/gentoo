@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,7 +12,7 @@ S="${WORKDIR}/awk-${PV}"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux"
 
 BDEPEND="
 	app-alternatives/yacc
@@ -44,18 +44,4 @@ src_install() {
 		awk.1 > "${PN}".1 || die "manpage patch failed"
 	doman "${PN}.1"
 	einstalldocs
-}
-
-pkg_postinst() {
-	if has_version app-admin/eselect && has_version app-eselect/eselect-awk
-	then
-		eselect awk update ifunset
-	fi
-}
-
-pkg_postrm() {
-	if has_version app-admin/eselect && has_version app-eselect/eselect-awk
-	then
-		eselect awk update ifunset
-	fi
 }

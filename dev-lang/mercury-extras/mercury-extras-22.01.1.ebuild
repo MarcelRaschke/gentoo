@@ -1,9 +1,9 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
-inherit multilib vcs-clean
+inherit flag-o-matic vcs-clean
 
 PATCHSET_VER="1"
 MY_P=mercury-srcdist-${PV}
@@ -12,6 +12,7 @@ DESCRIPTION="Additional libraries and tools that are not part of the Mercury sta
 HOMEPAGE="https://www.mercurylang.org/index.html"
 SRC_URI="https://dl.mercurylang.org/release/${MY_P}.tar.gz
 	https://dev.gentoo.org/~keri/distfiles/mercury-extras/${P}-gentoo-patchset-${PATCHSET_VER}.tar.gz"
+S="${WORKDIR}"/${MY_P}/extras
 
 LICENSE="GPL-2 LGPL-2"
 SLOT="0"
@@ -40,8 +41,6 @@ RDEPEND="
 	X? ( x11-libs/libX11 )"
 
 DEPEND="${RDEPEND}"
-
-S="${WORKDIR}"/${MY_P}/extras
 
 mercury_pkgs() {
 	echo "
@@ -192,6 +191,12 @@ src_prepare() {
 }
 
 src_compile() {
+	# ccJwDryZ.ltrans0.ltrans.o:(.data.rel.ro.local+0x330): undefined reference to `<unification predicate for type 'align_right.squeeze'/0 mode 0>'
+	# https://bugs.gentoo.org/855638
+	#
+	# Custom language-specific compiler infrastructure, the main mercury compiler cannot handle LTO either.
+	filter-lto
+
 	for mercury_pkg in $(mercury_pkgs); do
 		mercury_pkg_compile ${mercury_pkg}
 	done

@@ -16,7 +16,7 @@ if [[ ${PV} == *9999* ]]; then
 else
 	SRC_URI="https://qgis.org/downloads/${P}.tar.bz2
 		examples? ( https://qgis.org/downloads/data/qgis_sample_data.tar.gz -> qgis_sample_data-2.8.14.tar.gz )"
-	KEYWORDS="~amd64 ~x86"
+	KEYWORDS="~amd64"
 fi
 inherit cmake flag-o-matic python-single-r1 virtualx xdg
 
@@ -25,49 +25,40 @@ HOMEPAGE="https://www.qgis.org/"
 
 LICENSE="GPL-2+ GPL-3+"
 SLOT="0"
-IUSE="3d doc examples +georeferencer grass hdf5 mapserver netcdf opencl oracle pdal polar postgres python qml test"
+IUSE="3d doc examples +georeferencer grass hdf5 mapserver netcdf opencl oracle pdal postgres python qml test webengine"
 
 REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	mapserver? ( python )
-	test? ( postgres )
 "
+# 	test? ( postgres )
 
 # Disabling test suite because upstream disallow running from install path
 RESTRICT="!test? ( test )"
 
-# At some point the dependency on qwtpolar should be
-# replaced with a dependency on qwt[polar]. Currently
-# it does not build with qwt-6.2[polar] though.
 COMMON_DEPEND="
-	app-crypt/qca:2[qt5(+),ssl]
+	app-crypt/qca:2[qt6,ssl]
 	>=dev-db/spatialite-4.2.0
 	dev-db/sqlite:3
 	dev-libs/expat
 	dev-libs/libzip:=
 	dev-libs/protobuf:=
-	dev-libs/qtkeychain[qt5(+)]
-	dev-qt/designer:5
-	dev-qt/qtconcurrent:5
-	dev-qt/qtcore:5
-	dev-qt/qtgui:5
-	dev-qt/qtmultimedia:5[widgets]
-	dev-qt/qtnetwork:5[ssl]
-	dev-qt/qtpositioning:5
-	dev-qt/qtprintsupport:5
-	dev-qt/qtserialport:5
-	dev-qt/qtsql:5
-	dev-qt/qtsvg:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtxml:5
+	dev-libs/qtkeychain[qt6]
+	dev-qt/qttools:6[designer]
+	dev-qt/qtbase:6[concurrent,gui,network,sql,ssl,widgets,xml]
+	dev-qt/qtmultimedia:6
+	dev-qt/qtpositioning:6
+	dev-qt/qtserialport:6
+	dev-qt/qtsvg:6
+	dev-vcs/git
 	media-gfx/exiv2:=
 	>=sci-libs/gdal-3.0.4:=[geos,spatialite,sqlite]
 	sci-libs/geos
 	sci-libs/libspatialindex:=
 	>=sci-libs/proj-4.9.3:=
 	sys-libs/zlib
-	>=x11-libs/qscintilla-2.10.1:=[qt5(+)]
-	>=x11-libs/qwt-6.1.2:6=[qt5(+),svg]
-	3d? ( dev-qt/qt3d:5 )
+	>=x11-libs/qscintilla-2.10.1:=[qt6]
+	>=x11-libs/qwt-6.2.0-r3:=[polar(+),qt6,svg(+)]
+	3d? ( dev-qt/qt3d:6 )
 	georeferencer? ( sci-libs/gsl:= )
 	grass? ( sci-geosciences/grass:= )
 	hdf5? ( sci-libs/hdf5:= )
@@ -79,59 +70,76 @@ COMMON_DEPEND="
 		sci-libs/gdal:=[oracle]
 	)
 	pdal? ( sci-libs/pdal:= )
-	polar? ( >=x11-libs/qwtpolar-1.1.1-r1[qt5(+)] )
 	postgres? ( dev-db/postgresql:= )
 	python? (
 		${PYTHON_DEPS}
 		>=sci-libs/gdal-2.2.3[python,${PYTHON_SINGLE_USEDEP}]
 		$(python_gen_cond_dep '
 			dev-python/httplib2[${PYTHON_USEDEP}]
-			dev-python/jinja[${PYTHON_USEDEP}]
+			dev-python/jinja2[${PYTHON_USEDEP}]
 			dev-python/markupsafe[${PYTHON_USEDEP}]
 			dev-python/numpy[${PYTHON_USEDEP}]
 			dev-python/owslib[${PYTHON_USEDEP}]
 			dev-python/pygments[${PYTHON_USEDEP}]
-			dev-python/PyQt5[designer,gui,multimedia,network,positioning,printsupport,serialport,sql,svg,widgets,${PYTHON_USEDEP}]
 			dev-python/python-dateutil[${PYTHON_USEDEP}]
 			dev-python/pytz[${PYTHON_USEDEP}]
 			dev-python/pyyaml[${PYTHON_USEDEP}]
-			>=dev-python/qscintilla-python-2.10.1[qt5(+),${PYTHON_USEDEP}]
+			>=dev-python/qscintilla-2.10.1[${PYTHON_USEDEP}]
 			dev-python/requests[${PYTHON_USEDEP}]
 			dev-python/sip:=[${PYTHON_USEDEP}]
 			postgres? ( dev-python/psycopg:2[${PYTHON_USEDEP}] )
+			dev-python/pyqt6[designer,gui,multimedia,network,positioning,printsupport,serialport,sql,svg,widgets,${PYTHON_USEDEP}]
+			>=dev-python/qscintilla-2.10.1[qt6]
 		')
 	)
-	qml? ( dev-qt/qtdeclarative:5 )
+	qml? ( dev-qt/qtdeclarative:6 )
+	webengine? ( dev-qt/qtwebengine:6 )
 "
 DEPEND="${COMMON_DEPEND}
-	dev-qt/qttest:5
+	test? (
+		python? (
+			app-text/qpdf
+			app-text/poppler[cairo,utils]
+		)
+	)
 "
 RDEPEND="${COMMON_DEPEND}
 	sci-geosciences/gpsbabel
 "
 BDEPEND="${PYTHON_DEPS}
-	dev-qt/linguist-tools:5
+	dev-qt/qttools:6[linguist]
 	app-alternatives/yacc
 	app-alternatives/lex
 	doc? ( app-text/doxygen )
 	test? (
-		$(python_gen_cond_dep '
-			dev-python/PyQt5[${PYTHON_USEDEP},testlib]
-			dev-python/nose2[${PYTHON_USEDEP}]
-			dev-python/mock[${PYTHON_USEDEP}]
-		')
+		python? (
+			$(python_gen_cond_dep '
+				dev-python/pyqt6[${PYTHON_USEDEP},testlib]
+				dev-python/nose2[${PYTHON_USEDEP}]
+				dev-python/mock[${PYTHON_USEDEP}]
+			')
+		)
 	)
 "
+
+PATCHES=(
+	# "${FILESDIR}/${PN}-3.36.3-qt6-Fix-broken-test.patch"
+	"${FILESDIR}/${PN}-3.36.3-qt6.patch"
+	"${FILESDIR}/${PN}-3.36.3-testReportDir.patch"
+)
 
 src_prepare() {
 	cmake_src_prepare
 	# Tests want to be run inside a git repo
 	if [[ ${PV} != *9999* ]]; then
 		if use test; then
+			git config --global --add safe.directory "${S}" || die
 			git init -q || die
-			git config user.email "larry@gentoo.org" || die
-			git config user.name "Larry the Cow" || die
+			git config --local gc.auto 0 || die
+			git config --local user.email "larry@gentoo.org" || die
+			git config --local user.name "Larry the Cow" || die
 			git add . || die
+
 			git commit -m "init" || die
 		fi
 	fi
@@ -150,11 +158,14 @@ src_configure() {
 		-DQGIS_MANUAL_SUBDIR=share/man/
 		-DQGIS_LIB_SUBDIR=$(get_libdir)
 		-DQGIS_PLUGIN_SUBDIR=$(get_libdir)/qgis
-		-DQWT_INCLUDE_DIR=/usr/include/qwt6
-		-DQWT_LIBRARY=/usr/$(get_libdir)/libqwt6-qt5.so
-		-DQGIS_QML_SUBDIR=/usr/$(get_libdir)/qt5/qml
+
+		# -DQWT_INCLUDE_DIR=/usr/include/qwt6
+		# -DQWT_LIBRARY=/usr/$(get_libdir)/libqwt6-qt5.so
+		# -DQGIS_QML_SUBDIR=/usr/$(get_libdir)/qt5/qml
+
 		-DPEDANTIC=OFF
 		-DUSE_CCACHE=OFF
+		-DBUILD_WITH_QT6=ON
 		-DWITH_ANALYSIS=ON
 		-DWITH_APIDOC=$(usex doc)
 		-DWITH_GUI=ON
@@ -168,7 +179,8 @@ src_configure() {
 		$(cmake_use_find_package netcdf NetCDF)
 		-DUSE_OPENCL=$(usex opencl)
 		-DWITH_ORACLE=$(usex oracle)
-		-DWITH_QWTPOLAR=$(usex polar)
+		-DWITH_QWTPOLAR=ON
+		-DWITH_QTWEBENGINE=$(usex webengine)
 		-DWITH_PDAL=$(usex pdal)
 		-DWITH_POSTGRESQL=$(usex postgres)
 		-DWITH_BINDINGS=$(usex python)
@@ -193,7 +205,7 @@ src_configure() {
 
 		GRASSDIR=/usr/$(get_libdir)/${grassdir}
 
-		einfo "Supported versions: ${supported_grass_versions[@]}"
+		einfo "Supported versions: ${supported_grass_versions[*]}"
 		einfo "Found GRASS version: ${v[0]}*"
 
 		local known_grass_version
@@ -227,25 +239,194 @@ src_configure() {
 
 	use python && mycmakeargs+=( -DBINDINGS_GLOBAL_INSTALL=ON )
 
-	# bugs 612956, 648726
-	addpredict /dev/dri/renderD128
-	addpredict /dev/dri/renderD129
+	CMAKE_BUILD_TYPE=Release  # RelWithDebInfo enables debug logging
 
 	cmake_src_configure
 }
 
 src_test() {
-	local myctestargs=(
-		# test_core_gdalprovider - see https://github.com/qgis/QGIS/pull/47887
-		-E '(ProcessingGuiTest$|ProcessingQgisAlgorithmsTestPt1$|ProcessingQgisAlgorithmsTestPt2$|ProcessingQgisAlgorithmsTestPt3$|ProcessingQgisAlgorithmsTestPt4$|ProcessingGdalAlgorithmsRasterTest$|ProcessingGdalAlgorithmsVectorTest$|ProcessingGrass7AlgorithmsImageryTest$|ProcessingGrass7AlgorithmsRasterTestPt1$|ProcessingGrass7AlgorithmsRasterTestPt2$|ProcessingGrass7AlgorithmsVectorTest$|ProcessingOtbAlgorithmsTest$|test_core_callout$|test_core_compositionconverter$|test_core_expression$|test_core_gdalprovider$|test_core_gdalutils$|test_core_geonodeconnection$|test_core_imagecache$|test_core_labelingengine$|test_core_layout$|test_core_layoutcontext$|test_core_layouthtml$|test_core_layoutlabel$|test_core_layoutmanualtable$|test_core_layoutmap$|test_core_layoutmapgrid$|test_core_layoutmapoverview$|test_core_layoutmultiframe$|test_core_layoutpicture$|test_core_linefillsymbol$|test_core_mapdevicepixelratio$|test_core_maprendererjob$|test_core_meshlayer$|test_core_meshlayerrenderer$|test_core_networkaccessmanager$|test_core_pointpatternfillsymbol$|test_core_rastercontourrenderer$|test_core_rasterlayer$|test_core_simplemarker$|test_core_style$|test_core_svgmarker$|test_core_tiledownloadmanager$|test_core_ziplayer$|test_core_coordinatereferencesystem$|test_core_geometry$|test_gui_dualview$|test_gui_htmlwidgetwrapper$|test_gui_processinggui$|test_gui_filedownloader$|test_gui_ogrprovidergui$|test_gui_queryresultwidget$|test_gui_listwidget$|test_3d_3drendering$|test_3d_tessellator$|test_analysis_processingalgspt1$|test_analysis_processingalgspt2$|test_analysis_meshcontours$|test_analysis_triangulation$|test_analysis_processing$|test_provider_wcsprovider$|test_provider_postgresconn$|test_provider_virtualrasterprovider$|test_app_qgisappclipboard$|test_app_fieldcalculator$|test_app_maptoolcircularstring$|test_app_vertextool$|PyQgsLocalServer$|PyQgsAFSProvider$|PyQgsPythonProvider$|PyQgsAnnotation$|PyQgsAuthenticationSystem$|PyQgsAuthBasicMethod$|PyQgsDataItem$|PyQgsDelimitedTextProvider$|PyQgsEmbeddedSymbolRenderer$|PyQgsExpressionBuilderWidget$|PyQgsExternalStorageWebDAV$|PyQgsGeometryTest$|PyQgsGoogleMapsGeocoder$|PyQgsImageCache$|PyQgsLayout$|PyQgsLayoutHtml$|PyQgsLayoutLegend$|PyQgsLayoutMap$|PyQgsLayoutMapGrid$|PyQgsLayoutMapOverview$|PyQgsMapClippingUtils$|PyQgsMapLayerComboBox$|PyQgsMapLayerProxyModel$|PyQgsMemoryProvider$|PyQgsOGRProviderGpkg$|PyQgsPalLabelingCanvas$|PyQgsPalLabelingLayout$|PyQgsPalLabelingPlacement$|PyQgsPointCloudAttributeByRampRenderer$|PyQgsPointCloudClassifiedRenderer$|PyQgsPointCloudExtentRenderer$|PyQgsPointCloudRgbRenderer$|PyQgsProcessExecutable$|PyQgsProcessingInPlace$|TestQgsRandomMarkerSymbolLayer$|PyQgsRasterLayer$|PyQgsRasterLayerRenderer$|PyQgsRasterResampler$|PyQgsRulebasedRenderer$|PyQgsShapefileProvider$|PyQgsSvgCache$|PyQgsOGRProvider$|PyQgsSpatialiteProvider$|PyQgsTaskManager$|PyQgsVectorFileWriter$|PyQgsVectorLayer$|PyQgsVectorLayerCache$|PyQgsVectorLayerEditBuffer$|PyQgsVectorLayerEditBufferGroup$|PyQgsVectorLayerProfileGenerator$|PyQgsVectorLayerSelectedFeatureSource$|PyQgsVectorLayerShapefile$|PyQgsVirtualLayerProvider$|PyQgsWFSProvider$|PyQgsOapifProvider$|PyQgsDBManagerGpkg$|PyQgsAuxiliaryStorage$|PyQgsFieldValidator$|PyQgsSelectiveMasking$|PyQgsPalLabelingServer$|PyQgsServerWMSGetMap$|PyQgsServerWMSGetLegendGraphic$|PyQgsServerWMSGetPrint$|PyQgsServerWMSGetPrintExtra$|PyQgsServerWMSGetPrintOutputs$|PyQgsServerWMSGetPrintAtlas$|PyQgsServerWMSDimension$|PyQgsServerAccessControlWMS$|PyQgsServerAccessControlWFS$|PyQgsServerAccessControlWFSTransactional$|PyQgsServerCacheManager$|PyQgsServerWMS$|PyQgsServerWMTS$|PyQgsServerWFS$|qgis_sipify$|qgis_sip_include$|qgis_sip_uptodate$|qgis_doxygen_order$|test_core_authmanager$)'
+	addwrite "/proc/self/mem"
+	addwrite "/proc/self/task/"
+	addwrite "/dev/fuse"
 
-		--output-on-failure
+	local -x CMAKE_SKIP_TESTS=(
+		PyQgsAFSProvider$
+		PyQgsAnnotation$
+		PyQgsAuthenticationSystem$
+		PyQgsAuxiliaryStorage$
+		PyQgsBlockingNetworkRequest$
+		PyQgsBlockingProcess$
+		PyQgsCodeEditor$
+		PyQgsDataItemProviderRegistry$
+		PyQgsDelimitedTextProvider$
+		PyQgsEditWidgets$
+		PyQgsElevationProfileCanvas$
+		PyQgsEmbeddedSymbolRenderer$
+		PyQgsExternalStorageAwsS3$
+		PyQgsExternalStorageWebDav$
+		PyQgsFileDownloader$
+		PyQgsFloatingWidget$
+		PyQgsGeometryTest$
+		PyQgsGoogleMapsGeocoder$
+		PyQgsGroupLayer$
+		PyQgsLayerDefinition$
+		PyQgsLayoutHtml$
+		PyQgsLayoutLegend$
+		PyQgsLayoutMap$
+		PyQgsLineSymbolLayers$
+		PyQgsMapBoxGlStyleConverter$
+		PyQgsMapLayerComboBox$
+		PyQgsMapLayerProxyModel$
+		PyQgsMemoryProvider$
+		PyQgsNetworkAccessManager$
+		PyQgsOGRProvider$
+		PyQgsOGRProviderGpkg$
+		PyQgsPainting$
+		PyQgsPalLabelingCanvas$
+		PyQgsPalLabelingLayout$
+		PyQgsPalLabelingPlacement$
+		PyQgsPlot$
+		PyQgsPointCloudAttributeByRampRenderer$
+		PyQgsPointCloudClassifiedRenderer$
+		PyQgsPointCloudRgbRenderer$
+		PyQgsProcessExecutablePt1$
+		PyQgsProcessExecutablePt2$
+		PyQgsProcessingAlgRunner$
+		PyQgsProcessingInPlace$
+		PyQgsProcessingPackageLayersAlgorithm$
+		PyQgsProcessingParameters$
+		PyQgsProject$
+		PyQgsPythonProvider$
+		PyQgsRasterFileWriter$
+		PyQgsRasterLayer$
+		PyQgsRasterLayerRenderer$
+		PyQgsSelectiveMasking$
+		PyQgsSettings$
+		PyQgsSettingsEntry$
+		PyQgsShapefileProvider$
+		PyQgsSpatialiteProvider$
+		PyQgsStyleModel$
+		PyQgsSvgCache$
+		PyQgsSymbolLayerReadSld$
+		PyQgsTextRenderer$
+		PyQgsVectorFileWriter$
+		PyQgsVectorLayerCache$
+		PyQgsVectorLayerEditBuffer$
+		PyQgsVectorLayerEditUtils$
+		PyQgsVectorLayerProfileGenerator$
+		PyQgsWFSProvider$
+		TestQgsRandomMarkerSymbolLayer$
+		qgis_sip_uptodate$
+		test_3d_3drendering$
+		test_3d_layout3dmap$
+		test_3d_mesh3drendering$
+		test_3d_pointcloud3drendering$
+		test_3d_tessellator$
+		test_analysis_gcptransformer$
+		test_app_advanceddigitizing$
+		test_authmethod_authoauth2method$
+		test_core_mapdevicepixelratio$
+		test_core_ogcutils$
+		test_core_openclutils$
+		test_core_vectortilelayer$
+		test_gui_dockwidget$
+		test_gui_ogrprovidergui$
+
+		PyQgsDocCoverage$
+		PyQgsSipCoverage$
 	)
 
-	virtx cmake_src_test -j1
+	CMAKE_SKIP_TESTS+=(
+		test_core_blendmodes$
+		test_core_callout$
+		test_core_compositionconverter$
+		test_core_dataitem$
+		test_core_expression$
+		test_core_gdalutils$
+		test_core_labelingengine$
+		test_core_layoutmap$
+		test_core_layoutmapoverview$
+		test_core_layoutpicture$
+		test_core_linefillsymbol$
+		test_core_maprendererjob$
+		test_core_maprotation$
+		test_core_meshlayer$
+		test_core_meshlayerrenderer$
+		test_core_networkaccessmanager$
+		test_core_pointcloudlayerexporter$
+		test_core_project$
+		test_core_rastercontourrenderer$
+		test_core_rasterlayer$
+		test_core_simplemarker$
+		test_core_tiledownloadmanager$
+		test_gui_processinggui$
+		test_gui_filedownloader$
+		test_gui_newdatabasetablewidget$
+		test_gui_queryresultwidget$
+		test_analysis_processingalgspt2$
+		test_analysis_meshcontours$
+		test_analysis_triangulation$
+		test_analysis_processing$
+		test_provider_wcsprovider$
+		test_app_maptoolcircularstring$
+		test_app_vertextool$
+	)
+
+	if ! use netcdf; then
+		CMAKE_SKIP_TESTS+=(
+			test_core_gdalprovider$
+		)
+	fi
+
+	if ! use hdf5; then
+		CMAKE_SKIP_TESTS+=(
+			test_gui_meshlayerpropertiesdialog$
+			test_app_maptooleditmesh$
+		)
+	fi
+
+	if ! use python || ! use postgres; then
+		CMAKE_SKIP_TESTS+=(
+			ProcessingGrassAlgorithmsRasterTestPt2$
+			ProcessingCheckValidityAlgorithmTest$
+			ProcessingGdalAlgorithmsGeneralTest$
+			ProcessingGdalAlgorithmsRasterTest$
+			ProcessingGdalAlgorithmsVectorTest$
+			ProcessingGeneralTest$
+			ProcessingGenericAlgorithmsTest$
+			ProcessingGrassAlgorithmsImageryTest$
+			ProcessingGrassAlgorithmsRasterTestPt1$
+			ProcessingGrassAlgorithmsVectorTest$
+			ProcessingGuiTest$
+			ProcessingModelerTest$
+			ProcessingParametersTest$
+			ProcessingProjectProviderTest$
+			ProcessingQgisAlgorithmsTestPt1$
+			ProcessingQgisAlgorithmsTestPt2$
+			ProcessingQgisAlgorithmsTestPt3$
+			ProcessingQgisAlgorithmsTestPt4$
+			ProcessingQgisAlgorithmsTestPt5$
+			ProcessingQgisAlgorithmsTestPt5$
+			ProcessingScriptUtilsTest$
+			ProcessingToolsTest$
+		)
+	fi
+
+	local myctestargs=(
+		--output-on-failure
+		-j1
+	)
+
+	xdg_environment_reset
+
+	local -x QGIS_CONTINUOUS_INTEGRATION_RUN="true"
+	virtx cmake_src_test
 }
 
 src_install() {
+	if use test; then
+		git config --global --add safe.directory "${S}" || die
+	fi
 	cmake_src_install
 
 	insinto /usr/share/mime/packages
@@ -254,7 +435,7 @@ src_install() {
 	if use examples; then
 		docinto examples
 		dodoc -r "${WORKDIR}"/qgis_sample_data/.
-		docompress -x /usr/share/doc/${PF}/examples
+		docompress -x "/usr/share/doc/${PF}/examples"
 	fi
 
 	if use python; then

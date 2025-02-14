@@ -5,12 +5,12 @@ DESCRIPTION=A programming language based on R6RS
 EAPI=8
 HOMEPAGE=https://cisco.github.io/ChezScheme/ https://github.com/cisco/ChezScheme/
 INHERIT=edo toolchain-funcs
-IUSE=X ncurses threads
+IUSE=X +ncurses +threads
 KEYWORDS=amd64 ~arm ~x86
 LICENSE=Apache-2.0 MIT
 RDEPEND=app-arch/lz4:= sys-apps/util-linux sys-libs/zlib:= X? ( x11-libs/libX11 ) ncurses? ( sys-libs/ncurses:= )
 RESTRICT=test
 SLOT=0/10.0.0
 SRC_URI=https://github.com/cisco/ChezScheme/releases/download/v10.0.0/csv10.0.0.tar.gz -> chez-10.0.0.tar.gz
-_eclasses_=edo	367e103a74bf77e6a8da7894d999fa3c	toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0
-_md5_=ff87552fdf1e367b0b62ae18037edce8
+_eclasses_=edo	367e103a74bf77e6a8da7894d999fa3c	toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96
+_md5_=206e202434ff2ce007662e21ddca72a6

@@ -10,7 +10,7 @@ SRC_URI="mirror://debian/pool/main/d/${PN}/${P/-/_}.tar.xz"
 
 LICENSE="GPL-2+"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux"
 IUSE="+bzip2 +lzma nls selinux static-libs test +update-alternatives +zlib"
 RESTRICT="!test? ( test )"
 
@@ -21,6 +21,7 @@ RDEPEND="
 	>=dev-lang/perl-5.14.2:=
 	sys-libs/ncurses:=[unicode(+)]
 	bzip2? ( app-arch/bzip2 )
+	elibc_musl? ( sys-libs/obstack-standalone )
 	lzma? ( app-arch/xz-utils )
 	nls? ( virtual/libintl )
 	selinux? ( sys-libs/libselinux )

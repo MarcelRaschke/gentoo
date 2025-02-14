@@ -1,5 +1,49 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
+
+# Sam James <sam@gentoo.org. (2025-01-14)
+# dev-cpp/benchmark is not yet keyworded here
+dev-libs/re2 benchmark
+
+# Sam James <sam@gentoo.org> (2025-01-14)
+# dev-libs/libpfm is not yet keyworded here
+dev-cpp/benchmark libpfm
+
+# Sam James <sam@gentoo.org> (2025-01-10)
+# Many unkeyworded dependencies like parts of TL (bug #947788)
+dev-perl/Template-Toolkit gd latex vim-syntax
+
+# Matt Jolly <kangie@gentoo.org> (2024-12-08)
+# dev-vcs/mercurial is not keyworded on s390
+app-eselect/eselect-repository mercurial
+
+# Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
+# requires dev-libs/hidapi to be keyworded
+dev-libs/libfido2 hidapi
+
+# Pacho Ramos <pacho@gentoo.org> (2024-11-28)
+# Needs gi-docgen
+dev-libs/glib doc
+
+# Hans de Graaff <graaff@gentoo.org> (2024-09-01)
+# Requires large parts of dev-ruby/rails to be keyworded
+dev-ruby/minitest-hooks test
+
+# Sam James <sam@gentoo.org> (2024-08-23)
+# dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
+sys-apps/systemd bpf
+
+# Matt Jolly <kangie@gentoo.org> (2024-08-14)
+# QUIC dependencies are not keyworded
+net-misc/curl http3 quic curl_quic_openssl curl_quic_ngtcp2
+
+# Michał Górny <mgorny@gentoo.org> (2024-07-24)
+# Full testing requires www-client/firefox.
+dev-python/selenium test-rust
+
+# Sam James <sam@gentoo.org> (2024-07-03)
+# kde-frameworks/kservice not keyworded here
+x11-misc/xdg-utils plasma
 
 # Michał Górny <mgorny@gentoo.org> (2024-05-08)
 # Requires sys-devel/{clang,llvm}:16.
@@ -8,10 +52,6 @@ dev-lang/python jit
 # NRK <nrk@disroot.org> (2024-04-08)
 # media-libs/libraw is not keyworded
 media-libs/imlib2 raw
-
-# Viorel Munteanu <ceamac@gentoo.org> (2024-04-06)
-# sys-libs/nss_wrapper unavailable for tests
-net-misc/dropbear test
 
 # Sam James <sam@gentoo.org> (2024-03-27)
 # No rust-bin available for profiler
@@ -33,7 +73,7 @@ dev-libs/mongo-c-driver test
 # net-libs/grpc not keyworded here
 app-admin/syslog-ng grpc
 
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-01-12)
+# Nowa Ammerlaan <nowa@gentoo.org> (2024-01-12)
 # dracut is not keyworded here
 sys-kernel/installkernel dracut
 
@@ -46,7 +86,7 @@ dev-lang/php capstone
 x11-base/xwayland libei
 
 # James Le Cuirot (2023-12-12)
-# USE=bpf depends on sys-devel/clang which is not keyworded on s390
+# USE=bpf depends on llvm-core/clang which is not keyworded on s390
 media-libs/libv4l bpf
 
 # Michał Górny <mgorny@gentoo.org> (2023-10-15)
@@ -62,6 +102,7 @@ app-alternatives/ninja samurai
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
+sys-apps/openrc-navi s6
 
 # Sam James <sam@gentoo.org> (2023-09-24)
 # Qt not keyworded here.
@@ -163,6 +204,8 @@ net-fs/cifs-utils acl
 
 # Sam James <sam@gentoo.org> (2022-04-20)
 # x11-themes/sound-theme-freedesktop unkeyworded here
+app-editors/gvim sound
+app-editors/vim sound
 media-libs/libcanberra sound
 
 # Sam James <sam@gentoo.org> (2022-04-24)
@@ -206,7 +249,7 @@ dev-python/diskcache test
 
 # Matt Turner <mattst88@gentoo.org> (2020-08-11)
 # No drivers on this architecture support Vulkan
-media-libs/mesa vulkan vulkan-overlay zink
+media-libs/mesa video_cards_zink vulkan vulkan-overlay
 
 # Hans de Graaff <graaff@gentoo.org> (2019-04-08)
 # Obsolete ruby version, no newer versions keyworded or stable.
@@ -221,8 +264,6 @@ app-editors/vim lua
 # not keyworded yet
 media-gfx/imagemagick raw
 dev-db/mariadb numa
-# not tested yet
-app-arch/rpm test
 # no ceph keyworded
 net-analyzer/rrdtool rados
 

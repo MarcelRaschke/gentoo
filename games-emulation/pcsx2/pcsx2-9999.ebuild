@@ -1,17 +1,18 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit cmake desktop fcaps flag-o-matic optfeature toolchain-funcs
+inherit cmake desktop eapi9-ver fcaps flag-o-matic optfeature toolchain-funcs
 
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/PCSX2/pcsx2.git"
 else
-	# unbundling on this package has become unmaintainable and, rather than
-	# handle submodules separately, using a tarball that includes them
-	SRC_URI="https://dev.gentoo.org/~ionen/distfiles/${P}.tar.xz"
+	SRC_URI="
+		https://github.com/PCSX2/pcsx2/archive/refs/tags/v${PV}.tar.gz
+			-> ${P}.tar.gz
+	"
 	KEYWORDS="-* ~amd64"
 fi
 
@@ -60,7 +61,7 @@ COMMON_DEPEND="
 # is missing and it is fairly small (installs a ~1.5MB patches.zip)
 RDEPEND="
 	${COMMON_DEPEND}
-	>=games-emulation/pcsx2_patches-0_p20230917
+	>=games-emulation/pcsx2_patches-0_p20241020
 "
 DEPEND="
 	${COMMON_DEPEND}
@@ -68,7 +69,7 @@ DEPEND="
 "
 BDEPEND="
 	dev-qt/qttools:6[linguist]
-	clang? ( sys-devel/clang:* )
+	clang? ( llvm-core/clang:* )
 	wayland? (
 		dev-util/wayland-scanner
 		kde-frameworks/extra-cmake-modules
@@ -78,8 +79,9 @@ BDEPEND="
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.7.4667-flags.patch
 	"${FILESDIR}"/${PN}-1.7.5232-cubeb-automagic.patch
-	"${FILESDIR}"/${PN}-1.7.5835-vanilla-shaderc.patch
-	"${FILESDIR}"/${PN}-1.7.5855-no-libbacktrace.patch
+	"${FILESDIR}"/${PN}-1.7.5835-musl-header.patch
+	"${FILESDIR}"/${PN}-1.7.5913-musl-cache.patch
+	"${FILESDIR}"/${PN}-2.2.0-missing-header.patch
 )
 
 src_prepare() {
@@ -110,8 +112,10 @@ src_configure() {
 		-DBUILD_SHARED_LIBS=no
 		-DDISABLE_ADVANCE_SIMD=yes
 		-DENABLE_TESTS=$(usex test)
+		-DPACKAGE_MODE=yes
+		-DUSE_BACKTRACE=no # not packaged (bug #885471)
 		-DUSE_LINKED_FFMPEG=yes
-		-DUSE_VTUNE=no
+		-DUSE_VTUNE=no # not packaged
 		-DUSE_VULKAN=$(usex vulkan)
 
 		# note that upstream hardly support native wayland, may or may not work
@@ -138,22 +142,16 @@ src_test() {
 }
 
 src_install() {
-	insinto /usr/lib/${PN}
-	doins -r "${BUILD_DIR}"/bin/.
+	cmake_src_install
 
-	fperms +x /usr/lib/${PN}/pcsx2-qt
-	dosym -r /usr/lib/${PN}/pcsx2-qt /usr/bin/${PN}
-
-	newicon bin/resources/icons/AppIconLarge.png ${PN}.png
-	make_desktop_entry ${PN} ${PN^^}
+	newicon bin/resources/icons/AppIconLarge.png pcsx2.png
+	make_desktop_entry pcsx2-qt PCSX2
 
 	dodoc README.md bin/docs/{Debugger.pdf,GameIndex.pdf,debugger.txt}
-
-	use !test || rm "${ED}"/usr/lib/${PN}/*_test || die
 }
 
 pkg_postinst() {
-	fcaps -m 0755 cap_net_admin,cap_net_raw=eip usr/lib/${PN}/pcsx2-qt
+	fcaps -m 0755 cap_net_admin,cap_net_raw=eip usr/bin/pcsx2-qt
 
 	# calls aplay or gst-play/launch-1.0 as fallback
 	# https://github.com/PCSX2/pcsx2/issues/11141
@@ -161,12 +159,8 @@ pkg_postinst() {
 		media-sound/alsa-utils \
 		media-libs/gst-plugins-base:1.0
 
-	if [[ ${REPLACING_VERSIONS##* } ]] &&
-		ver_test ${REPLACING_VERSIONS##* } -lt 1.7; then
-		elog ">=${PN}-1.7 has received several changes since <=${PN}-1.6.0, and is"
-		elog "notably now a 64bit build using Qt6. Just-in-case it is recommended"
-		elog "to backup configs, save states, and memory cards before using."
+	if ver_replacing -lt 2.2.0; then
 		elog
-		elog "The executable was also renamed from 'PCSX2' to 'pcsx2'."
+		elog "Note that the 'pcsx2' executable was renamed to 'pcsx2-qt' with this version."
 	fi
 }

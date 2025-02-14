@@ -24,7 +24,7 @@ SLOT="0"
 # is barely supported anyway, see bug #914358.
 IUSE="+lapack"
 if [[ ${PV} != *_[rab]* ]] ; then
-	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 fi
 
 RDEPEND="
@@ -50,10 +50,18 @@ BDEPEND="
 	)
 "
 
+QA_CONFIG_IMPL_DECL_SKIP=(
+	# https://bugs.gentoo.org/925367
+	vrndq_f32
+)
+
 EPYTEST_XDIST=1
 distutils_enable_tests pytest
 
 python_prepare_all() {
+	# bug #922457
+	filter-lto
+	# https://github.com/numpy/numpy/issues/25004
 	append-flags -fno-strict-aliasing
 
 	distutils-r1_python_prepare_all

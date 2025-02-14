@@ -1,7 +1,7 @@
 # Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
+EAPI=8
 
 POSTGRES_COMPAT=( 14 15 )
 
@@ -10,10 +10,7 @@ inherit postgres-multi
 DESCRIPTION="Open-source postgresql extension for clustering/multi-node setups"
 HOMEPAGE="https://www.citusdata.com/"
 
-MY_PV="${PV/beta0/beta}"
-SRC_URI="https://github.com/citusdata/citus/archive/refs/tags/v${MY_PV}.tar.gz -> ${P}.tar.gz"
-
-S="${WORKDIR}/${PN}-${MY_PV}"
+SRC_URI="https://github.com/citusdata/citus/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 IUSE=""
 LICENSE="POSTGRESQL AGPL-3"

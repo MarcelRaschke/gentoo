@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,8 +14,9 @@ if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/clementine-player/Clementine.git"
 	inherit git-r3
 else
-	SRC_URI="https://github.com/clementine-player/Clementine/archive/refs/tags/${PV/_}.tar.gz -> ${P}.tar.gz"
-	S="${WORKDIR}/Clementine-${PV/_}"
+	MY_PV="$(ver_cut 1-3)-$(ver_cut 5)-gxxxxxxxxx"
+	SRC_URI="https://github.com/clementine-player/Clementine/releases/download/${MY_PV}/clementine-${MY_PV}.tar.xz -> ${P}.tar.xz"
+	S="${WORKDIR}/clementine-${MY_PV}"
 	KEYWORDS="~amd64 ~arm64 ~ppc64 ~x86"
 fi
 
@@ -45,7 +46,7 @@ COMMON_DEPEND="
 	media-libs/gstreamer:1.0
 	media-libs/gst-plugins-base:1.0
 	>=media-libs/libmygpo-qt-1.0.9[qt5(+)]
-	>=media-libs/taglib-1.11.1_p20181028
+	media-libs/taglib:=
 	sys-libs/zlib
 	x11-libs/libX11
 	alsa? ( media-libs/alsa-lib )
@@ -91,12 +92,6 @@ BDEPEND="
 		gnome-base/gsettings-desktop-schemas
 	)
 "
-
-PATCHES=(
-	"${FILESDIR}/clementine-1.4.0_rc2-c17.patch"
-	"${FILESDIR}/clementine-1.4.0_rc2-absl.patch"
-	"${FILESDIR}/clementine-1.4.0_rc2-projectm-dir.patch"
-)
 
 DOCS=( Changelog README.md )
 
@@ -144,8 +139,13 @@ src_configure() {
 		-DENABLE_UDISKS2="$(usex udisks)"
 		-DENABLE_WIIMOTEDEV="$(usex wiimote)"
 		"$(cmake_use_find_package alsa ALSA)"
-		-DGENTOO_FIX_ABSL_LIBS="$(test-flags-CCLD -labsl_log_internal_check_op -labsl_log_internal_message)"
 	)
+
+	if [[ ${PV} != *9999* ]]; then
+		mycmakeargs+=(
+			-DFORCE_GIT_REVISION="${MY_PV}"
+		)
+	fi
 
 	use !debug && append-cppflags -DQT_NO_DEBUG_OUTPUT
 

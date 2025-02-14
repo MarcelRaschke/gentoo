@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # @ECLASS: kde.org.eclass
@@ -55,6 +55,7 @@ declare -A KDE_ORG_CATEGORIES=(
 	[games-board]=games
 	[games-kids]=education
 	[games-mud]=games
+	[games-puzzle]=games
 	[kde-frameworks]=frameworks
 	[kde-plasma]=plasma
 	[mail-client]=pim
@@ -234,6 +235,14 @@ kde.org_src_unpack() {
 	esac
 }
 
+kde.org_pkg_info() {
+	if [[ ${KDE_BUILD_TYPE} = live ]]; then
+		echo "WARNING! This is an experimental live ebuild of ${CATEGORY}/${PN}"
+		echo "Use it at your own risk."
+		echo "Only file bugs at bugs.gentoo.org if convinced that ebuild needs an update!"
+	fi
+}
+
 fi
 
-EXPORT_FUNCTIONS pkg_nofetch src_unpack
+EXPORT_FUNCTIONS pkg_nofetch src_unpack pkg_info

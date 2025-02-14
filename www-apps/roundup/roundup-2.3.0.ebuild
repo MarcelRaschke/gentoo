@@ -12,11 +12,11 @@ HOMEPAGE="https://roundup.sourceforge.io https://pypi.org/project/roundup/"
 
 LICENSE="MIT ZPL"
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~sparc ~x86"
+KEYWORDS="amd64 ~ppc sparc x86"
 IUSE="+tz sqlite mysql postgres xapian whoosh ssl jinja pyjwt markdown test"
 
 RDEPEND="
-	jinja? ( dev-python/jinja[${PYTHON_USEDEP}] )
+	jinja? ( dev-python/jinja2[${PYTHON_USEDEP}] )
 	markdown? (
 		|| (
 			dev-python/markdown[${PYTHON_USEDEP}]

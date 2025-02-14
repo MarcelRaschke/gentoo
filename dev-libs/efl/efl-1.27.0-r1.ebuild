@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -6,9 +6,9 @@ EAPI=8
 LUA_REQ_USE="deprecated(+)"
 LUA_COMPAT=( lua5-{1,2} luajit )
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 
-inherit lua-single meson python-any-r1 xdg
+inherit flag-o-matic lua-single meson python-any-r1 xdg
 
 DESCRIPTION="Enlightenment Foundation Libraries all-in-one package"
 HOMEPAGE="https://www.enlightenment.org"
@@ -131,6 +131,8 @@ BDEPEND="${PYTHON_DEPS}
 	mono? ( dev-build/cmake )
 	nls? ( sys-devel/gettext )
 	wayland? ( dev-util/wayland-scanner )"
+
+PATCHES=( "${FILESDIR}/${PN}-1.27-eina_string_view.patch" )
 
 pkg_setup() {
 	# Deprecated, provided for backward-compatibility. Everything is moved to libefreet.so.
@@ -278,6 +280,11 @@ src_configure() {
 	# Not all arm CPU's have neon instruction set, #722552
 	if use arm && ! use cpu_flags_arm_neon; then
 		emesonargs+=( -D native-arch-optimization=false )
+	fi
+
+	if use elibc_musl ; then
+		append-cflags -D__USE_MISC
+		append-cflags -D_LARGEFILE64_SOURCE
 	fi
 
 	meson_src_configure

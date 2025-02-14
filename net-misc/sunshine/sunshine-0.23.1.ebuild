@@ -137,7 +137,7 @@ CDEPEND="
 		sys-libs/libcap
 		x11-libs/libdrm
 	)
-	svt-av1? ( media-libs/svt-av1 )
+	svt-av1? ( media-libs/svt-av1:= )
 	trayicon? (
 		dev-libs/libayatana-appindicator
 		x11-libs/libnotify
@@ -179,6 +179,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-custom-ffmpeg.patch
 	"${FILESDIR}"/${PN}-0.22.0-nvcodec.patch
 	"${FILESDIR}"/${PN}-find-npm.patch
+	"${FILESDIR}"/${PN}-miniupnpc.patch
+	"${FILESDIR}"/${PN}-boost-1.86.patch
+	"${FILESDIR}"/${PN}-boost-1.87.patch
 )
 
 # Make this mess a bit simpler.

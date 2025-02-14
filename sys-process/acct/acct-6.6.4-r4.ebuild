@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit autotools systemd tmpfiles
+inherit autotools flag-o-matic systemd tmpfiles
 
 DESCRIPTION="GNU system accounting utilities"
 HOMEPAGE="https://savannah.gnu.org/projects/acct/"
@@ -11,7 +11,7 @@ SRC_URI="mirror://gnu/${PN}/${P}.tar.bz2"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~mips ppc ~ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~mips ppc ~ppc64 ~riscv ~sparc x86 ~amd64-linux ~x86-linux"
 IUSE="selinux"
 
 RDEPEND="selinux? ( sec-policy/selinux-acct )"
@@ -28,6 +28,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# bug #944194
+	append-flags -std=gnu17
+
 	econf --enable-linux-multiformat
 }
 

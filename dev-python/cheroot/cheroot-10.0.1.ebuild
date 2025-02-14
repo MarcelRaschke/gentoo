@@ -1,10 +1,10 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 DISTUTILS_USE_PEP517=setuptools
-PYTHON_COMPAT=( python3_{10..12} pypy3 )
+PYTHON_COMPAT=( python3_{10..13} pypy3 )
 
 inherit distutils-r1 pypi
 
@@ -17,7 +17,7 @@ HOMEPAGE="
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="test-rust"
 
 RDEPEND="
@@ -65,6 +65,10 @@ python_test() {
 		cheroot/test/test_server.py::test_high_number_of_file_descriptors
 		# known test failures with OpenSSL 3.2.0
 		cheroot/test/test_ssl.py::test_https_over_http_error
+		# hardcoded errno codes (sigh)
+		# https://github.com/cherrypy/cheroot/issues/736
+		cheroot/test/test_errors.py::test_plat_specific_errors
+		cheroot/test/test_ssl.py::test_http_over_https_error
 	)
 
 	case ${EPYTHON} in

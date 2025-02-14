@@ -1,18 +1,172 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # New entries go on top.
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-02-13)
+# Prepare cleanup of dev-qt/qtgamepad:5
+dev-qt/qt3d gamepad
+
+# Michał Górny <mgorny@gentoo.org> (2025-02-08)
+# Requires dev-cpp/cpp-httplib that has extremely unstable ABI.
+# Not worth the constant churn of having to rebuild LLVM again and again.
+llvm-core/lldb debuginfod
+llvm-core/llvm debuginfod
+
+# Nowa Ammerlaan <nowa@gentoo.org> (2025-01-04)
+# Missing dependencies not packaged currently
+dev-python/pyside doc
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-29)
+# Prepare cleanup of kde-frameworks/syndication:5
+kde-frameworks/knewstuff:5 opds
+
+# Eli Schwartz <eschwartz@gentoo.org> (2025-01-27)
+# Dependencies e.g. bindgen/netcdf/pypy not keyworded or stable in
+# most places.
+dev-build/meson test-full
+
+# Matt Jolly <kangie@gentoo.org> (2025-01-11)
+# mrustc currenly only works on amd64.
+dev-lang/rust mrustc-bootstrap
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2025-01-09)
+# No suitable versions of dev-libs/protobuf available.
+=dev-java/protobuf-java-4.29.3 system-protoc
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-03)
+# Blocking cleanup of kde-apps/kdegraphics-mobipocket:5
+kde-frameworks/kfilemetadata:5 mobi
+media-gfx/okularpart:5 mobi
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-01-03)
+# Prepare cleanup of kde-apps/kaccounts-integration:6[qt5] and
+# kde-frameworks/bluez-qt:5
+kde-frameworks/purpose:5 bluetooth kaccounts
+
+# Michał Górny <mgorny@gentoo.org> (2024-12-31)
+# None of the sci-libs/symengine versions work with the modern versions
+# of dev-libs/boost in Gentoo.
+sci-libs/symengine boost
+
+# Conrad Kostecki <conikost@gentoo.org> (2024-12-30)
+# Currently experimental features do not compile.
+app-emulation/pcem experimental
+
+# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2024-12-29)
+# openjfx for OpenJDK 25 is not yet available.
+dev-java/openjdk:25 javafx
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-12-28)
+# Prepare virtual/bitcoin-leveldb last-rites, bug #945359
+net-p2p/bitcoin-core system-leveldb
+
+# Paul Zander <negril.nx+gentoo@gmail.com> (2024-12-16)
+# sci-libs/atlas requires you to disable frequency scaling to build.
+# This barely works on older Intel CPUs on good days.
+# Avoid someone enabling without knowing what they do.
+media-libs/opencv atlas
+
+# John M. Harris, Jr. <johnmh@johnmh.me> (2024-12-12)
+# seccomp is only supported with systemd
+sys-apps/fwupd seccomp
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-11-24)
+# sci-libs/vtk[qt5] cleanup, bug #944817
+sci-libs/vtk qt5
+~sci-chemistry/avogadro2-1.97.0 vtk
+~sci-libs/avogadrolibs-1.97.0 vtk
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-11-23)
+# dev-python/pyside2 last-rites
+dev-python/qtpy pyside2
+
+# Sam James <sam@gentoo.org> (2024-11-17)
+# The example bindings fail to build.
+~sys-libs/ncurses-6.5_p20241109 cxx
+
+# Joonas Niilola <juippis@gentoo.org> (2024-11-16)
+# Wasm support is (currently) only available on amd64 and arm64.
+www-client/firefox wasm
+www-client/firefox wasm-sandbox
+
+# Matt Jolly <kangie@gentoo.org> (2024-11-11)
+# ICU 76.1 is not compatible with Chromium. Bug #943216.
+# We'll mask it for a few weeks to use the bundled ICU
+# while Google fixes the issue.
+www-client/chromium system-icu
+
+# Joonas Niilola <juippis@gentoo.org> (2024-11-07)
+# Dependency for generating docs not packaged in Gentoo. #942992
+dev-util/repolite doc
+
+# Sam James <sam@gentoo.org> (2024-10-29)
+# Currently needs patched dev-util/sysprof.
+dev-libs/elfutils stacktrace
+
+# Peter Levine <plevine457@gmail.com> (2024-10-09)
+# Leads to missing symbols while building testcases
+# Masked for further testing.
+dev-cpp/gtest abseil
+
+# Yongxiang Liang <tanekliang@gmail.com> (2024-10-10)
+# Fcitx 4 has been archived.
+app-i18n/mozc fcitx4
+
+# Michael Orlitzky <mjo@gentoo.org> (2024-10-07)
+# Disable "webservices" support for gthumb because it pulls in the old
+# libsoup2 slot of webkit-gtk. Upstream hasn't really budged on this in
+# over two years. Fedora has disabled webservices support already, and
+# that makes it OK if we do it too, right? Bug 893700.
+media-gfx/gthumb webkit
+
 # This file is only for generic masks. For arch-specific masks (i.e.
 # mask everywhere, unmask on arch/*) use arch/base.
 
-# Alfredo Tupone <tupone@gentoo.org> (2024-05-28)
-# Not working, bug #931046
->=sci-libs/caffe2-2.3.0 rocm
+# Sam James <sam@gentoo.org> (2024-09-30)
+# gnat-gpl is purely for bootstrapping Ada and it's based on an old
+# version of GCC. Avoid risks of miscompilations.
+dev-lang/gnat-gpl pgo lto
 
-# Michał Górny <mgorny@gentoo.org> (2024-05-18)
-# dev-python/aesara is being removed.
-dev-python/sympy aesara
+# Patrick McLean <chutzpah@gentoo.org> (2024-09-23)
+# Only supported on x86/amd64 (bug #940014).
+net-misc/lldpd seccomp
+
+# Sam James <sam@gentoo.org> (2024-09-07)
+# yacc[reference] exists more for curiosity than anything else, it's
+# not for real use on systems.
+app-alternatives/yacc reference
+
+# Sam James <sam@gentoo.org> (2024-09-03)
+# Causes crashes with e.g. dlz+samba (bug #938955)
+net-dns/bind jemalloc
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2024-08-31)
+# Prepare for KDE PIM 5 removal and avoid conflicts w/ KDE PIM 6
+app-office/kmymoney:5 addressbook
+app-office/kraft:5 pim
+
+# orbea <orbea@riseup.net> (2024-07-19)
+# The dynarec is only supported upstream for amd64, arm, arm64 and x86.
+games-emulation/rmg dynarec
+
+# Maciej Mrozowski <reavertm@gentoo.org> (2024-07-14)
+# Fails with newer ffmpeg, bug #831486
+# Not needed by reverse deps as of 2024-07-14. Re-enable when
+# https://github.com/openscenegraph/OpenSceneGraph/pull/1281 or
+# similar effort is upstreamed
+dev-games/openscenegraph ffmpeg
+
+# Michał Górny <mgorny@gentoo.org> (2024-06-29)
+# JIT is experimental and prone to break packages.  Should you choose
+# to use it, please do not file Gentoo bugs and report any issues you
+# hit upstream.
+dev-lang/python jit
+
+# Sam James <sam@gentoo.org> (2024-06-24)
+# Breaks installed gems in hard-to-debug ways.
+# bug #887223, bug #891367, bug #903891, bug #917139
+dev-lang/ruby static-libs
 
 # Sam James <sam@gentoo.org> (2024-05-09)
 # Experimental option upstream which seems undertested and underdocumented.
@@ -22,7 +176,7 @@ net-misc/openssh xmss
 # Matt Turner <mattst88@gentoo.org> (2024-05-08)
 # Brand new, introduces lots of new aspects to the build.
 # Masked for further testing.
-media-libs/mesa video_cards_nvk
+<media-libs/mesa-24.2 video_cards_nvk
 
 # Michał Górny <mgorny@gentoo.org> (2024-04-27)
 # dev-python/uv is nowhere near ready to be stabilized.
@@ -37,30 +191,9 @@ app-admin/testdisk ewf
 # Wayland client is broken/deprecated by upstream. Bug 930197.
 >=net-misc/freerdp-3 wayland
 
-# Andreas Sturmlechner <asturm@gentoo.org> (2024-04-06)
-# Depends on last-rited kde-apps/ktp-accounts-kcm
-dev-util/kdevelop reviewboard
-
 # Michał Górny <mgorny@gentoo.org> (2024-03-26)
 # sys-auth/pam_ssh is being last rited, bug #892031.
 sys-auth/pambase pam_ssh
-
-# Andrew Ammerlaan <andrewammerlaan@gentoo.org> (2024-03-22)
-# Building with qt6 requires (masked) kde-frameworks:6
-app-admin/calamares qt6
-
-# Viorel Munteanu <ceamac@gentoo.org> (2024-03-19)
-# The live version needs a new BDEPEND for doc
-=app-emulation/virtualbox-9999 doc
-
-# Sam James <sam@gentoo.org> (2024-03-18)
-# Needs masked KF6 for Wayland at least.
-app-crypt/pinentry qt6
-
-# Michał Górny <mgorny@gentoo.org> (2024-03-17)
-# Suffers from unaligned accesses, upstream's working on it.
-# https://github.com/psycopg/psycopg/issues/734
-<=dev-python/psycopg-3.1.18 native-extensions
 
 # Guilherme Amadio <amadio@gentoo.org> (2024-03-09)
 # Requires manually installing dependencies, see bug #791802
@@ -78,7 +211,7 @@ sci-physics/root R
 dev-debug/gdb cet
 sys-devel/binutils cet
 sys-devel/binutils-hppa64 cet
-sys-devel/clang-common cet
+llvm-core/clang-common cet
 sys-devel/gcc cet
 sys-libs/binutils-libs cet
 sys-libs/glibc cet
@@ -154,7 +287,6 @@ dev-haskell/tasty-expected-failure test
 # Jaco Kroon <jaco@uls.co.za> (2023-09-19)
 # Joonas Niilola <juippis@gentoo.org> (2023-09-21)
 # DAHDI is being last-rited. See bug #914477.
-net-misc/asterisk dahdi
 net-voip/yate dahdi
 
 # Matt Turner <mattst88@gentoo.org> (2023-09-14)
@@ -204,7 +336,7 @@ app-admin/ansible-molecule doc
 # William Hubbs <williamh@gentoo.org> (2023-06-30)
 # multiple repeated issues: Bug: #909394
 # Joonas Niilola <juippis@gentoo.org> (2024-04-22)
-# Can break reverse dependencies (Chromium, Firefox), debugging not always 
+# Can break reverse dependencies (Chromium, Firefox), debugging not always
 # obvious.
 net-libs/nodejs lto
 
@@ -216,11 +348,6 @@ dev-libs/openssl sslv2 sslv3
 # Sam James <sam@gentoo.org> (2023-06-29)
 # Needs <dev-libs/openssl-3 which is EOL beyond September 2023.
 net-misc/curl sslv3
-
-# Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-05-04)
-# No suitable version of dev-libs/protobuf available.
->=dev-java/protobuf-java-3.24.2 system-protoc
-=dev-java/protobuf-java-3.23.0 system-protoc
 
 # Joonas Niilola <juippis@gentoo.org> (2023-06-06)
 # Runtime not tested, may require more configuration in the ebuild.
@@ -234,10 +361,6 @@ app-emulation/qemu aio
 # Joonas Niilola <juippis@gentoo.org> (2023-05-07)
 # Doesn't compile, see #894210.
 dev-libs/log4cxx smtp
-
-# Sam James <sam@gentoo.org> (2023-05-01)
-# Doc building is broken with Python 3.11. See https://github.com/ukoethe/vigra/issues/529.
-media-libs/vigra doc
 
 # Sam James <sam@gentoo.org> (2023-04-17)
 # Ruby has several JITs available but they need porting to individual arches.
@@ -258,10 +381,6 @@ x11-apps/xdpyinfo dmx
 # https://bugs.gentoo.org/833098
 dev-java/openjdk:11 lto
 
-# Michał Górny <mgorny@gentoo.org> (2023-02-20)
-# dev-python/colorspacious is masked for removal.
-<dev-python/matplotlib-3.7.1 doc
-
 # Volkmar W. Pogatzki <gentoo@pogatzki.net> (2023-02-09)
 # Bug #893686. Presently nothing depends on dev-java/swt built with this flag.
 dev-java/swt:4.10 webkit
@@ -275,11 +394,8 @@ sci-libs/vtk debug
 # Yiyang Wu <xgreenlandforwyy@gmail.com> (2023-01-27)
 # AMDGPU enablement depends on dev-libs/rocr-runtime, ~amd64 only
 # See also: https://bugs.gentoo.org/891499
-sys-libs/libomp llvm_targets_AMDGPU
-
-# Sam James <sam@gentoo.org> (2023-01-21)
-# Fails to compile: https://github.com/libffi/libffi/issues/760
-<dev-libs/libffi-3.4.4-r4 exec-static-trampoline
+llvm-runtimes/offload llvm_targets_AMDGPU
+llvm-runtimes/openmp llvm_targets_AMDGPU
 
 # Joonas Niilola <juippis@gentoo.org> (2023-01-08)
 # Doesn't compile currently, bug #853094.
@@ -298,11 +414,6 @@ app-misc/pax-utils seccomp
 # Broken when trying to use sys-libs/binutils-libs header, bug #879067
 >=x11-libs/cairo-1.17.6 debug
 
-# Bernd Waibel <waebbl-gentoo@posteo.net> (2022-11-25)
-# USE=tbb is broken in 7.7.0
-# https://tracker.dev.opencascade.org/view.php?id=33152
-<sci-libs/opencascade-7.7.1 tbb
-
 # Guillermo Joandet <gjoandet@gmail.com> (2022-11-22)
 # app-text/pandoc is not keyworded on most architectures
 net-libs/gssdp man
@@ -310,10 +421,6 @@ net-libs/gssdp man
 # Sam James <sam@gentoo.org> (2022-11-19)
 # Needs long-EOL dev-lang/spidermonkey:60 (which also needs python:2.7).
 media-libs/coin javascript
-
-# Michał Górny <mgorny@gentoo.org> (2022-11-19)
-# Requires packages masked for removal.
-mail-mta/netqmail authcram
 
 # Matt Turner <mattst88@gentoo.org> (2022-11-16)
 # gnome-music and gnome-photos have not been ported to libsoup:3.0, while
@@ -350,6 +457,7 @@ dev-util/schroot nls
 # on glibc, so it doesn't prevent usage of llvm-libunwind for other packages.
 # bug #870211.
 dev-lang/rust llvm-libunwind
+dev-lang/rust-bin llvm-libunwind
 
 # Matt Jolly <kangie@gentoo.org> (2022-09-09)
 # app-antivirus/clamav JIT support requires LLVM <=13
@@ -394,12 +502,6 @@ sys-libs/ncurses stack-realign
 # Not ready for general use.
 >=www-client/chromium-104 pgo
 
-# Joonas Niilola <juippis@gentoo.org> (2022-05-03)
-# system-python-libs is HIGHLY EXPERIMENTAL according to upstream, and
-# still being worked on in Gentoo.
->=mail-client/thunderbird-100.0 system-python-libs
->=www-client/firefox-100.0 system-python-libs
-
 # Piotr Karbowski <slashbeast@gentoo.org> (2022-04-29)
 # There's a bug with gnutls support leading TLS certificates
 # validation failures on some certificates that are otherwise valid.
@@ -437,7 +539,8 @@ dev-util/rizin test
 # Sam James <sam@gentoo.org> (2021-12-27)
 # Doc building is broken and no new releases in a long time.
 # bug #830013
-sci-libs/flann doc
+# fixed in sci-libs/flann-1.9.2-20221027
+<=sci-libs/flann-1.9.2 doc
 
 # Joonas Niilola <juippis@gentoo.org> (2021-12-20)
 # Broken, upstream issue/PR open since 2021-05 without reply.
@@ -503,10 +606,6 @@ gui-libs/gtk ffmpeg vulkan
 # lto does not work on dev-lang/gnat-gpl-2021
 dev-lang/gnat-gpl:10 lto
 
-# Mike Gilbert <floppym@gentoo.org> (2021-06-14)
-# Avoid running failing tests by default.
-sys-kernel/dracut test
-
 # Andreas Sturmlechner <asturm@gentoo.org> (2021-05-09)
 # Dependency requires sys-apps/systemd. Will only be unmasked in systemd target.
 kde-plasma/plasma-meta firewall
@@ -552,36 +651,16 @@ www-servers/apache apache2_modules_lua
 # Michael Orlitzky <mjo@gentoo.org> (2023-08-11)
 # Our PHPUnit (or at least one of its dependencies) doesn't work with
 # modern versions of PHP itself.
-dev-php/PEAR-Console_Getargs test
-dev-php/PEAR-Crypt_GPG test
-dev-php/PEAR-Crypt_HMAC2 test
 dev-php/PEAR-Exception test
-dev-php/PEAR-File_Fortune test
-dev-php/PEAR-HTML_CSS test
-dev-php/PEAR-HTML_Template_Sigma test
-dev-php/PEAR-HTTP_Request2 test
-dev-php/PEAR-Image_Color2 test
-dev-php/PEAR-Image_Text test
-dev-php/PEAR-Net_IPv6 test
-dev-php/PEAR-Net_LDAP2 test
-dev-php/PEAR-Numbers_Words test
-dev-php/PEAR-Text_Password test
-dev-php/PEAR-Text_Wiki test
-dev-php/PEAR-Text_Wiki_Mediawiki test
-dev-php/PEAR-XML_RSS test
 dev-php/PHP_CodeSniffer test
 dev-php/awl test
 dev-php/fedora-autoloader test
 dev-php/json-schema test
 dev-php/jsonlint test
 dev-php/recaptcha test
-dev-php/symfony-config test
-dev-php/symfony-dependency-injection test
-dev-php/symfony-event-dispatcher test
 dev-php/symfony-filesystem test
 dev-php/symfony-finder test
 dev-php/symfony-process test
-dev-php/symfony-yaml test
 dev-php/theseer-Autoload test
 dev-php/twig test
 
@@ -603,21 +682,21 @@ app-office/abiword ots
 # Mask the experimental targets in release ebuilds.
 # Note to self: remember to move still-applicable masks to the newer
 # version when master is bumped.
-<dev-ml/llvm-ocaml-16 llvm_targets_LoongArch
-<sys-devel/clang-16 llvm_targets_LoongArch
-<sys-devel/llvm-16 llvm_targets_LoongArch
-<dev-ml/llvm-ocaml-17 llvm_targets_ARC llvm_targets_CSKY
-<sys-devel/clang-17 llvm_targets_ARC llvm_targets_CSKY
-<sys-devel/llvm-17 llvm_targets_ARC llvm_targets_CSKY
-<dev-ml/llvm-ocaml-17 llvm_targets_DirectX
-<sys-devel/clang-17 llvm_targets_DirectX
-<sys-devel/llvm-17 llvm_targets_DirectX
-<dev-ml/llvm-ocaml-17 llvm_targets_M68k llvm_targets_SPIRV
-<sys-devel/clang-17 llvm_targets_M68k llvm_targets_SPIRV
-<sys-devel/llvm-17 llvm_targets_M68k llvm_targets_SPIRV
-<dev-ml/llvm-ocaml-17 llvm_targets_Xtensa
-<sys-devel/clang-17 llvm_targets_Xtensa
-<sys-devel/llvm-17 llvm_targets_Xtensa
+<dev-ml/llvm-16 llvm_targets_LoongArch
+<llvm-core/clang-16 llvm_targets_LoongArch
+<llvm-core/llvm-16 llvm_targets_LoongArch
+<dev-ml/llvm-17 llvm_targets_ARC llvm_targets_CSKY
+<llvm-core/clang-17 llvm_targets_ARC llvm_targets_CSKY
+<llvm-core/llvm-17 llvm_targets_ARC llvm_targets_CSKY
+<dev-ml/llvm-17 llvm_targets_DirectX
+<llvm-core/clang-17 llvm_targets_DirectX
+<llvm-core/llvm-17 llvm_targets_DirectX
+<dev-ml/llvm-17 llvm_targets_M68k llvm_targets_SPIRV
+<llvm-core/clang-17 llvm_targets_M68k llvm_targets_SPIRV
+<llvm-core/llvm-17 llvm_targets_M68k llvm_targets_SPIRV
+<dev-ml/llvm-17 llvm_targets_Xtensa
+<llvm-core/clang-17 llvm_targets_Xtensa
+<llvm-core/llvm-17 llvm_targets_Xtensa
 
 # Joonas Niilola <juippis@gentoo.org> (2020-09-23)
 # Highly experimental, may cause breakages when updating. Use with
@@ -649,10 +728,6 @@ dev-python/autobahn xbr
 # Dependency pam_wrapper missing for tests, and RESTRICT=test is already set
 net-fs/samba test
 
-# Mike Gilbert <floppym@gentoo.org> (2020-04-23)
-# Tests are very sensitive to the host environment.
-dev-build/meson test
-
 # Alfredo Tupone <tupone@gentoo.org> (2020-04-04)
 # Ada support is not yet ready for sys-devel/gcc
 sys-devel/gcc ada
@@ -669,13 +744,11 @@ sci-chemistry/gromacs python
 # Michał Górny <mgorny@gentoo.org> (2019-12-16)
 # Requires old x11-libs/fox:1.6 slot.
 dev-games/openscenegraph fox
-sci-mathematics/gsl-shell fox
 
 # Michał Górny <mgorny@gentoo.org> (2019-12-04)
 # Packages requiring dev-python/ipython to build the docs and still
 # supporting Python 2.7.  This can be resolved long term via either
 # using any-r1 API to build docs or cond-deps.
-dev-python/matplotlib doc
 dev-python/statsmodels doc
 
 # Haelwenn (lanodan) Monnier <contact@hacktivis.me> (2019-12-01)
@@ -691,7 +764,7 @@ dev-python/statsmodels doc
 # Craig Andrews <candrews@gentoo.org> (2019-09-12)
 # OpenSSL (as of version 1.1.1) doesn't have APIs for QUIC support
 # see https://github.com/openssl/openssl/pull/8797
-net-libs/ngtcp2 ssl
+net-libs/ngtcp2 openssl
 net-misc/curl nghttp3
 
 # Thomas Deutschmann <whissi@gentoo.org> (2019-09-02)
@@ -754,10 +827,6 @@ dev-python/paramiko server
 # Bug #651606.
 sys-block/fio static
 
-# Michał Górny <mgorny@gentoo.org> (2018-05-16)
-# Depends on last-rited sci-libs/coinhsl.
-sci-libs/ipopt hsl
-
 # Lars Wendler <polynomial-c@gentoo.org> (2018-03-14)
 # sys-cluster/ceph is only available on amd64 & x86, unmask per arch
 net-fs/samba ceph
@@ -807,7 +876,6 @@ app-emulation/libvirt openvz
 # need or even advantage to set custom compiler flags at all.
 # Example: bug #619628
 sys-boot/gnu-efi custom-cflags
-sys-boot/refind custom-cflags
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2017-05-29)
 # Does not build
@@ -890,10 +958,6 @@ media-libs/libsdl2 custom-cflags
 # Bernard Cafarelli <voyageur@gentoo.org> (2013-04-04)
 # Broken for now (segmentation fault on play)
 gnustep-apps/cynthiune flac
-
-# Richard Freeman <rich0@gentoo.org> (2013-03-24)
-# Dependency is masked for buffer overflows for now
-dev-python/pyocr cuneiform
 
 # Tom Wijsman <TomWij@gentoo.org> (2013-03-10)
 # Experimental, masked until it compiles and works.

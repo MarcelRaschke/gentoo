@@ -6,11 +6,11 @@ EAPI=8
 HOMEPAGE=https://commons.apache.org/proper/commons-collections/
 INHERIT=java-pkg-2 java-pkg-simple verify-sig
 IUSE=doc source test verify-sig
-KEYWORDS=amd64 ~arm arm64 ppc64 x86
+KEYWORDS=amd64 arm64 ppc64
 LICENSE=Apache-2.0
 RDEPEND=>=virtual/jre-1.8:* >=dev-java/java-config-2.2.0-r3 source? ( app-arch/zip )
 RESTRICT=!test? ( test )
 SLOT=4
 SRC_URI=mirror://apache/commons/collections/source/commons-collections4-4.4-src.tar.gz verify-sig? ( https://downloads.apache.org/commons/collections/source/commons-collections4-4.4-src.tar.gz.asc )
-_eclasses_=java-utils-2	b346c3901e71ba37137bae0b25b00221	java-pkg-2	b6d755b4f6afabfd933932be28b46368	java-pkg-simple	742531b28b0ce82ba9425bd2c28654f9	verify-sig	a79ba011daaf532d71a219182474d150
-_md5_=70b15b71ada896fc306f37d88d4ff7d2
+_eclasses_=java-utils-2	c610b1541a10e37cb26ab5b707a744f1	java-pkg-2	38fd81c7880666a00a638ca8deb64d72	java-pkg-simple	c346bc0ba9945618340315a1089a82ef	eapi9-pipestatus	d2c134036ac31c3085aebc9147f572bd	verify-sig	7433426b6b28bf2737ba4b82c8aa8c53
+_md5_=87734b2d2d3a402742a5f6a62635cfe0

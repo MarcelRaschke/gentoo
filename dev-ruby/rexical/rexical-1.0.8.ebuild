@@ -3,7 +3,7 @@
 
 EAPI=8
 
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_EXTRADOC="CHANGELOG.rdoc	DOCUMENTATION.en.rdoc  DOCUMENTATION.ja.rdoc  README.ja  README.rdoc"
 
@@ -14,11 +14,11 @@ HOMEPAGE="https://github.com/sparklemotion/rexical/tree/master"
 LICENSE="LGPL-2.1"
 
 SLOT="0"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="test"
 
 # File collision, bug 459116
-RDEPEND+=" !!app-admin/rex"
+RDEPEND="!!app-admin/rex"
 
 ruby_add_depend "dev-ruby/getoptlong"
 

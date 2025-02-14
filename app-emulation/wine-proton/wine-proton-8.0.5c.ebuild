@@ -1,4 +1,4 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,10 +12,10 @@ WINE_GECKO=2.47.3
 WINE_MONO=8.1.0
 WINE_PV=$(ver_rs 2 -)
 
-if [[ ${PV} == *9999 ]]; then
+if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/ValveSoftware/wine.git"
-	EGIT_BRANCH="experimental_$(ver_cut 1-2)"
+	EGIT_BRANCH="bleeding-edge"
 else
 	SRC_URI="https://github.com/ValveSoftware/wine/archive/refs/tags/proton-wine-${WINE_PV}.tar.gz"
 	S="${WORKDIR}/${PN}-wine-${WINE_PV}"
@@ -62,10 +62,8 @@ WINE_DLOPEN_DEPEND="
 	xcomposite? ( x11-libs/libXcomposite[${MULTILIB_USEDEP}] )
 	xinerama? ( x11-libs/libXinerama[${MULTILIB_USEDEP}] )
 "
-# gcc: for -latomic with clang
 WINE_COMMON_DEPEND="
 	${WINE_DLOPEN_DEPEND}
-	sys-devel/gcc:*
 	x11-libs/libX11[${MULTILIB_USEDEP}]
 	x11-libs/libXext[${MULTILIB_USEDEP}]
 	x11-libs/libdrm[video_cards_amdgpu?,${MULTILIB_USEDEP}]
@@ -78,7 +76,7 @@ WINE_COMMON_DEPEND="
 	pulseaudio? ( media-libs/libpulse[${MULTILIB_USEDEP}] )
 	udev? ( virtual/libudev:=[${MULTILIB_USEDEP}] )
 	unwind? (
-		llvm-libunwind? ( sys-libs/llvm-libunwind[${MULTILIB_USEDEP}] )
+		llvm-libunwind? ( llvm-runtimes/libunwind[${MULTILIB_USEDEP}] )
 		!llvm-libunwind? ( sys-libs/libunwind:=[${MULTILIB_USEDEP}] )
 	)
 	usb? ( dev-libs/libusb:1[${MULTILIB_USEDEP}] )
@@ -98,6 +96,10 @@ RDEPEND="
 "
 DEPEND="
 	${WINE_COMMON_DEPEND}
+	|| (
+		sys-devel/gcc:*
+		llvm-runtimes/compiler-rt:*[atomic-builtins(-)]
+	)
 	sys-kernel/linux-headers
 	x11-base/xorg-proto
 "
@@ -125,6 +127,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-8.0.1c-unwind.patch
 	"${FILESDIR}"/${PN}-8.0.4-restore-menubuilder.patch
 	"${FILESDIR}"/${PN}-8.0.5c-vulkan-libm.patch
+	"${FILESDIR}"/${PN}-9.0.4-binutils2.44.patch
 )
 
 pkg_pretend() {
@@ -165,9 +168,16 @@ src_prepare() {
 		# drop as a quick fix for now which hopefully should be safe
 		sed -i '/MSVCRTFLAGS=/s/-mabi=ms//' configure.ac || die
 
-		# needed by Valve's fsync patches if using clang (undef atomic_load_8)
-		sed -e '/^UNIX_LIBS.*=/s/$/ -latomic/' \
-			-i dlls/{ntdll,winevulkan}/Makefile.in || die
+		# note: this is kind-of best effort and ignores llvm slots, rather
+		# than do LLVM_SLOT it may(?) be better to force atomic-builtins
+		# then could drop this altogether in the future
+		if [[ $(tc-get-c-rtlib) == compiler-rt ]] &&
+			has_version 'llvm-runtimes/compiler-rt[-atomic-builtins(-)]'
+		then
+			# needed by Valve's fsync patches if using compiler-rt w/o atomics
+			sed -e '/^UNIX_LIBS.*=/s/$/ -latomic/' \
+				-i dlls/{ntdll,winevulkan}/Makefile.in || die
+		fi
 	fi
 
 	# ensure .desktop calls this variant + slot
@@ -250,6 +260,9 @@ src_configure() {
 	filter-flags -Wl,--gc-sections # runtime issues (bug #931329)
 	use custom-cflags || strip-flags # can break in obscure ways at runtime
 	use crossdev-mingw || PATH=${BROOT}/usr/lib/mingw64-toolchain/bin:${PATH}
+
+	# broken with gcc-15's c23 default (TODO: try w/o occasionally, bug #943849)
+	append-cflags -std=gnu17
 
 	# temporary workaround for tc-ld-force-bfd not yet enforcing with mold
 	# https://github.com/gentoo/gentoo/pull/28355
@@ -388,6 +401,13 @@ pkg_postinst() {
 			ewarn "applications under ${PN} will likely not be usable."
 		fi
 	fi
+
+	ewarn
+	ewarn "Warning: please consider ${PN} provided as-is without real"
+	ewarn "support. Upstream does not want bug reports unless can reproduce"
+	ewarn "with real Steam+Proton, and Gentoo is largely unable to help"
+	ewarn "unless it is a build/packaging issue. So, if need support, try"
+	ewarn "normal Wine or Proton instead."
 
 	eselect wine update --if-unset || die
 }

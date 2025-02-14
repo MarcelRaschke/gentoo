@@ -15,7 +15,7 @@ if [[ ${PV} == 9999* ]]; then
 else
 	SRC_URI="${CARGO_CRATE_URIS}"
 	SRC_URI+="https://github.com/containers/aardvark-dns/releases/download/v${PV}/${PN}-v${PV}-vendor.tar.gz"
-	KEYWORDS="~amd64 ~arm64 ~ppc64 ~riscv"
+	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv"
 fi
 
 # main
@@ -38,7 +38,7 @@ src_unpack() {
 
 src_prepare() {
 	default
-	sed -i -e "s|m0755 bin|m0755 target/$(usex debug debug release)|g;" Makefile || die
+	sed -i -e "s|m0755 bin|m0755 $(cargo_target_dir)|g;" Makefile || die
 }
 
 src_install() {

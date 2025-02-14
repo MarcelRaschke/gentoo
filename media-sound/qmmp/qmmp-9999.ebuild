@@ -1,19 +1,19 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 inherit cmake xdg
 
-DESCRIPTION="Qt5-based audio player with winamp/xmms skins support"
+DESCRIPTION="Qt-based audio player with winamp/xmms skins support"
 HOMEPAGE="https://qmmp.ylsoftware.com"
 if [[ ${PV} != *9999* ]]; then
-	SRC_URI="https://qmmp.ylsoftware.com/files/${P}.tar.bz2
+	SRC_URI="https://qmmp.ylsoftware.com/files/${PN}/$(ver_cut 1-2)/${P}.tar.bz2
 		https://downloads.sourceforge.net/${PN}-dev/files/${P}.tar.bz2"
 	KEYWORDS="~amd64 ~x86"
 else
 	inherit subversion
-	QMMP_DEV_BRANCH="1.3"
+	QMMP_DEV_BRANCH="2.2"
 	ESVN_REPO_URI="svn://svn.code.sf.net/p/${PN}-dev/code/branches/${PN}-${QMMP_DEV_BRANCH}"
 fi
 
@@ -21,9 +21,9 @@ LICENSE="GPL-2"
 SLOT="0"
 # KEYWORDS further up
 IUSE="aac +alsa analyzer archive bs2b cdda cover crossfade cue curl +dbus enca
-ffmpeg flac game gnome jack ladspa lyrics +mad midi mms mplayer musepack
+ffmpeg flac game gnome jack ladspa libxmp lyrics +mad midi mms mplayer musepack
 notifier opus oss pipewire projectm pulseaudio qsui qtmedia scrobbler shout sid
-sndfile soxr stereo tray udisks +vorbis wavpack xmp"
+sndfile soxr stereo tray udisks +vorbis wavpack"
 
 REQUIRED_USE="
 	gnome? ( dbus )
@@ -32,13 +32,8 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	dev-qt/qtcore:5
-	dev-qt/qtgui:5
-	dev-qt/qtnetwork:5
-	dev-qt/qtsql:5
-	dev-qt/qtwidgets:5
-	dev-qt/qtx11extras:5
-	media-libs/taglib
+	dev-qt/qtbase:6[X,dbus,gui,network,sqlite,widgets]
+	media-libs/taglib:=
 	x11-libs/libX11
 	aac? ( media-libs/faad2 )
 	alsa? ( media-libs/alsa-lib )
@@ -49,7 +44,7 @@ RDEPEND="
 		dev-libs/libcdio-paranoia
 	)
 	curl? ( net-misc/curl )
-	dbus? ( dev-qt/qtdbus:5 )
+	dbus? ( dev-qt/qtbase:6[dbus] )
 	enca? ( app-i18n/enca )
 	ffmpeg? ( media-video/ffmpeg:= )
 	flac? ( media-libs/flac:= )
@@ -59,6 +54,7 @@ RDEPEND="
 		virtual/jack
 	)
 	ladspa? ( media-plugins/cmt-plugins )
+	libxmp? ( media-libs/libxmp )
 	mad? (
 		media-libs/libmad:=
 		media-sound/mpg123:=
@@ -70,12 +66,11 @@ RDEPEND="
 	opus? ( media-libs/opusfile )
 	pipewire? ( media-video/pipewire )
 	projectm? (
-		dev-qt/qtgui:5[-gles2-only]
-		dev-qt/qtopengl:5
+		dev-qt/qtbase:6[-gles2-only,opengl]
 		media-libs/libprojectm:=
 	)
 	pulseaudio? ( media-libs/libpulse )
-	qtmedia? ( dev-qt/qtmultimedia:5 )
+	qtmedia? ( dev-qt/qtmultimedia:6 )
 	scrobbler? ( net-misc/curl )
 	shout? ( media-libs/libshout )
 	sid? ( >=media-libs/libsidplayfp-1.1.0 )
@@ -87,16 +82,11 @@ RDEPEND="
 		media-libs/libvorbis
 	)
 	wavpack? ( media-sound/wavpack )
-	xmp? ( media-libs/libxmp )
 "
 DEPEND="${RDEPEND}"
-BDEPEND="dev-qt/linguist-tools:5"
+BDEPEND="dev-qt/qttools:6[linguist]"
 
 DOCS=( AUTHORS ChangeLog README )
-
-PATCHES=(
-	"${FILESDIR}/${PN}-1.6.0-udisks_plugin.patch"
-)
 
 src_prepare() {
 	if has_version dev-libs/libcdio-paranoia ; then
@@ -154,7 +144,7 @@ src_configure() {
 		-DUSE_UDISKS="$(usex udisks)"
 		-DUSE_VORBIS="$(usex vorbis)"
 		-DUSE_WAVPACK="$(usex wavpack)"
-		-DUSE_XMP="$(usex xmp)"
+		-DUSE_XMP="$(usex libxmp)"
 	)
 
 	cmake_src_configure

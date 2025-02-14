@@ -1,9 +1,9 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2024 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 PYTHON_REQ_USE="threads(+)"
 
 inherit autotools python-r1
@@ -17,7 +17,7 @@ SRC_URI="https://dbus.freedesktop.org/releases/${PN}/${P}.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 IUSE="doc examples test"
 REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 RESTRICT="!test? ( test )"
@@ -37,7 +37,7 @@ BDEPEND="
 	)
 	test? (
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
-		dev-python/tappy[${PYTHON_USEDEP}]
+		dev-python/tap-py[${PYTHON_USEDEP}]
 	)
 "
 

@@ -6,10 +6,10 @@ EAPI=7
 HOMEPAGE=https://github.com/malb/m4ri
 INHERIT=flag-o-matic toolchain-funcs
 IUSE=debug openmp cpu_flags_x86_sse2 png static-libs
-KEYWORDS=amd64 ppc64 ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos
+KEYWORDS=amd64 ppc64 ~riscv ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos
 LICENSE=GPL-2+
 RDEPEND=png? ( media-libs/libpng:= )
 SLOT=0
 SRC_URI=https://bitbucket.org/malb/m4ri/downloads/m4ri-20200125.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653
-_md5_=c0d40e62b3874dd5e94751c7dddde42d
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9
+_md5_=e159b43b846dae7ac2ddd6cdedbebe31

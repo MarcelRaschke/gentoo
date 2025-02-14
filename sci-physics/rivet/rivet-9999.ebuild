@@ -1,9 +1,9 @@
-# Copyright 2022-2024 Gentoo Authors
+# Copyright 2022-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 inherit python-single-r1 flag-o-matic autotools optfeature bash-completion-r1
 
@@ -18,7 +18,6 @@ HOMEPAGE="
 if [[ ${PV} == 9999 ]]; then
 	inherit git-r3
 	EGIT_REPO_URI="https://gitlab.com/hepcedar/rivet"
-	EGIT_BRANCH="release-3-1-x"
 else
 	SRC_URI="https://www.hepforge.org/archive/rivet/${MY_PF}.tar.gz -> ${P}.tar.gz"
 	S=${WORKDIR}/${MY_PF}
@@ -26,18 +25,20 @@ else
 fi
 
 LICENSE="GPL-3+"
-SLOT="3"
-IUSE="+hepmc3 hepmc2 +zlib +python"
+SLOT="4"
+IUSE="+zlib +python +highfive"
 REQUIRED_USE="
-	^^ ( hepmc3 hepmc2 )
 	python? ( ${PYTHON_REQUIRED_USE} )
 "
 
 RDEPEND="
 	>=sci-physics/fastjet-3.4.0[plugins]
 	>=sci-physics/fastjet-contrib-1.048
-	hepmc2? ( sci-physics/hepmc:2=[-cm(-),gev(+)] )
-	hepmc3? ( sci-physics/hepmc:3=[-cm(-),gev(+)] )
+	>=sci-physics/hepmc-3.1.1:3=[-cm(-),gev(+)]
+	highfive? (
+		sci-libs/HighFive
+		sci-libs/hdf5[cxx]
+	)
 
 	sci-libs/gsl
 	zlib? ( sys-libs/zlib )
@@ -46,12 +47,10 @@ RDEPEND="
 		$(python_gen_cond_dep '
 			dev-python/matplotlib[${PYTHON_USEDEP}]
 		')
-		>=sci-physics/yoda-1.9.8[${PYTHON_SINGLE_USEDEP}]
-		<sci-physics/yoda-2[${PYTHON_SINGLE_USEDEP}]
+		>=sci-physics/yoda-2[${PYTHON_SINGLE_USEDEP}]
 	)
 	!python? (
-		>=sci-physics/yoda-1.9.8
-		<sci-physics/yoda-2
+		>=sci-physics/yoda-2
 	)
 "
 DEPEND="${RDEPEND}"
@@ -66,7 +65,6 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.1.6-binreloc.patch
-	"${FILESDIR}"/${PN}-3.1.9-pythontests.patch
 )
 
 pkg_setup() {
@@ -85,8 +83,8 @@ src_configure() {
 	# not posix compatible, only bash
 	CONFIG_SHELL=${ESYSROOT}/bin/bash econf \
 		$(use_with zlib zlib "${ESYSROOT}/usr") \
-		$(usex hepmc2 "--with-hepmc=${ESYSROOT}/usr" "") \
-		$(usex hepmc3 "--with-hepmc3=${ESYSROOT}/usr" "") \
+		--with-hepmc3="${ESYSROOT}/usr" \
+		$(usex highfive "--with-highfive=${ESYSROOT}/usr" "") \
 		--with-yoda="${ESYSROOT}/usr" \
 		--with-fastjet="${ESYSROOT}/usr" \
 		$(use_enable python pyext) \
@@ -99,17 +97,18 @@ src_install() {
 	find "${ED}" -name '*.la' -delete || die
 	if use python ; then
 		newbashcomp "${ED}"/etc/bash_completion.d/${PN}-completion ${PN}
-		bashcomp_alias ${PN} ${PN}-config \
+		bashcomp_alias ${PN} \
+			${PN}-config \
 			${PN}-build \
-			${PN}-buildplugin \
 			${PN}-cmphistos \
 			make-plots \
-			${PN}-mkhtml \
-			${PN}-mkhtml-mpl
+			${PN}-mkhtml-tex \
+			${PN}-mkhtml
 		rm "${ED}"/etc/bash_completion.d/${PN}-completion || die
 	fi
 }
 
 pkg_postinstall() {
-	optfeature "plotting support" virtual/latex-base media-gfx/imagemagick app-text/ghostscript-gpl
+	optfeature "latex plotting support" virtual/latex-base media-gfx/imagemagick app-text/ghostscript-gpl
+	optfeature "python plotting support" dev-python/matplotlib
 }

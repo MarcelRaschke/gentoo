@@ -20,7 +20,7 @@ else
 		https://gitlab.com/lib${PN}/${PN}/-/archive/${PV}/${P}.tar.bz2
 		test? ( lapack? ( https://downloads.tuxfamily.org/${PN}/lapack_addons_3.4.1.tgz -> ${PN}-lapack_addons-3.4.1.tgz ) )
 	"
-	KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~ia64 ~loong ~ppc ~ppc64 ~riscv ~s390 sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
+	KEYWORDS="~alpha ~amd64 ~arm arm64 ~hppa ~loong ~ppc ~ppc64 ~riscv ~s390 sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
 fi
 
 LICENSE="MPL-2.0"
@@ -132,8 +132,8 @@ DEPEND="
 				dev-util/nvidia-cuda-toolkit
 			)
 			clang? (
-				sys-devel/clang[llvm_targets_NVPTX]
-				openmp? ( sys-libs/libomp[llvm_targets_NVPTX,offload] )
+				llvm-core/clang[llvm_targets_NVPTX]
+				openmp? ( llvm-runtimes/openmp[llvm_targets_NVPTX,offload] )
 			)
 		)
 		hip? ( dev-util/hip )

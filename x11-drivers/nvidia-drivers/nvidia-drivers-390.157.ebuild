@@ -1,17 +1,17 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 MODULES_OPTIONAL_IUSE=+modules
-inherit desktop flag-o-matic linux-mod-r1 multilib readme.gentoo-r1
-inherit systemd toolchain-funcs unpacker user-info
+inherit desktop eapi9-pipestatus flag-o-matic linux-mod-r1 multilib
+inherit readme.gentoo-r1 systemd toolchain-funcs unpacker user-info
 
 MODULES_KERNEL_MAX=6.1
 NV_URI="https://download.nvidia.com/XFree86/"
 
 DESCRIPTION="NVIDIA Accelerated Graphics Driver"
-HOMEPAGE="https://www.nvidia.com/download/index.aspx"
+HOMEPAGE="https://www.nvidia.com/"
 SRC_URI="
 	amd64? ( ${NV_URI}Linux-x86_64/${PV}/NVIDIA-Linux-x86_64-${PV}.run )
 	x86? ( ${NV_URI}Linux-x86/${PV}/NVIDIA-Linux-x86-${PV}.run )
@@ -151,15 +151,16 @@ src_compile() {
 	tc-export AR CC CXX LD OBJCOPY OBJDUMP PKG_CONFIG
 	local -x RAW_LDFLAGS="$(get_abi_LDFLAGS) $(raw-ldflags)" # raw-ldflags.patch
 
-	# latest branches has proper fixes, but legacy have more issues and are
-	# not worth the trouble, so doing the lame "fix" for gcc14 (bug #921370)
-	local noerr=(
+	# dead branch that will never be fixed and due for eventual removal,
+	# so keeping lazy "fixes" (bug #921370)
+	local kcflags=(
+		-std=gnu17
 		-Wno-error=implicit-function-declaration
 		-Wno-error=incompatible-pointer-types
 	)
 	# not *FLAGS to ensure it's used everywhere including conftest.sh
-	CC+=" $(test-flags-CC "${noerr[@]}")"
-	use modules && KERNEL_CC+=" $(CC=${KERNEL_CC} test-flags-CC "${noerr[@]}")"
+	CC+=" $(test-flags-CC "${kcflags[@]}")"
+	use modules && KERNEL_CC+=" $(CC=${KERNEL_CC} test-flags-CC "${kcflags[@]}")"
 
 	NV_ARGS=(
 		PREFIX="${EPREFIX}"/usr
@@ -172,14 +173,13 @@ src_compile() {
 	local modlist=( nvidia{,-drm,-modeset}=video:kernel )
 	use x86 || modlist+=( nvidia-uvm=video:kernel )
 	local modargs=(
-		CC="${KERNEL_CC}" # for the above gcc14 workarounds
+		CC="${KERNEL_CC}" # for the above kcflags workarounds
 		IGNORE_CC_MISMATCH=yes NV_VERBOSE=1
 		SYSOUT="${KV_OUT_DIR}" SYSSRC="${KV_DIR}"
 	)
 
 	# temporary workaround for bug #914468
-	use modules &&
-		CPP="${KERNEL_CC} -E" tc-is-clang && addpredict "${KV_OUT_DIR}"
+	use modules && addpredict "${KV_OUT_DIR}"
 
 	linux-mod-r1_src_compile
 
@@ -341,7 +341,8 @@ documentation that is installed alongside this README."
 
 		case ${m[2]} in
 			MANPAGE)
-				gzip -dc ${m[0]} | newman - ${m[0]%.gz}; assert
+				gzip -dc ${m[0]} | newman - ${m[0]%.gz}
+				pipestatus || die
 				continue
 			;;
 			GLX_MODULE_SYMLINK|XMODULE_NEWSYM)
@@ -400,6 +401,14 @@ documentation that is installed alongside this README."
 	# manually if need others or addwrite)
 	insinto /etc/sandbox.d
 	newins - 20nvidia <<<'SANDBOX_PREDICT="/dev/nvidiactl"'
+
+	# dracut does not use /etc/modprobe.d if hostonly=no, but want to make sure
+	# our settings are used for bug 932781#c8 and nouveau blacklist if either
+	# modules are included (however, just best-effort without initramfs regen)
+	if use modules; then
+		echo "install_items+=\" ${EPREFIX}/etc/modprobe.d/nvidia.conf \"" >> \
+			"${ED}"/usr/lib/dracut/dracut.conf.d/10-${PN}.conf || die
+	fi
 }
 
 pkg_preinst() {
@@ -433,7 +442,7 @@ pkg_postinst() {
 	ewarn "NVIDIA is no longer fixing issues (including security). Free to keep"
 	ewarn "using (for now) but it is recommended to either switch to nouveau or"
 	ewarn "replace hardware. Will be kept in-tree while possible, but expect it"
-	ewarn "to be removed likely in early 2027 or earlier if major issues arise."
+	ewarn "to be removed likely in late 2027 or earlier if major issues arise."
 	ewarn
 	ewarn "Note that there is no plans to patch in support for kernels branches"
 	ewarn "newer than 6.1.x which will be supported upstream until December 2026."

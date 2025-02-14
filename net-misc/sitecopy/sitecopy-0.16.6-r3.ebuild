@@ -11,7 +11,7 @@ SRC_URI="mirror://gentoo/${P}.tar.gz
 
 LICENSE="GPL-2"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="expat nls rsh ssl webdav xml zlib"
 
 RDEPEND="
@@ -29,6 +29,8 @@ src_prepare() {
 	# http://ftp.debian.org/debian/pool/main/s/sitecopy/
 	# Consider SiteCopy to be more or less being actively maintained by
 	# Debian maintainers, but GPL patches ported into Gentoo.
+	# Update 2024-10-13: There appears to be a (new?) upstream repository,
+	# see metadata.xml remote-id.
 
 	eapply \
 		"${FILESDIR}/sitecopy-0.16.6-01-remote-dynamic-rc.patch" \

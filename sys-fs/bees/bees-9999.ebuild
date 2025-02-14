@@ -1,4 +1,4 @@
-# Copyright 1999-2023 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -12,13 +12,16 @@ if [[ ${PV} == 9999 ]] ; then
 	inherit git-r3
 	EGIT_REPO_URI="https://github.com/Zygo/bees.git"
 else
-	SRC_URI="https://github.com/Zygo/bees/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+	MY_PV=${PV/_/-}
+	MY_P=${P/_/-}
+	S=${WORKDIR}/${MY_P}
+
+	SRC_URI="https://github.com/Zygo/bees/archive/v${MY_PV}.tar.gz -> ${MY_P}.tar.gz"
 	KEYWORDS="~amd64 ~arm64"
 fi
 
 LICENSE="GPL-3"
 SLOT="0"
-IUSE=""
 
 DEPEND="
 	>=sys-apps/util-linux-2.30.2
@@ -28,10 +31,6 @@ RDEPEND="${DEPEND}"
 
 CONFIG_CHECK="~BTRFS_FS"
 ERROR_BTRFS_FS="CONFIG_BTRFS_FS: bees does currently only work with btrfs"
-
-PATCHES=(
-	"${FILESDIR}/0001-HACK-crucible-Work-around-kernel-memory-fragmentatio.patch"
-)
 
 pkg_pretend() {
 	if [[ ${MERGE_TYPE} != buildonly ]]; then
@@ -80,9 +79,25 @@ pkg_pretend() {
 				ewarn
 			fi
 		fi
+		if kernel_is -lt 5.7; then
+			ewarn "WARNING: Kernel versions lower than 5.7 are no longer really supported by"
+			ewarn "bees. While there should be no unexpected data loss, you may experience"
+			ewarn "severe slowdowns or even system lockups."
+			ewarn
+		fi
+	fi
+}
 
+pkg_postinst() {
+	if [[ ${MERGE_TYPE} != buildonly ]]; then
 		elog "Bees recommends running the latest current kernel for performance and"
 		elog "reliability reasons, see README.md."
+		elog
+		elog "NEWS: bees now defaults to a much improved extent-based scanner. It is compatible"
+		elog "with your existing state database in \`\$BEESHOME\` but it may start over from the"
+		elog "beginning. However, it will keep the state of the old scanner, so you can switch"
+		elog "back and forth. To actually use the new scanner, use scan mode 4 or remove the"
+		elog "scan mode parameter from your init script. Requires kernel 4.14 or higher!"
 	fi
 }
 
@@ -101,7 +116,7 @@ src_configure() {
 		DEFAULT_MAKE_TARGET=all
 	EOF
 	if [[ ${PV} != "9999" ]] ; then
-		echo BEES_VERSION=v${PV} >>localconf || die
+		echo BEES_VERSION=v${MY_PV} >>localconf || die
 	fi
 }
 

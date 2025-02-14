@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11,12} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 inherit go-module python-any-r1 tmpfiles toolchain-funcs linux-info
 
@@ -17,7 +17,7 @@ else
 	SRC_URI="https://github.com/containers/podman/archive/v${PV/_rc/-rc}.tar.gz -> ${P}.tar.gz"
 	S="${WORKDIR}/${P/_rc/-rc}"
 	[[ ${PV} != *rc* ]] && \
-		KEYWORDS="~amd64 ~arm64 ~riscv"
+		KEYWORDS="~amd64 ~arm64 ~loong ~riscv"
 fi
 
 # main pkg
@@ -51,7 +51,7 @@ BDEPEND="
 "
 
 PATCHES=(
-	"${FILESDIR}/seccomp-toggle-4.7.0.patch"
+	"${T}"/togglable-seccomp.patch
 )
 
 CONFIG_CHECK="
@@ -65,6 +65,19 @@ pkg_setup() {
 }
 
 src_prepare() {
+	cat <<'EOF' > "${T}"/togglable-seccomp.patch || die
+--- a/Makefile
++++ b/Makefile
+@@ -56,7 +56,6 @@ BUILDTAGS ?= \
+	$(shell hack/systemd_tag.sh) \
+	$(shell hack/libsubid_tag.sh) \
+	exclude_graphdriver_devicemapper \
+-	seccomp
+ # allow downstreams to easily add build tags while keeping our defaults
+ BUILDTAGS += ${EXTRA_BUILDTAGS}
+ # N/B: This value is managed by Renovate, manual changes are
+EOF
+
 	default
 
 	# assure necessary files are present
@@ -101,13 +114,12 @@ src_compile() {
 		tc-export PKG_CONFIG
 	fi
 
-	# BUILD_SECCOMP is used in the patch to toggle seccomp
-	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" BUILD_SECCOMP="$(usex seccomp)" \
+	emake BUILDFLAGS="-v -work -x" GOMD2MAN="go-md2man" EXTRA_BUILDTAGS="$(usev seccomp)" SELINUXOPT= \
 		  all $(usev wrapper docker-docs)
 }
 
 src_install() {
-	emake DESTDIR="${D}" install install.completions $(usev wrapper install.docker-full)
+	emake DESTDIR="${D}" SELINUXOPT= install install.completions $(usev wrapper install.docker-full)
 
 	if use !systemd; then
 		newconfd "${FILESDIR}"/podman-5.0.0_rc4.confd podman

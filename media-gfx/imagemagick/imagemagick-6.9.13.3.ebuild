@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,13 +14,13 @@ else
 	MY_PV="$(ver_rs 3 '-')"
 	MY_P="ImageMagick-${MY_PV}"
 	SRC_URI="mirror://imagemagick/${MY_P}.tar.xz"
-	KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
+	KEYWORDS="~alpha amd64 arm arm64 hppa ~mips ppc ppc64 ~s390 sparc x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos ~x64-solaris"
 fi
 
 S="${WORKDIR}/${MY_P}"
 
 DESCRIPTION="A collection of tools and libraries for many image formats"
-HOMEPAGE="https://www.imagemagick.org/"
+HOMEPAGE="https://imagemagick.org/index.php"
 
 LICENSE="imagemagick"
 # Please check this on bumps, SONAME is often not updated! Use abidiff on old/new.
@@ -103,22 +103,22 @@ src_prepare() {
 	# For testsuite, see bug #500580#c3
 	local ati_cards mesa_cards nvidia_cards render_cards
 	shopt -s nullglob
-	ati_cards=$(echo -n /dev/ati/card* | sed 's/ /:/g')
-	if test -n "${ati_cards}"; then
-		addpredict "${ati_cards}"
-	fi
-	mesa_cards=$(echo -n /dev/dri/card* | sed 's/ /:/g')
-	if test -n "${mesa_cards}"; then
-		addpredict "${mesa_cards}"
-	fi
-	nvidia_cards=$(echo -n /dev/nvidia* | sed 's/ /:/g')
-	if test -n "${nvidia_cards}"; then
-		addpredict "${nvidia_cards}"
-	fi
-	render_cards=$(echo -n /dev/dri/renderD128* | sed 's/ /:/g')
-	if test -n "${render_cards}"; then
-		addpredict "${render_cards}"
-	fi
+	ati_cards=$(echo -n /dev/ati/card*)
+	for card in "${ati_cards[@]}" ; do
+		addpredict "${card}"
+	done
+	mesa_cards=$(echo -n /dev/dri/card*)
+	for card in "${mesa_cards[@]}" ; do
+		addpredict "${card}"
+	done
+	nvidia_cards=$(echo -n /dev/nvidia*)
+	for card in "${nvidia_cards[@]}" ; do
+		addpredict "${card}"
+	done
+	render_cards=$(echo -n /dev/dri/renderD128*)
+	for card in "${render_cards[@]}" ; do
+		addpredict "${card}"
+	done
 	shopt -u nullglob
 	addpredict /dev/nvidiactl
 }

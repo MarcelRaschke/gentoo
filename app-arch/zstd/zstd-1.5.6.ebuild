@@ -12,7 +12,7 @@ S="${WORKDIR}"/${P}/build/meson
 
 LICENSE="|| ( BSD GPL-2 )"
 SLOT="0/1"
-KEYWORDS="~alpha amd64 arm arm64 hppa ~ia64 ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 IUSE="+lzma lz4 static-libs test zlib"
 RESTRICT="!test? ( test )"
 
@@ -54,8 +54,8 @@ multilib_src_configure() {
 	# explicitly specified.  See #903923
 	# The cmake build sets these, but the meson build doesn't, so set it manually.
 	# https://github.com/facebook/zstd/blob/979b047/build/cmake/CMakeModules/AddZstdCompilationFlags.cmake#L77-L82
-	append-flags $(test-flags "-Wa,--noexecstack")
-	append-ldflags $(test-flags "-Wl,-z,noexecstack")
+	append-flags $(test-flags-CCLD "-Wa,--noexecstack")
+	append-ldflags $(test-flags-CCLD "-Wl,-z,noexecstack")
 
 	local emesonargs=(
 		-Ddefault_library=$(multilib_native_usex static-libs both shared)

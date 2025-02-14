@@ -5,7 +5,7 @@ EAPI=8
 
 LUA_COMPAT=( lua5-{1..4} luajit )
 
-inherit toolchain-funcs lua-single systemd
+inherit flag-o-matic toolchain-funcs lua-single systemd
 
 DESCRIPTION="Small forwarding DNS server"
 HOMEPAGE="https://thekelleys.org.uk/dnsmasq/doc.html"
@@ -13,7 +13,7 @@ SRC_URI="https://thekelleys.org.uk/dnsmasq/${P}.tar.xz"
 
 LICENSE="|| ( GPL-2 GPL-3 )"
 SLOT="0"
-KEYWORDS="~alpha amd64 arm arm64 ~hppa ~ia64 ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86"
 
 IUSE="auth-dns conntrack dbus +dhcp dhcp-tools dnssec +dumpfile id idn libidn2"
 IUSE+=" +loop +inotify ipv6 lua nettlehash nls script selinux static tftp"
@@ -114,6 +114,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# https://lists.thekelleys.org.uk/pipermail/dnsmasq-discuss/2024q4/017855.html (bug #945183)
+	append-cflags -std=gnu17
+
 	COPTS=(
 		$(use_have -n auth-dns auth)
 		$(use_have conntrack)

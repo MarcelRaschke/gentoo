@@ -16,7 +16,7 @@ if [[ ${PV} = 9999* ]]; then
 else
 	SRC_URI="https://mesa.freedesktop.org/archive/demos/${MY_P}.tar.xz
 		https://mesa.freedesktop.org/archive/demos/${PV}/${MY_P}.tar.xz"
-	KEYWORDS="amd64 arm arm64 ~hppa ~ia64 ~loong ppc ppc64 ~riscv sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv sparc x86"
 	S="${WORKDIR}/${MY_P}"
 fi
 LICENSE="LGPL-2"
@@ -52,6 +52,7 @@ BDEPEND="
 
 PATCHES=(
 	"${FILESDIR}"/${PV}-Disable-things-we-don-t-want.patch
+	"${FILESDIR}"/${PV}-uint.patch
 )
 
 pkg_setup() {

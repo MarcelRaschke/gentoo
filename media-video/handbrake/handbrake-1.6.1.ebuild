@@ -5,7 +5,7 @@ EAPI=8
 
 PYTHON_COMPAT=( python3_{10..12} )
 
-inherit autotools edo python-any-r1 toolchain-funcs xdg
+inherit autotools edo flag-o-matic python-any-r1 toolchain-funcs xdg
 
 if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://github.com/HandBrake/HandBrake.git"
@@ -43,7 +43,7 @@ RDEPEND="
 	>=media-libs/libvpx-1.12.0:=
 	media-libs/opus
 	>=media-libs/speex-1.2.1
-	>=media-libs/svt-av1-1.4.1
+	>=media-libs/svt-av1-1.4.1:=
 	>=media-libs/x264-0.0.20220222:=
 	>=media-libs/zimg-3.0.4
 	media-sound/lame
@@ -98,6 +98,8 @@ PATCHES=(
 
 	# Fix x265 linkage... again again #730034
 	"${FILESDIR}/${PN}-1.3.3-x265-link.patch"
+
+	"${FILESDIR}/${PN}-1.6.1-missing-include.patch"
 )
 
 src_prepare() {
@@ -115,6 +117,10 @@ src_prepare() {
 src_configure() {
 	tc-export AR RANLIB STRIP
 
+	# ODR violations, lto-type-mismatches
+	# bug #878899
+	filter-lto
+
 	# Libav was replaced in 1.2 with ffmpeg by default
 	# but I've elected to not make people change their use flags for AAC
 	# as its the same code anyway
@@ -123,6 +129,7 @@ src_configure() {
 		--verbose
 		--prefix="${EPREFIX}/usr"
 		--disable-flatpak
+		--no-harden #bug #890279
 		$(usex !gtk --disable-gtk)
 		--disable-gtk4
 		$(usex !gstreamer --disable-gst)

@@ -1,16 +1,16 @@
-BDEPEND=>=dev-python/cython-3[python_targets_python3_11(-)?,python_targets_python3_12(-)?] dev-python/setuptools-scm[python_targets_python3_11(-)?,python_targets_python3_12(-)?] virtual/pkgconfig test? ( <sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= >=dev-python/pytest-7.4.4[python_targets_python3_11(-)?,python_targets_python3_12(-)?] ) python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 ) >=dev-python/gpep517-15[python_targets_python3_11(-)?,python_targets_python3_12(-)?] >=dev-python/setuptools-69.0.3[python_targets_python3_11(-)?,python_targets_python3_12(-)?] >=dev-vcs/git-1.8.2.1[curl]
+BDEPEND=>=dev-python/cython-3[python_targets_python3_11(-)?,python_targets_python3_12(-)?,python_targets_python3_13(-)?] dev-python/setuptools-scm[python_targets_python3_11(-)?,python_targets_python3_12(-)?,python_targets_python3_13(-)?] virtual/pkgconfig test? ( <sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= >=dev-python/pytest-7.4.4[python_targets_python3_11(-)?,python_targets_python3_12(-)?,python_targets_python3_13(-)?] ) python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_13? ( dev-lang/python:3.13 ) >=dev-python/gpep517-15[python_targets_python3_11(-)?,python_targets_python3_12(-)?,python_targets_python3_13(-)?] >=dev-python/setuptools-69.0.3[python_targets_python3_11(-)?,python_targets_python3_12(-)?,python_targets_python3_13(-)?] >=dev-vcs/git-1.8.2.1[curl]
 DEFINED_PHASES=compile configure install prepare test unpack
-DEPEND=<sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 )
+DEPEND=<sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_13? ( dev-lang/python:3.13 )
 DESCRIPTION=Python bindings for pkgcraft
 EAPI=8
 HOMEPAGE=https://pypi.org/project/pkgcraft/ https://github.com/pkgcraft/pkgcraft-python/
 INHERIT=distutils-r1 git-r3
-IUSE=+examples test python_targets_python3_11 python_targets_python3_12 debug
+IUSE=+examples test python_targets_python3_11 python_targets_python3_12 python_targets_python3_13 debug
 LICENSE=MIT
 PROPERTIES=live
-RDEPEND=<sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 )
-REQUIRED_USE=|| ( python_targets_python3_11 python_targets_python3_12 )
+RDEPEND=<sys-libs/pkgcraft-99999 >=sys-libs/pkgcraft-9999:= python_targets_python3_11? ( dev-lang/python:3.11 ) python_targets_python3_12? ( dev-lang/python:3.12 ) python_targets_python3_13? ( dev-lang/python:3.13 )
+REQUIRED_USE=|| ( python_targets_python3_11 python_targets_python3_12 python_targets_python3_13 )
 RESTRICT=!test? ( test )
 SLOT=0
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	out-of-source-utils	1a9007554652a6e627edbccb3c25a439	multibuild	d67e78a235f541871c7dfe4cf7931489	multiprocessing	30ead54fa2e2b5f9cd4e612ffc34d0fe	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	python-utils-r1	8b220bbce5c119fb1d4d5c2f5588f3ea	python-r1	8a28fa6d3e3bc96ff8a7eff2badbe71f	distutils-r1	5400d21736d8621562bf93be4fa98eec	git-r3	fbb2889c81f3a05910c1524db69425c1
-_md5_=12ae02d00719d1ea2f73fe9ce1f6162c
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	out-of-source-utils	dbf9e34ee8964084651e25907fa8f52c	multibuild	4650a65187015567b4e041bb9bfdb364	multiprocessing	1e32df7deee68372153dca65f4a7c21f	ninja-utils	2df4e452cea39a9ec8fb543ce059f8d6	python-utils-r1	42c5abe4a656a4993a06a4fc61dbdd12	python-r1	2def7a4ce233dfa344f613025c619a23	distutils-r1	85ccd3b54a6533fb120ee52b7c76a3df	git-r3	875eb471682d3e1f18da124be97dcc81
+_md5_=fd247267bfa29dde688de47e8ed16b8e

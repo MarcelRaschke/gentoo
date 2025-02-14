@@ -1,4 +1,4 @@
-BDEPEND=>=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
+BDEPEND=>=app-portage/elt-patches-20240116 sys-devel/gnuconfig || ( >=dev-build/automake-1.17-r1:1.17 >=dev-build/automake-1.16.5:1.16 ) || ( >=dev-build/autoconf-2.72-r1:2.72 >=dev-build/autoconf-2.71-r6:2.71 ) >=dev-build/libtool-2.4.7-r3
 DEFINED_PHASES=configure install postinst prepare prerm setup
 DEPEND=virtual/libcrypt:= virtual/qmail >=net-mail/vpopmail-5.4.33 net-mail/autorespond maildrop? ( >=mail-filter/maildrop-2.0.1 ) app-admin/webapp-config
 DESCRIPTION=A web interface for managing a qmail system with virtual domains
@@ -6,11 +6,11 @@ EAPI=7
 HOMEPAGE=http://www.inter7.com/qmailadmin.html
 INHERIT=qmail webapp autotools
 IUSE=maildrop vhosts
-KEYWORDS=~amd64 ~arm ~hppa ~ia64 ~s390 ~sparc ~x86
+KEYWORDS=~amd64 ~arm ~hppa ~s390 ~sparc ~x86
 LICENSE=GPL-2
 RDEPEND=virtual/libcrypt:= virtual/qmail >=net-mail/vpopmail-5.4.33 net-mail/autorespond maildrop? ( >=mail-filter/maildrop-2.0.1 ) app-admin/webapp-config
 RESTRICT=userpriv
 SLOT=0
 SRC_URI=https://downloads.sourceforge.net/qmailadmin/qmailadmin-1.2.16.tar.gz
-_eclasses_=toolchain-funcs	e56c7649b804f051623c8bc1a1c44084	multilib	c19072c3cd7ac5cb21de013f7e9832e0	flag-o-matic	d309b9713dfc18e754cba88d3ba69653	fixheadtails	1721997ed44d035654efe12da50797ef	qmail	30f39e6819a20ba64005ceeadd3845e0	webapp	de2d3d345b44597c10d7104a7bcdf7b2	gnuconfig	a397adda6984a4c423e28ac274c1ba98	libtool	5f49a16f67f81bdf873e3d1f10b10001	autotools	dc70c1dc473b68317fc4a86f5fbfc57d
-_md5_=5afa0dabe97687dc901f1825546aed67
+_eclasses_=toolchain-funcs	14648d8795f7779e11e1bc7cf08b7536	multilib	b2a329026f2e404e9e371097dda47f96	flag-o-matic	357f1a896fbedcd06e5ce55419c49eb9	fixheadtails	1721997ed44d035654efe12da50797ef	qmail	30f39e6819a20ba64005ceeadd3845e0	webapp	5fa840db95fc7348dfd53b8526ed05f5	gnuconfig	ddeb9f8caff1b5f71a09c75b7534df79	libtool	6b28392a775f807c8be5fc7ec9a605b9	autotools	7d91cc798a8afd8f4e0c6e9587296ebe
+_md5_=7455b9879c63144f456ddd1838ddbd96

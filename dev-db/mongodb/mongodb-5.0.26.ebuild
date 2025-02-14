@@ -75,6 +75,9 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.0.16-arm64-assert.patch"
 	"${FILESDIR}/${PN}-4.4.29-no-enterprise.patch"
 	"${FILESDIR}/${PN}-5.0.26-boost-1.85.patch"
+	"${FILESDIR}/${PN}-5.0.26-boost-1.85-extra.patch"
+	"${FILESDIR}/${PN}-5.0.26-scons.patch"
+	"${FILESDIR}/${PN}-5.0.26-mozjs-remove-unused-constructor.patch"
 )
 
 python_check_deps() {
@@ -131,6 +134,7 @@ src_configure() {
 		MONGO_GIT_HASH="0b4f1ea980b5380a66425a90b414106a191365f4"
 
 		--disable-warnings-as-errors
+		--force-jobs # Reapply #906897, fix #935274
 		--jobs="$(makeopts_jobs)"
 		--use-system-boost
 		--use-system-pcre

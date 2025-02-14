@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 inherit gnome2-utils python-single-r1 meson xdg
 
@@ -28,10 +28,14 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}"
 
 RDEPEND="
 	${PYTHON_DEPS}
-	>=gui-libs/libadwaita-1.5.1:1[introspection]
-	gui-libs/gtk:4[introspection]
+	>=gui-libs/gtk-4.14.4:4[introspection]
+	>=gui-libs/libadwaita-1.5.2:1[introspection]
+	media-libs/tiff[webp]
 	$(python_gen_cond_dep '
+		dev-python/pillow[${PYTHON_USEDEP}]
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
+		dev-python/pyyaml[${PYTHON_USEDEP}]
+		dev-python/requests[${PYTHON_USEDEP}]
 	')
 "
 BDEPEND="
