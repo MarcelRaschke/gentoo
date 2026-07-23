@@ -29,6 +29,9 @@ BDEPEND="
 	virtual/pkgconfig
 	$(vala_depend)
 	>=sys-devel/gettext-0.19.8
+	dev-util/desktop-file-utils
+	dev-libs/appstream
+	dev-libs/glib
 	media-sound/vorbis-tools
 	>=dev-libs/libgweather-4.2.0:4[vala]
 	>=gui-libs/libadwaita-1.6_alpha:1[vala]
