@@ -30,10 +30,11 @@ LICENSE+="
 	|| ( LGPL-2.1+ MPL-2.0 )
 "
 SLOT="2"
-KEYWORDS="~amd64 ~arm ~arm64 ~x86"
-IUSE="gtk +introspection vala test"
+KEYWORDS="~amd64 ~arm ~arm64 ~riscv ~x86"
+IUSE="gtk gtk-doc +introspection vala test"
 REQUIRED_USE="
 	gtk? ( introspection )
+	gtk-doc? ( introspection )
 	vala? ( introspection )
 "
 RESTRICT="!test? ( test )"
@@ -44,7 +45,7 @@ DEPEND="
 	>=sys-libs/libseccomp-2.5.0
 	>=media-libs/fontconfig-2.13.0:1.0
 	media-libs/glycin-loaders:2
-	introspection? ( dev-libs/gobject-introspection )
+	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	gtk? ( >=gui-libs/gtk-4.16.0:4 )
 "
 
@@ -53,6 +54,7 @@ RDEPEND="${DEPEND}
 "
 
 BDEPEND="
+	gtk-doc? ( dev-util/gi-docgen )
 	vala? ( $(vala_depend) )
 	virtual/pkgconfig
 "
@@ -64,7 +66,7 @@ QA_FLAGS_IGNORED="
 "
 
 PATCHES=(
-	"${FILESDIR}/${P}-pkgconfig-thumbnailer.patch" #973052
+	"${FILESDIR}/${PN}-2.1.1-pkgconfig-thumbnailer.patch" #973052
 )
 
 src_prepare() {
@@ -80,6 +82,7 @@ src_configure() {
 		$(meson_use introspection)
 		-Dglycin-thumbnailer=true
 		$(meson_use gtk libglycin-gtk4)
+		$(meson_use gtk-doc capi_docs)
 		-Dtests=$(usex test true false)
 		# required if glycin-loaders is installed seperately
 		-Dtest_skip_install=true
@@ -87,4 +90,15 @@ src_configure() {
 
 	meson_src_configure
 	ln -s "${CARGO_HOME}" "${BUILD_DIR}/cargo-home" || die
+}
+
+src_install() {
+	meson_src_install
+	if use gtk-doc; then
+		mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
+		mv "${ED}"/usr/share/doc/libglycin-2 "${ED}"/usr/share/gtk-doc/html/ || die
+		if use gtk; then
+			mv "${ED}"/usr/share/doc/libglycin-gtk4-2 "${ED}"/usr/share/gtk-doc/html/ || die
+		fi
+	fi
 }
