@@ -16503,7 +16503,7 @@ sci-mathematics/stp 2.3.4-r1: Simple Theorem Prover, an efficient SMT solver for
 sci-mathematics/sympow 2.023.7: Symmetric power elliptic curve L-functions
 sci-mathematics/topcom 0.17.8-r3 1.1.2: Computing Triangulations Of Point Configurations and Oriented Matroids
 sci-mathematics/twelf 1.7.1-r2: Implementation of the logical framework LF
-sci-mathematics/unuran 1.8.1 1.9.0: Universal Non-Uniform Random number generator
+sci-mathematics/unuran 1.8.1 1.9.0 1.12.0: Universal Non-Uniform Random number generator
 sci-mathematics/vampire 5.0.1: The Vampire Prover, theorem prover for first-order logic
 sci-mathematics/verifpal 0.27.0: Cryptographic protocol analysis for real-world protocols
 sci-mathematics/verit 2021.06.2: An open, trustable and efficient SMT-prover
@@ -16580,7 +16580,7 @@ sci-physics/looptools 2.15-r1 2.16: Tools for evaluation of scalar and tensor on
 sci-physics/pythia 8.3.16-r1 8.3.17 9999: Lund Monte Carlo high-energy physics event generator
 sci-physics/reduze 2.4-r1: Program for reducing Feynman integrals
 sci-physics/rivet 3.1.11-r1 4.1.2 4.1.3 9999: Robust Independent Validation of Experiment and Theory toolkit
-sci-physics/root 6.38.04 6.40.02 6.40.9999 9999: C++ data analysis framework and interpreter from CERN
+sci-physics/root 6.38.04 6.40.04 6.40.9999 9999: C++ data analysis framework and interpreter from CERN
 sci-physics/siscone 3.0.6 3.1.0 3.1.2 3.1.2-r1 9999: Hadron Seedless Infrared-Safe Cone jet algorithm
 sci-physics/thepeg 2.2.3-r3 2.3.0-r4: Toolkit for High Energy Physics Event Generation
 sci-physics/vgm 5.2-r1 5.4 9999: Virtual Geometry Model for High Energy Physics Experiments
