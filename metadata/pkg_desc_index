@@ -3031,7 +3031,7 @@ app-office/endeavour 43.0-r2: Personal task manager
 app-office/glabels 3.4.1-r2: Program for creating labels and business cards
 app-office/gnucash 5.14: Personal finance manager
 app-office/gnumeric 1.12.59-r1 1.12.60 1.12.61: The GNOME Spreadsheet
-app-office/grisbi 3.0.4-r1: Grisbi is a personal accounting application for Linux
+app-office/grisbi 3.0.4-r1 3.90.1: Grisbi is a personal accounting application for Linux
 app-office/homebank 5.9.7 5.10.2: Free, easy, personal accounting for everyone
 app-office/impressive 0.13.2: Stylish way of giving presentations with Python
 app-office/joplin-desktop 3.7.6 3.7.9 3.7.10 3.7.12: Secure note taking and to-do app with synchronization capabilities
@@ -12126,7 +12126,7 @@ gnome-extra/gnome-integration-spotify 20140907-r2: GNOME integration for Spotify
 gnome-extra/gnome-logs 43.0 45.0 49.0: Log viewer for the systemd journal
 gnome-extra/gnome-network-displays 0.97.0-r1 0.98.0 0.99.0: Stream the desktop to Wi-Fi Display capable devices
 gnome-extra/gnome-power-manager 43.0: GNOME power statistics
-gnome-extra/gnome-shell-extension-alphabetical-grid 43.0 44.0: Restore the alphabetical ordering of the app grid
+gnome-extra/gnome-shell-extension-alphabetical-grid 44.0 46.0: Restore the alphabetical ordering of the app grid
 gnome-extra/gnome-shell-extension-appindicator 64 65: Support legacy, AppIndicators and KStatusNotifierItems in Gnome
 gnome-extra/gnome-shell-extension-applications-overview-tooltip 24: Show tooltip with full name and description
 gnome-extra/gnome-shell-extension-bing-wallpaper 52 53: Change your wallpaper daily to the bing.com background image
@@ -14407,7 +14407,7 @@ media-video/blinkentools 2.9-r1: Provides a set of commandline utilities related
 media-video/bluray_info 1.10: Blu-ray utilities: bluray_info, bluray_copy, bluray_player
 media-video/ccextractor 0.89: Extract closed captioning subtitles from video to SRT
 media-video/cclive 0.9.3-r3: Command line tool for extracting videos from various websites
-media-video/celluloid 0.26 0.29: Simple GTK+ frontend for mpv
+media-video/celluloid 0.29 0.30: Simple GTK+ frontend for mpv
 media-video/chaplin 1.10-r3: This is a program to raw copy chapters from a dvd using libdvdread
 media-video/cheese 44.1-r1: A cheesy program to take pictures and videos from your webcam
 media-video/cpvts 1.2-r1: raw copy title sets from a DVD to your harddisc
@@ -14506,7 +14506,7 @@ media-video/tivodecode 0.2_pre4: TiVo File Decoder
 media-video/totem 43.1 43.2 43.2-r1: Media player for GNOME
 media-video/tsmuxer 2.7.0: Utility to create and demux TS and M2TS files
 media-video/ttcut 0.19.6_p2-r1: Tool for cutting MPEG files especially for removing commercials
-media-video/untrunc 0_pre20260204 0_pre20260605: Restore truncated mp4/mov files
+media-video/untrunc 0_pre20260605 0_pre20260820: Restore truncated mp4/mov files
 media-video/ushare 2.1_p20250817: uShare is a UPnP (TM) A/V & DLNA Media Server
 media-video/v4l2loopback 0.13.1 0.15.0 0.15.1 0.15.3 9999: v4l2 loopback device whose output is its own input
 media-video/vamps 0.99.2-r2: Very fast requantisizing tool for backup DVDs
