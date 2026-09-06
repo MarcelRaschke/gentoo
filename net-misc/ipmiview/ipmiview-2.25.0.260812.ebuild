@@ -5,7 +5,7 @@ EAPI=8
 
 inherit desktop java-pkg-2 prefix
 
-DOWNLOAD_ID="1052"
+DOWNLOAD_ID="1176"
 MY_DATE="$(ver_cut 4)"
 MY_PN="IPMIView"
 MY_PV="$(ver_cut 1-3)"
