@@ -13143,7 +13143,7 @@ media-gfx/geeqie 2.6.1-r1 2.6.1-r2 9999: A lightweight GTK image viewer forked f
 media-gfx/gif2png 2.5.14: Converts images from gif format to png format
 media-gfx/gifsicle 1.95 1.96: Create, manipulate, and optimize GIF images and animations
 media-gfx/gimp 2.10.38-r5 3.2.4 9999: GNU Image Manipulation Program
-media-gfx/gimp-arrow-brushes 20190407: Brushes for GIMP with the styles arrow, handpointer, button arrow and cursor
+media-gfx/gimp-arrow-brushes 20190407 20190407-r1: Brushes for GIMP with the styles arrow, handpointer, button arrow and cursor
 media-gfx/gnofract4d 4.4: A program for drawing beautiful mathematically-based images known as fractals
 media-gfx/gnome-font-viewer 48.0 49.0: Font viewer utility for GNOME
 media-gfx/gnome-photos 44.0: Access, organize and share your photos on GNOME
@@ -16041,7 +16041,7 @@ sci-chemistry/autodock_vina 1.2.7: Program for drug discovery, molecular docking
 sci-chemistry/avogadro2 1.103.0 2.0.0: Advanced molecule editor and visualizer 2
 sci-chemistry/bodr 10: The Blue Obelisk Data Repository listing element and isotope properties
 sci-chemistry/cara-bin 1.8.4-r2: Analysis of NMR spectra and Computer Aided Resonance Assignment
-sci-chemistry/chemex 2026.6.0 2026.6.1: Program to fit chemical exchange induced shift and relaxation data
+sci-chemistry/chemex 2026.6.1 2026.9.0: Program to fit chemical exchange induced shift and relaxation data
 sci-chemistry/chemical-mime-data 0.1.95_pre20171122: A collection of data files to add support for chemical MIME types
 sci-chemistry/chemtool 1.6.14-r1: A GTK program for drawing organic molecules
 sci-chemistry/clashlist 3.17-r1: Build lists of van der Waals clashes from an input PDB file
