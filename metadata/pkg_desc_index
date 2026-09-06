@@ -13717,7 +13717,7 @@ media-libs/vkroots 0_p20240430: Simple framework for writing Vulkan layers
 media-libs/vo-aacenc 0.1.3 9999: VisualOn AAC encoder library
 media-libs/vo-amrwbenc 0.1.3 9999: VisualOn AMR-WB encoder library
 media-libs/volpack 1.0_p7-r2: Volume rendering library
-media-libs/vpl-gpu-rt 26.2.0 26.2.1 26.2.3 26.2.4: Intel Video Processing Library GPU Runtime
+media-libs/vpl-gpu-rt 26.2.0 26.2.1 26.2.3 26.2.4 26.3.2: Intel Video Processing Library GPU Runtime
 media-libs/vulkan-layers 1.4.328.0 1.4.335.0 1.4.341.0 1.4.350.0 1.4.357.0 9999: Vulkan Validation Layers
 media-libs/vulkan-loader 1.4.328.0-r1 1.4.335.0-r1 1.4.341.0 1.4.350.0 1.4.357.0 9999: Vulkan Installable Client Driver (ICD) Loader
 media-libs/waffle 1.8.1 1.8.2 1.8.3 9999: Library that allows selection of GL API and of window system at runtime
