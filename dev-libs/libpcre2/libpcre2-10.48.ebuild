@@ -3,6 +3,8 @@
 
 EAPI=8
 
+# Always bump this package with virtual/libpcre2-internals.
+
 # https://pcre2project.github.io/pcre2/project/security/
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/nicholaswilson.asc
 inherit dot-a libtool multilib multilib-minimal toolchain-funcs verify-sig
