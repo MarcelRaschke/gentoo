@@ -25,7 +25,7 @@ S="${WORKDIR}"
 
 LICENSE="GPL-3+"
 SLOT="0"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 
 src_install() {
 	for i in */*.gbr; do
