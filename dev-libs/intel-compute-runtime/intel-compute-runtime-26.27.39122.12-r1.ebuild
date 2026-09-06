@@ -35,7 +35,7 @@ DEPEND="
 	>=dev-util/intel-graphics-system-controller-1.3.0:=
 	media-libs/mesa
 	>=virtual/opencl-3
-	l0? ( >=dev-libs/level-zero-1.32.0:= )
+	l0? ( <dev-libs/level-zero-1.33.1:= )
 	vaapi? (
 		x11-libs/libdrm[video_cards_intel]
 		media-libs/libva
