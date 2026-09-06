@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{11..14} )
+PYTHON_COMPAT=( python3_{12..14} )
 inherit flag-o-matic gnome2-utils meson python-any-r1 xdg
 
 DESCRIPTION="Simple GTK+ frontend for mpv"
@@ -21,7 +21,7 @@ RDEPEND="
 	>=gui-libs/libadwaita-1.8.0:1
 	>=media-video/mpv-0.32:=[libmpv]
 	media-libs/libepoxy
-	x11-libs/gdk-pixbuf:2
+	>=x11-libs/gdk-pixbuf-2.30:2
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
