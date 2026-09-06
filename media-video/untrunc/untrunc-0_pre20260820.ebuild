@@ -1,12 +1,12 @@
 # Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=8
+EAPI=9
 
 DESCRIPTION="Restore truncated mp4/mov files"
 HOMEPAGE="https://github.com/anthwlock/untrunc"
 
-COMMIT="d286625fb51bf67b7f8536ce7d0340455d3b208b"
+COMMIT="9d86ec9ef2ffed1bf8131abe80742c0574db52b6"
 SRC_URI="https://github.com/anthwlock/untrunc/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/${PN}-${COMMIT}"
 

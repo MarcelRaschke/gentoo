@@ -1,7 +1,8 @@
-# Copyright 1999-2025 Gentoo Authors
+# Copyright 1999-2026 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
+
 inherit gnome2-utils
 
 # Useful specially to prevent
@@ -9,12 +10,12 @@ inherit gnome2-utils
 # https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/3180
 DESCRIPTION="Restore the alphabetical ordering of the app grid"
 HOMEPAGE="https://github.com/stuarthayhurst/alphabetical-grid-extension"
-SRC_URI="https://github.com/stuarthayhurst/alphabetical-grid-extension/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
-S="${WORKDIR}/alphabetical-grid-extension-${PV}"
+SRC_URI="https://github.com/stuarthayhurst/alphabetical-grid-extension/archive/refs/tags/v${PV}-1.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/alphabetical-grid-extension-${PV}-1"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="amd64 x86"
+KEYWORDS="~amd64 ~x86"
 
 RDEPEND="
 	app-eselect/eselect-gnome-shell-extensions
