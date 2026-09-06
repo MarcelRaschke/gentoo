@@ -898,7 +898,7 @@ acct-user/znc 0-r3: User for net-irc/znc
 acct-user/zookeeper 0-r2: A user for sys-cluster/zookeeper-bin
 app-accessibility/accerciser 3.46.2 3.48.0: Interactive Python accessibility explorer
 app-accessibility/at-spi2-atk 2.46.0: Gtk module for bridging AT-SPI to Atk
-app-accessibility/at-spi2-core 2.58.6 2.58.8 2.60.5: D-Bus accessibility specifications and registration daemon
+app-accessibility/at-spi2-core 2.58.6 2.58.8 2.60.5 2.60.6: D-Bus accessibility specifications and registration daemon
 app-accessibility/brltty 6.7 6.8 6.9 6.9.1: Daemon that provides access to the Linux/Unix console for a blind person
 app-accessibility/caribou 0.4.21-r9: Input assistive technology intended for switch and pointer users
 app-accessibility/edbrowse 3.8.13 3.8.15 3.8.17: Combination editor, browser, and mail client that is 100% text based
@@ -12850,7 +12850,7 @@ mate-extra/mate-user-guide 1.28.0: User documentation for MATE Desktop
 mate-extra/mate-user-share 1.28.0-r2: Personal file sharing for the MATE desktop
 mate-extra/mate-utils 1.28.0-r1: Utilities for the MATE desktop
 media-fonts/Humor-Sans 1.0-r1: Sans-serif typeface in the style of xkcd
-media-fonts/adwaita-fonts 49.0: The typefaces for GNOME
+media-fonts/adwaita-fonts 49.0 50.0: The typefaces for GNOME
 media-fonts/ahem 1.0: Font to help test writers develop predictable tests
 media-fonts/alee-fonts 13-r1: Lee's Hangul truetype fonts
 media-fonts/alef 1: Hebrew open source multiscript font
@@ -13116,7 +13116,7 @@ media-gfx/enblend 4.2.0_p20240424 4.2.0_p20240424-r1: Image Blending with Multir
 media-gfx/engauge 12.9.1 9999: Convert an image file showing a graph or map into numbers
 media-gfx/entangle 3.0-r3 3.0-r4: Tethered Camera Control & Capture
 media-gfx/entice 0.0.1: A simple image viewer based on EFL
-media-gfx/eog 47.0 49.3 50.1: The Eye of GNOME image viewer
+media-gfx/eog 50.1 50.3: The Eye of GNOME image viewer
 media-gfx/eog-plugins 44.1 44.1-r1: Eye of GNOME plugins
 media-gfx/eom 1.28.0-r3 1.28.1: The MATE image viewer
 media-gfx/ephoto 1.6.0: Enlightenment image viewer written with EFL
@@ -18399,7 +18399,7 @@ www-client/chromium 150.0.7871.13 150.0.7871.128 150.0.7871.181 150.0.7871.186 1
 www-client/chromium-common 2: Common configuration files for Chromium slots
 www-client/dillo 3.2.0 9999: Lean FLTK based web browser
 www-client/elinks 0.18.0 0.19.0 0.19.1 9999: Advanced and well-established text-mode web browser
-www-client/epiphany 48.5 49.3 49.8.1: GNOME webbrowser based on Webkit
+www-client/epiphany 49.8.1: GNOME webbrowser based on Webkit
 www-client/falkon 26.04.3 26.08.0: Cross-platform web browser using QtWebEngine
 www-client/fetch 1.0-r4: HTTP download tool built atop the HTTP fetcher library
 www-client/firefox 140.14.0 140.15.0 153.1.0 153.2.0 154.0 154.0.1 155.0 155.0.1: Firefox Web Browser
