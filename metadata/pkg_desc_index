@@ -3057,7 +3057,7 @@ app-office/planner 0.14.91-r1 0.14.92-r1 9999: Project manager for Gnome
 app-office/projectlibre-bin 1.9.3: Open source desktop alternative to Microsoft Project
 app-office/sc-im 0.8.3-r2 0.8.5: Ncurses based, vim-like spreadsheet calculator
 app-office/scribus 1.7.2 1.7.3-r1 9999: Desktop publishing (DTP) and layout program
-app-office/skrooge 26.4.0: Personal finances manager, aiming at being simple and intuitive
+app-office/skrooge 26.4.0 26.8.0: Personal finances manager, aiming at being simple and intuitive
 app-office/texmaker 6.0.1: Powerful LaTeX-IDE
 app-office/texstudio 4.9.0 4.9.5 4.9.6: Free cross-platform LaTeX editor (fork from texmakerX)
 app-office/unoconv 0.9.0-r1: Convert between document formats supported by LibreOffice
@@ -13699,7 +13699,7 @@ media-libs/suil 0.10.22-r2: Lightweight C library for loading and wrapping LV2 p
 media-libs/svt-av1 2.1.2 3.1.2 4.0.1 4.1.0 9999: Scalable Video Technology for AV1 (SVT-AV1 Encoder)
 media-libs/svt-hevc 1.5.1 1.5.1-r1 9999: Scalable Video Technology for HEVC (SVT-HEVC Encoder)
 media-libs/t1lib 5.1.2-r5: Type 1 Font Rasterizer Library for UNIX/X11
-media-libs/taglib 1.13.1 2.3 2.3.1: Library for reading and editing audio meta data
+media-libs/taglib 1.13.1 2.3 2.3.1 2.3.2: Library for reading and editing audio meta data
 media-libs/tg_owt 0_pre20260309 0_pre20260803: WebRTC build for Telegram
 media-libs/theoraplay 0_pre20180524-r2: Simple library to make decoding of Ogg Theora videos easier
 media-libs/tiff 4.5.1 4.7.1: Tag Image File Format (TIFF) library
@@ -14927,7 +14927,7 @@ net-im/err 6.1.9: Multiprotocol chatbot designed to be easily deployable and mai
 net-im/fractal 14 14.1: Matrix messaging app for GNOME written in Rust
 net-im/gajim 2.4.6 2.5.0 2.6.0: GTK XMPP Client
 net-im/gitter-bin 5.0.1-r1 5.0.1-r2: Chat and network platform
-net-im/kaidan 0.13.0: Modern XMPP chat app for every device
+net-im/kaidan 0.16.0: Modern XMPP chat app for every device
 net-im/libcommuni 3.7.0-r2: A cross-platform IRC framework written with Qt
 net-im/mattermost-desktop-bin 5.13.7 6.2.3 6.3.0: Mattermost Desktop application
 net-im/neochat 26.04.3 26.08.0: Client for Matrix, the decentralized communication protocol
@@ -15153,7 +15153,7 @@ net-libs/phodav 3.0-r1: WebDav server implementation using libsoup
 net-libs/pjproject 2.15.1 2.15.1-r1 2.15.1-r3 2.16-r2 2.17 2.17-r1: Open source SIP, Media, and NAT Traversal Library
 net-libs/ppp-defs 0: Shim header for net/ppp_defs.h on musl
 net-libs/quiche 0.24.1 0.26.1-r1 0.28.0 0.29.0 0.29.1 0.29.2 0.29.3 9999: Implementation of the QUIC transport protocol and HTTP/3
-net-libs/qxmpp 1.15.1: Cross-platform C++ XMPP client and server library
+net-libs/qxmpp 1.15.1 1.16.3: Cross-platform C++ XMPP client and server library
 net-libs/rabbitmq-c 0.13.0: RabbitMQ C client
 net-libs/radcli 1.4.0: A simple RADIUS client library
 net-libs/rest 0.9.1-r2 0.10.2: Helper library for RESTful services
@@ -15514,7 +15514,7 @@ net-misc/sipp 3.7.5 3.7.7: A free Open Source test tool / traffic generator for 
 net-misc/sipsak 0.9.8.1_p20230215: Small command line tool for testing SIP applications and devices
 net-misc/sitecopy 0.16.6-r4: Maintain remote web sites with ease
 net-misc/sks 1.1.6_p20200624-r3: An OpenPGP keyserver which is decentralized with highly reliable synchronization
-net-misc/smb4k 4.0.6: Advanced network neighborhood browser
+net-misc/smb4k 4.0.6 4.0.7: Advanced network neighborhood browser
 net-misc/smbc 1.2.2-r4: Text mode (ncurses) SMB network commander. Features: resume and UTF-8
 net-misc/snarf 7.0-r5: Small and fast CLI resource grabber for http, gopher, finger, ftp
 net-misc/sntpd 3.1-r1: A NTP (RFC-1305 and RFC-4330) client and server for unix-alike systems
