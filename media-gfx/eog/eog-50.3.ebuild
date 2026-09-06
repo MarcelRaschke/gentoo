@@ -20,8 +20,8 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=dev-libs/glib-2.73.2:2
-	>=dev-libs/libpeas-0.7.4:0[gtk]
+	>=dev-libs/glib-2.86:2[introspection?]
+	>=dev-libs/libpeas-1.38:0=[gtk]
 	>=gnome-base/gnome-desktop-2.91.2:3=
 	>=gnome-base/gsettings-desktop-schemas-42_beta
 	>=x11-misc/shared-mime-info-0.20
@@ -34,7 +34,6 @@ RDEPEND="
 	lcms? ( media-libs/lcms:2 )
 	xmp? ( media-libs/exempi:2= )
 	jpeg? ( media-libs/libjpeg-turbo:= )
-	introspection? ( >=dev-libs/gobject-introspection-1.82.0-r2:= )
 	svg? ( >=gnome-base/librsvg-2.44.0:2 )
 
 	x11-libs/libX11
@@ -61,7 +60,7 @@ src_configure() {
 		$(meson_use gtk-doc gtk_doc)
 		$(meson_use introspection)
 		-Dinstalled_tests=false
-		-Dlibportal=false # As of 40.3, all libportal usages are flatpak-specific
+		-Dlibportal=false # All libportal usages are flatpak-specific
 	)
 	meson_src_configure
 }
